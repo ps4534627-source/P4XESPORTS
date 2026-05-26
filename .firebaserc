@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "ffm-p4xesportscommunity"
+  },
+  "targets": {
+    "ffm-p4xesportscommunity": {
+      "hosting": {
+        "p4xesports": [
+          "p4xesports"
+        ]
+      }
+    }
+  }
+}
