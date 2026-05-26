@@ -1,13 +1,11 @@
 {
-  "hosting": [
-    {
-      "target": "p4xesports",
-      "public": ".",
-      "ignore": [
-        "firebase.json",
-        "**/.*",
-        "**/node_modules/**"
-      ]
-    }
-  ]
+  "hosting": {
+    "site": "p4xesports",
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
 }
