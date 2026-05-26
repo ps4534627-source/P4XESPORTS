@@ -13,5 +13,5 @@ jobs:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           channelId: live
-          projectId: ffm-p4xesportscommunity
-          target: ffm-p4xesportscommunity
+          projectId: ffm-p4xesportscommunity  ← Ye wahi rahega
+          target: p4xesports                 ← Bas ye badal de
