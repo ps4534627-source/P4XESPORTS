@@ -12,5 +12,5 @@ jobs:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           channelId: live
-15      projectId: ffm-p4xesportscommunity
-16      target: ffm-p4xesportscommunity
+        projectId: ffm-p4xesportscommunity
+     target: ffm-p4xesportscommunity
