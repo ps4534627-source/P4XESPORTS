@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "ffm-p4xesportscommunity",
     "public": ".",
     "ignore": [
       "firebase.json",
