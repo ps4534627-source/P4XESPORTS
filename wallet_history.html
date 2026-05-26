@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wallet History - FFM-P4X</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none !important; }
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 50%, #0a0a0a 100%);
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+      padding-bottom: 75px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+      padding: 20px;
+      background: rgba(22, 27, 34, 0.9);
+      border: 3px solid #00d4ff;
+      border-radius: 20px;
+      box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+    }
+    .header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem;
+      color: #00d4ff;
+      text-shadow: 0 0 20px rgba(0, 212, 255, 1);
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .balance-card {
+      background: linear-gradient(135deg, #161b22, #0d1117);
+      border: 2px solid #00ff88;
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+    .balance-label {
+      font-size: 0.9rem;
+      color: #888;
+      text-transform: uppercase;
+    }
+    .balance-amount {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.2rem;
+      color: #00ff88;
+      font-weight: 900;
+      margin-top: 5px;
+    }
+    .filter-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      flex: 1;
+      min-width: 100px;
+      padding: 12px;
+      background: #161b22;
+      border: 2px solid rgba(0, 212, 255, 0.3);
+      border-radius: 10px;
+      color: #888;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, #00d4ff, #00ff88);
+      color: #000;
+      border-color: #00ff88;
+    }
+    .tab-btn:active { transform: scale(0.95); }
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .history-item {
+      background: #161b22;
+      border: 2px solid rgba(0, 212, 255, 0.2);
+      border-radius: 12px;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .history-left {
+      flex: 1;
+      min-width: 200px;
+    }
+    .history-type {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 900;
+      margin-bottom: 5px;
+    }
+    .history-desc {
+      font-size: 0.8rem;
+      color: #888;
+      margin-bottom: 3px;
+    }
+    .history-date {
+      font-size: 0.75rem;
+      color: #666;
+    }
+    .history-right {
+      text-align: right;
+    }
+    .history-amount {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 900;
+      margin-bottom: 5px;
+    }
+    .amount-credit { color: #00ff88; }
+    .amount-debit { color: #ff4757; }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+    .status-approved { background: rgba(0, 255, 136, 0.2); color: #00ff88; border: 1px solid #00ff88; }
+    .status-pending { background: rgba(255, 193, 7, 0.2); color: #ffc107; border: 1px solid #ffc107; }
+    .status-rejected { background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 1px solid #ff4757; }
+    .status-match { background: rgba(0, 212, 255, 0.2); color: #00d4ff; border: 1px solid #00d4ff; }
+    .type-deposit { color: #00ff88; }
+    .type-withdraw { color: #ff4757; }
+    .type-match { color: #00d4ff; }
+    .type-prize { color: #ffd700; }
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #888;
+    }
+    .back-btn {
+      position: fixed;
+      bottom: 75px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #00d4ff, #00ff88);
+      border: none;
+      border-radius: 50%;
+      color: #000;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 5px 20px rgba(0, 212, 255, 0.5);
+    }
+    .back-btn:active { transform: scale(0.9); }
+
+    /* ✅ GREEN FIRE BOTTOM NAV */
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #161b22;
+        border-top: 2px solid #10B981;
+        display: flex;
+        height: 58px;
+        z-index: 999;
+        box-shadow: 0 -5px 25px rgba(16, 185, 129, 0.4);
+    }
+    
+    .nav-btn {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        background: none;
+        border: none;
+        color: #777;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .nav-btn:active {
+        transform: scale(0.92);
+    }
+    
+    .nav-btn.active {
+        color: #10B981;
+    }
+    
+    .nav-btn.active i {
+        color: #10B981;
+        text-shadow: 0 0 15px rgba(16, 185, 129, 0.9), 0 0 30px rgba(52, 211, 153, 0.6);
+        animation: greenIconPulse 1.2s ease-in-out infinite;
+    }
+    
+    @keyframes greenIconPulse {
+      0%, 100% { 
+        text-shadow: 0 0 15px rgba(16, 185, 129, 0.9), 0 0 30px rgba(52, 211, 153, 0.6);
+        transform: scale(1);
+      }
+      50% { 
+        text-shadow: 0 0 25px rgba(16, 185, 129, 1), 0 0 50px rgba(52, 211, 153, 0.8);
+        transform: scale(1.12);
+      }
+    }
+    
+    .nav-btn i {
+        font-size: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-btn span {
+        font-size: 10px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-btn.active span {
+        color: #10B981;
+        font-weight: 900;
+    }
+    
+    .profile-img {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid #777;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-btn.active .profile-img {
+        border: 2px solid #10B981;
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.7);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>💰 WALLET HISTORY</h1>
+    <p>Apne saare transactions yaha dekho</p>
+  </div>
+
+  <div class="container">
+    <div class="balance-card">
+      <div class="balance-label">Current Balance</div>
+      <div class="balance-amount" id="currentBalance">₹0</div>
+    </div>
+
+    <div class="filter-tabs">
+      <button class="tab-btn active" onclick="filterHistory('all')">ALL</button>
+      <button class="tab-btn" onclick="filterHistory('deposit')">DEPOSIT</button>
+      <button class="tab-btn" onclick="filterHistory('match')">MATCHES</button>
+      <button class="tab-btn" onclick="filterHistory('pending')">PENDING</button>
+    </div>
+
+    <div class="history-list" id="historyList">
+      <div class="empty-state">🔄 Loading history...</div>
+    </div>
+  </div>
+
+  <button class="back-btn" onclick="window.location.href='wallet.html'">←</button>
+
+  <!-- ✅ GREEN FIRE BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="navClick(this, 'view')">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </button>
+    <button class="nav-btn" onclick="navClick(this, 'rank')">
+      <i class="fa-solid fa-trophy"></i>
+      <span>Rank</span>
+    </button>
+    <button class="nav-btn" onclick="navClick(this, 'wallet')">
+      <i class="fa-solid fa-wallet"></i>
+      <span>Wallet</span>
+    </button>
+    <button class="nav-btn active" onclick="navClick(this, 'history')">
+      <i class="fa-solid fa-clock-rotate-left"></i>
+      <span>History</span>
+    </button>
+    <button class="nav-btn" onclick="navClick(this, 'profile')">
+      <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ProGamer" class="profile-img" id="navProfilePic" alt="Profile">
+      <span>Profile</span>
+    </button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDGLVLgX33dA3caK7wScbgN4BgE2NCjZx8",
+      authDomain: "ffm-p4xesportscommunity.firebaseapp.com",
+      projectId: "ffm-p4xesportscommunity",
+      storageBucket: "ffm-p4xesportscommunity.firebasestorage.app",
+      messagingSenderId: "796835743313",
+      appId: "1:796835743313:web:e4356f63c3d1d51b605a70"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let allTransactions = [];
+    let currentFilter = 'all';
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        loadBalance();
+        loadWalletHistory();
+        loadNavProfile();
+      } else {
+        window.location.href = 'login.html';
+      }
+    });
+
+    async function loadBalance() {
+      const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+      if (userDoc.exists()) {
+        const balance = userDoc.data().balance || 0;
+        document.getElementById('currentBalance').textContent = `₹${balance}`;
+      }
+    }
+
+    function loadNavProfile() {
+      getDoc(doc(db, 'users', currentUser.uid)).then(docSnap => {
+        if (docSnap.exists() && docSnap.data().photoURL) {
+          document.getElementById('navProfilePic').src = docSnap.data().photoURL;
+        }
+      });
+    }
+
+    function loadWalletHistory() {
+      const listEl = document.getElementById('historyList');
+      listEl.innerHTML = '<div class="empty-state">🔄 Loading history...</div>';
+      
+      const utrQuery = query(collection(db, 'utrRequests'), where('uid', '==', currentUser.uid));
+      
+      onSnapshot(utrQuery, (utrSnap) => {
+        let utrTransactions = [];
+        utrSnap.forEach(docSnap => {
+          const d = docSnap.data();
+          utrTransactions.push({
+            id: docSnap.id,
+            type: 'deposit',
+            amount: d.amount,
+            status: d.status,
+            utr: d.utr,
+            date: d.timestamp ? d.timestamp.toDate() : new Date(),
+            desc: `UTR: ${d.utr}`,
+            rejectReason: d.rejectReason || ''
+          });
+        });
+
+        const matchQuery = query(collection(db, 'matchHistory'), where('userId', '==', currentUser.uid));
+        
+        onSnapshot(matchQuery, (matchSnap) => {
+          let matchTransactions = [];
+          matchSnap.forEach(docSnap => {
+            const d = docSnap.data();
+            const matchDate = d.matchDate ? d.matchDate.toDate() : new Date();
+            
+            if (d.entryFeeINR > 0) {
+              matchTransactions.push({
+                id: docSnap.id + '_fee',
+                type: 'match',
+                amount: -d.entryFeeINR,
+                status: 'match',
+                date: matchDate,
+                desc: `${d.matchType} Match Entry - ${d.map}`,
+                rank: d.rank
+              });
+            }
+            
+            if (d.inrWon > 0) {
+              matchTransactions.push({
+                id: docSnap.id + '_prize',
+                type: 'prize',
+                amount: d.inrWon,
+                status: 'match',
+                date: matchDate,
+                desc: `${d.matchType} Prize - Rank #${d.rank}`,
+                rank: d.rank
+              });
+            }
+          });
+
+          allTransactions = [...utrTransactions, ...matchTransactions];
+          allTransactions.sort((a, b) => b.date - a.date);
+          
+          renderHistory();
+        });
+      });
+    }
+
+    function renderHistory() {
+      const listEl = document.getElementById('historyList');
+      
+      let filtered = allTransactions;
+      if (currentFilter === 'deposit') {
+        filtered = allTransactions.filter(t => t.type === 'deposit');
+      } else if (currentFilter === 'match') {
+        filtered = allTransactions.filter(t => t.type === 'match' || t.type === 'prize');
+      } else if (currentFilter === 'pending') {
+        filtered = allTransactions.filter(t => t.status === 'pending');
+      }
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = '<div class="empty-state">📭 Koi transaction nahi mila</div>';
+        return;
+      }
+
+      let html = '';
+      filtered.forEach(t => {
+        const dateStr = t.date.toLocaleString('en-IN', { 
+          day: '2-digit', 
+          month: 'short', 
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        
+        let typeClass = 'type-deposit';
+        let typeName = '💰 DEPOSIT';
+        let amountClass = 'amount-credit';
+        let amountSign = '+';
+        let statusHTML = '';
+
+        if (t.type === 'deposit') {
+          typeName = '💰 UTR DEPOSIT';
+          if (t.status === 'approved') {
+            statusHTML = '<span class="status-badge status-approved">APPROVED</span>';
+          } else if (t.status === 'pending') {
+            statusHTML = '<span class="status-badge status-pending">PENDING</span>';
+          } else if (t.status === 'rejected') {
+            statusHTML = '<span class="status-badge status-rejected">REJECTED</span>';
+          }
+        } else if (t.type === 'match') {
+          typeClass = 'type-match';
+          typeName = '⚔️ MATCH FEE';
+          amountClass = 'amount-debit';
+          amountSign = '';
+          statusHTML = '<span class="status-badge status-match">MATCH</span>';
+        } else if (t.type === 'prize') {
+          typeClass = 'type-prize';
+          typeName = '🏆 PRIZE WON';
+          statusHTML = '<span class="status-badge status-match">RANK #' + t.rank + '</span>';
+        }
+
+        let descExtra = '';
+        if (t.status === 'rejected' && t.rejectReason) {
+          descExtra = `<div style="color:#ff4757;font-size:0.75rem;margin-top:3px;">Reason: ${t.rejectReason}</div>`;
+        }
+
+        html += `
+          <div class="history-item">
+            <div class="history-left">
+              <div class="history-type ${typeClass}">${typeName}</div>
+              <div class="history-desc">${t.desc}</div>
+              ${descExtra}
+              <div class="history-date">${dateStr}</div>
+            </div>
+            <div class="history-right">
+              <div class="history-amount ${amountClass}">${amountSign}₹${Math.abs(t.amount)}</div>
+              ${statusHTML}
+            </div>
+          </div>
+        `;
+      });
+      
+      listEl.innerHTML = html;
+    }
+
+    window.filterHistory = function(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      renderHistory();
+    }
+
+    // ✅ BOTTOM NAV CLICK
+    window.navClick = function(btn, page) {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      if(page === 'history') return;
+      window.location.href = page + '.html';
+    }
+  </script>
+</body>
+</html>
