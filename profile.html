@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile - FFM-P4X NEXUS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&family=Exo+2:wght@700;800&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; outline: none !important; }
+    body { font-family: 'Rajdhani', sans-serif; background: #0d1117; color: #fff; min-height: 100vh; padding-bottom: 75px; }
+    body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #0d1117 0%, #161b22 100%); z-index: -2; }
+    #particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+.navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(22, 27, 34, 0.98); backdrop-filter: blur(10px); border-bottom: 2px solid #00d4ff; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; height: 60px; }
+.logo { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.logo img { width: 32px; height: 32px; }
+.logo h1 { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 900; color: #00d4ff; letter-spacing: 1px; }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.back-btn { background: linear-gradient(135deg, #00d4ff, #0099ff); border: 2px solid #00d4ff; padding: 6px 14px; border-radius: 8px; color: #fff; font-weight: 900; font-size: 0.8rem; cursor: pointer; font-family: 'Orbitron', sans-serif; }
+.back-btn:active { transform: scale(0.95); }
+.profile-section { position: relative; cursor: pointer; }
+.profile-btn { width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #00d4ff, #ff0080); border: 2px solid #00d4ff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; overflow: hidden; }
+.profile-btn img { width: 100%; height: 100%; object-fit: cover; }
+.dropdown { position: absolute; top: 50px; right: 0; background: #161b22; border: 2px solid #00d4ff; border-radius: 12px; min-width: 200px; box-shadow: 0 0 50px rgba(0, 212, 255, 0.5); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: 0.3s; z-index: 1001; }
+.dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
+.dropdown-item { padding: 12px 18px; border-bottom: 1px solid rgba(0, 212, 255, 0.2); display: flex; align-items: center; gap: 10px; transition: 0.2s; font-weight: 700; font-size: 0.9rem; }
+.dropdown-item:last-child { border-bottom: none; }
+.dropdown-item:active { background: rgba(0, 212, 255, 0.1); }
+.dropdown-item.logout { color: #ff4757; }
+.container { max-width: 900px; margin: 0 auto; padding: 75px 15px 20px 15px; }
+.profile-card { background: rgba(22, 27, 34, 0.8); border: 2px solid #00d4ff; border-radius: 20px; padding: 16px; margin-bottom: 25px; position: relative; overflow: hidden; }
+.profile-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%); animation: rotate 20s linear infinite; }
+    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.profile-top { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 15px; position: relative; z-index: 1; }
+.profile-avatar-wrap { position: relative; flex-shrink: 0; }
+.profile-avatar { width: 75px; height: 75px; border-radius: 16px; border: 3px solid #00d4ff; overflow: hidden; background: linear-gradient(135deg, #00d4ff, #ff0080); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; box-shadow: 0 0 40px rgba(0, 212, 255, 0.5); }
+.profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.edit-avatar { position: absolute; bottom: -5px; right: -5px; width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, #00ff88, #00d4ff); border: 2px solid #0d1117; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: #000; }
+.edit-avatar:active { transform: scale(0.9); }
+    #photoInput { display: none; }
+.profile-info { flex: 1; min-width: 0; }
+.info-line { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; padding: 2px 0; border-bottom: 1px solid rgba(0, 212, 255, 0.15); }
+.info-line:last-child { border-bottom: none; margin-bottom: 0; }
+.info-label { font-size: 0.62rem; color: #666; font-weight: 700; text-transform: uppercase; width: 55px; flex-shrink: 0; }
+.info-value { flex: 1; font-size: 0.88rem; color: #fff; font-weight: 700; }
+.info-value.name { font-family: 'Exo 2', sans-serif; font-size: 0.95rem; color: #00d4ff; text-shadow: 0 0 15px rgba(0, 212, 255, 0.6); word-break: break-word; line-height: 1.15; white-space: normal; }
+.info-value.college { color: #00ff88; font-size: 0.75rem; }
+.info-value.location { color: #ff6b00; font-size: 0.75rem; }
+.edit-icon { width: 20px; height: 20px; border-radius: 6px; background: rgba(0, 212, 255, 0.2); border: 1px solid #00d4ff; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; cursor: pointer; color: #00d4ff; flex-shrink: 0; margin-left: 5px; }
+.edit-icon:active { transform: scale(0.9); }
+.badges-row { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 10px; }
+.profile-rank { display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #ffd700, #ff6b00); border: 1px solid #ffd700; padding: 4px 10px; border-radius: 12px; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 0.68rem; color: #000; box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); animation: goldGlow 2s ease-in-out infinite; }
+    @keyframes goldGlow { 0%, 100% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); } 50% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.8); } }
+.level-badge { display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #ff0080, #ff6b00); border: 2px solid #ff6b00; padding: 4px 10px; border-radius: 12px; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 0.68rem; color: #fff; animation: cyanPulse 2s ease-in-out infinite; cursor: pointer; }
+.level-badge:active { transform: scale(0.95); }
+    @keyframes cyanPulse { 0%, 100% { box-shadow: 0 0 10px rgba(255, 107, 0, 0.4); } 50% { box-shadow: 0 0 20px rgba(255, 107, 0, 0.7); } }
+.leaderboard-badge { display: inline-flex; align-items: center; gap: 4px; border: 2px solid; padding: 4px 10px; border-radius: 12px; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 0.68rem; cursor: pointer; }
+.leaderboard-badge.india { background: rgba(0, 212, 255, 0.3); border-color: #00d4ff; color: #00d4ff; box-shadow: 0 0 15px rgba(0, 212, 255, 0.6); }
+.leaderboard-badge.state { background: rgba(255, 215, 0, 0.3); border-color: #ffd700; color: #ffd700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.6); }
+.leaderboard-badge.district { background: rgba(192, 192, 192, 0.3); border-color: #c0c0c0; color: #c0c0c0; box-shadow: 0 0 15px rgba(192, 192, 192, 0.6); }
+.leaderboard-badge.hidden { display: none; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; position: relative; z-index: 1; }
+.stat-box { background: #161b22; border: 2px solid rgba(0, 212, 255, 0.3); border-radius: 10px; padding: 10px 6px; text-align: center; }
+.stat-icon { font-size: 1.2rem; margin-bottom: 3px; }
+.stat-value { font-family: 'Orbitron', sans-serif; font-size: 1.05rem; font-weight: 900; color: #00d4ff; margin-bottom: 2px; }
+.stat-label { font-size: 0.55rem; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+.modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: 0.3s; }
+.modal.show { opacity: 1; visibility: visible; }
+.modal-content { background: #161b22; border: 3px solid #00d4ff; border-radius: 20px; padding: 25px; max-width: 400px; width: 90%; box-shadow: 0 0 100px rgba(0, 212, 255, 0.5); transform: scale(0.9); transition: 0.3s; max-height: 80vh; overflow-y: auto; }
+.modal.show .modal-content { transform: scale(1); }
+.modal-title { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; color: #00d4ff; text-align: center; margin-bottom: 20px; text-shadow: 0 0 20px rgba(0, 212, 255, 0.8); }
+.modal-input { width: 100%; padding: 12px; background: #0d1117; border: 2px solid rgba(0, 212, 255, 0.3); border-radius: 10px; color: #fff; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 15px; outline: none; }
+.modal-input:focus { border-color: #00d4ff; }
+.modal-btns { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.modal-btn { padding: 12px; border: none; border-radius: 10px; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 0.9rem; cursor: pointer; text-transform: uppercase; }
+.modal-btn.save { background: linear-gradient(135deg, #00ff88, #00d4ff); color: #000; }
+.modal-btn.cancel { background: rgba(255, 71, 87, 0.2); color: #ff4757; border: 2px solid #ff4757; }
+.level-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; }
+.level-item { background: rgba(22, 27, 34, 0.8); border: 2px solid rgba(0, 212, 255, 0.3); border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: 0.2s; }
+.level-item.unlocked { border-color: #00ff88; }
+.level-item.unlocked:active { border-color: #00d4ff; background: rgba(0, 212, 255, 0.1); }
+.level-item.locked { opacity: 0.5; cursor: not-allowed; border-color: rgba(255, 255, 255, 0.1); }
+.level-item.active { background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(156, 39, 176, 0.2)); border-color: #00d4ff; box-shadow: 0 0 30px rgba(0, 212, 255, 0.4); }
+.level-item-icon { font-size: 2rem; }
+.level-item-info { flex: 1; }
+.level-item-name { font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 900; color: #fff; margin-bottom: 3px; }
+.level-item-desc { font-size: 0.75rem; color: #888; }
+.level-lock-icon { font-size: 1.5rem; color: #ff4757; }
+.title-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; max-height: 400px; overflow-y: auto; }
+.title-item { background: rgba(22, 27, 34, 0.8); border: 2px solid rgba(0, 212, 255, 0.3); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.2s; }
+.title-item.selected { border-color: #00ff88; background: rgba(0, 255, 136, 0.1); }
+.title-item.equipped { background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(156, 39, 176, 0.2)); border-color: #00d4ff; box-shadow: 0 0 20px rgba(0, 212, 255, 0.4); }
+.title-item:active { transform: scale(0.98); }
+.title-checkbox { width: 20px; height: 20px; border: 2px solid #00d4ff; border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.title-checkbox.checked { background: #00d4ff; }
+.title-checkbox.checked::after { content: '✓'; color: #000; font-weight: 900; }
+.title-info { flex: 1; }
+.title-name { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; font-weight: 900; margin-bottom: 2px; }
+.title-name.india { color: #00d4ff; }
+.title-name.state { color: #ffd700; }
+.title-name.district { color: #c0c0c0; }
+.title-desc { font-size: 0.7rem; color: #888; }
+.title-limit { font-size: 0.75rem; color: #ff4757; text-align: center; margin-bottom: 10px; }
+    @media (min-width: 768px) {
+.navbar { padding: 14px 40px; height: 70px; }
+.logo img { width: 45px; height: 45px; }
+.logo h1 { font-size: 1.6rem; }
+.container { padding: 95px 40px; }
+.profile-avatar { width: 95px; height: 95px; font-size: 2.3rem; }
+.info-value.name { font-size: 1.15rem; }
+    }
+   .referral-card {
+      background: rgba(22, 27, 34, 0.8);
+      border: 2px solid #00ff88;
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 25px;
+      position: relative;
+      z-index: 1;
+    }
+   .referral-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      color: #00ff88;
+      text-shadow: 0 0 15px rgba(0, 255, 136, 0.6);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+   .referral-box {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+   .referral-code {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: #00ff88;
+      letter-spacing: 2px;
+    }
+   .copy-ref-btn {
+      background: linear-gradient(135deg, #00ff88, #00d4ff);
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      color: #000;
+      font-weight: 900;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-family: 'Orbitron', sans-serif;
+    }
+   .copy-ref-btn:active { transform: scale(0.95); }
+   .ref-earnings {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #9CA3AF;
+    }
+   .ref-earning-value {
+      color: #00ff88;
+      font-weight: 900;
+      font-family: 'Orbitron', sans-serif;
+    }
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #161b22;
+        border-top: 2px solid #FFD700;
+        display: flex;
+        height: 58px;
+        z-index: 999;
+        box-shadow: 0 -5px 25px rgba(255, 215, 0, 0.4);
+    }
+    .nav-btn {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        background: none;
+        border: none;
+        color: #777;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .nav-btn:active {
+        transform: scale(0.92);
+    }
+    .nav-btn.active {
+        color: #FFD700;
+    }
+    .nav-btn.active i {
+        color: #FFD700;
+        text-shadow: 0 0 15px rgba(255, 215, 0, 0.9), 0 0 30px rgba(255, 215, 0, 0.6);
+        animation: goldenIconPulse 1.2s ease-in-out infinite;
+    }
+    @keyframes goldenIconPulse {
+      0%, 100% { 
+        text-shadow: 0 0 15px rgba(255, 215, 0, 0.9), 0 0 30px rgba(255, 215, 0, 0.6);
+        transform: scale(1);
+      }
+      50% { 
+        text-shadow: 0 0 25px rgba(255, 215, 0, 1), 0 0 50px rgba(255, 215, 0, 0.8);
+        transform: scale(1.12);
+      }
+    }
+    .nav-btn i {
+        font-size: 20px;
+        transition: all 0.3s ease;
+    }
+    .nav-btn span {
+        font-size: 10px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+    .nav-btn.active span {
+        color: #FFD700;
+        font-weight: 900;
+    }
+    .profile-img {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid #777;
+        transition: all 0.3s ease;
+    }
+    .nav-btn.active .profile-img {
+        border: 2px solid #FFD700;
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+        animation: profileBounce 1.2s ease-in-out infinite;
+    }
+    @keyframes profileBounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particles"></canvas>
+  <input type="file" id="photoInput" accept="image/*">
+  <div class="navbar">
+    <div class="logo" onclick="history.back()">
+      <img src="logo.png" alt="P4X">
+      <h1>NEXUS</h1>
+    </div>
+    <div class="nav-right">
+      <button class="back-btn" onclick="history.back()">← BACK</button>
+      <div class="profile-section">
+        <div class="profile-btn" id="profileBtn" onclick="toggleDropdown()">
+          <span id="navProfileIcon">👤</span>
+        </div>
+        <div class="dropdown" id="dropdown">
+          <div class="dropdown-item" onclick="window.location.href='profile.html'">👤 My Profile</div>
+          <div class="dropdown-item" onclick="window.location.href='history.html'">📜 Match History</div>
+          <div class="dropdown-item" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</div>
+          <div class="dropdown-item" onclick="window.location.href='wallet.html'">💰 Wallet</div>
+          <div class="dropdown-item logout" onclick="logout()">🚪 Logout</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="profile-card">
+      <div class="profile-top">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar" id="profileAvatar">👤</div>
+          <div class="edit-avatar" onclick="document.getElementById('photoInput').click()">📷</div>
+        </div>
+        <div class="profile-info">
+          <div class="info-line">
+            <div class="info-label">NAME</div>
+            <div class="info-value name" id="profileName">Loading...</div>
+            <div class="edit-icon" onclick="openEditModal('name')">✏️</div>
+          </div>
+          <div class="info-line">
+            <div class="info-label">USERNAME</div>
+            <div class="info-value" id="profileUsername">@unknown</div>
+            <div class="edit-icon" onclick="openUsernameEdit()">✏️</div>
+          </div>
+          <div id="usernameEditBox" style="display:none; margin:5px 0 10px 55px;">
+            <input 
+              type="text" 
+              id="newUsernameInput" 
+              placeholder="naya username"
+              maxlength="20"
+              style="width:100%; padding:8px; background:#0d1117; border:2px solid rgba(0,212,255,0.3); border-radius:8px; color:#fff; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:0.85rem; outline:none;"
+            >
+            <p id="usernameStatus" style="font-size:0.7rem; margin:5px 0; min-height:18px;"></p>
+            <div style="display:flex; gap:8px;">
+              <button id="saveUsernameBtn" disabled style="flex:1; padding:8px; background:linear-gradient(135deg,#00ff88,#00d4ff); border:none; border-radius:8px; color:#000; font-weight:900; font-size:0.75rem; font-family:'Orbitron',sans-serif; cursor:pointer; opacity:0.5;">SAVE</button>
+              <button onclick="closeUsernameEdit()" style="flex:1; padding:8px; background:rgba(255,71,87,0.2); border:2px solid #ff4757; border-radius:8px; color:#ff4757; font-weight:900; font-size:0.75rem; font-family:'Orbitron',sans-serif; cursor:pointer;">CANCEL</button>
+            </div>
+          </div>
+          <div class="info-line">
+            <div class="info-label">FF UID</div>
+            <div class="info-value" id="profileUID">----------</div>
+            <div class="edit-icon" onclick="openEditModal('ffuid')">✏️</div>
+          </div>
+          <div class="info-line" id="stateLine">
+            <div class="info-label">STATE</div>
+            <div class="info-value location" id="profileState">Not Set</div>
+            <div class="edit-icon" onclick="openEditModal('state')">✏️</div>
+          </div>
+          <div class="info-line" id="districtLine">
+            <div class="info-label">DISTRICT</div>
+            <div class="info-value location" id="profileDistrict">Not Set</div>
+            <div class="edit-icon" onclick="openEditModal('district')">✏️</div>
+          </div>
+          <div class="info-line" id="collegeLine">
+            <div class="info-label">COLLEGE</div>
+            <div class="info-value college" id="profileCollege">Not Set</div>
+            <div class="edit-icon" onclick="openEditModal('college')">✏️</div>
+          </div>
+          <div class="badges-row">
+            <div class="profile-rank">
+              <span>🏆</span>
+              <span>RANK <span id="globalRank">#0</span></span>
+            </div>
+            <div class="level-badge" id="levelBadge" onclick="openLevelModal()">
+              <span>🎓</span>
+              <span>COLLEGE</span>
+            </div>
+            <div class="leaderboard-badge hidden" id="leaderboardBadge1" onclick="openTitleModal()">
+              <span>👑</span>
+              <span>TITLE 1</span>
+            </div>
+            <div class="leaderboard-badge hidden" id="leaderboardBadge2" onclick="openTitleModal()">
+              <span>👑</span>
+              <span>TITLE 2</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    <div class="referral-card">
+      <div class="referral-title">
+        <span>🎁</span>
+        <span>YOUR REFERRAL CODE</span>
+      </div>
+      <div class="referral-box">
+        <span class="referral-code" id="referralCode">LOADING...</span>
+        <button class="copy-ref-btn" onclick="copyReferral()">COPY</button>
+      </div>
+      <div class="ref-earnings">
+        <span>Total Referral Earnings:</span>
+        <span class="ref-earning-value">₹ <span id="refEarnings">0</span></span>
+      </div>
+    </div>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-icon">💀</div>
+          <div class="stat-value" id="statKills">0</div>
+          <div class="stat-label">KILLS</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon">⚔️</div>
+          <div class="stat-value" id="statMatches">0</div>
+          <div class="stat-label">MATCHES</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-value" id="statWins">0</div>
+          <div class="stat-label">WINS</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon">💎</div>
+          <div class="stat-value" id="statDiamonds">0</div>
+          <div class="stat-label">DIAMONDS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="editModal">
+    <div class="modal-content">
+      <div class="modal-title" id="modalTitle">EDIT</div>
+      <input type="text" class="modal-input" id="modalInput" placeholder="" style="display:none;">
+      <div id="modalSelects"></div>
+      <div class="modal-btns">
+        <button class="modal-btn cancel" onclick="closeEditModal()">CANCEL</button>
+        <button class="modal-btn save" onclick="saveEdit()">SAVE</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="levelModal">
+    <div class="modal-content">
+      <div class="modal-title">SELECT YOUR LEVEL</div>
+      <div class="level-list" id="levelList"></div>
+      <div class="modal-btns">
+        <button class="modal-btn cancel" onclick="closeLevelModal()">CLOSE</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="titleModal">
+    <div class="modal-content">
+      <div class="modal-title">SELECT TITLES (MAX 2)</div>
+      <div class="title-limit" id="titleLimit">0/2 Selected</div>
+      <div class="title-list" id="titleList"></div>
+      <div class="modal-btns">
+        <button class="modal-btn save" onclick="saveTitles()">SAVE TITLES</button>
+        <button class="modal-btn cancel" onclick="closeTitleModal()">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="navClick(this, 'view')">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </button>
+    <button class="nav-btn" onclick="navClick(this, 'rank')">
+      <i class="fa-solid fa-trophy"></i>
+      <span>Rank</span>
+    </button>
+    <button class="nav-btn" onclick="navClick(this, 'wallet')">
+      <i class="fa-solid fa-wallet"></i>
+      <span>Wallet</span>
+    </button>
+    <button class="nav-btn" onclick="navClick(this, 'history')">
+      <i class="fa-solid fa-clock-rotate-left"></i>
+      <span>History</span>
+    </button>
+    <button class="nav-btn active" onclick="navClick(this, 'profile')">
+      <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ProGamer" class="profile-img" id="navProfilePic" alt="Profile">
+      <span>Profile</span>
+    </button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, onSnapshot, updateDoc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDGLVLgX33dA3caK7wScbgN4BgE2NCjZx8",
+      authDomain: "ffm-p4xesportscommunity.firebaseapp.com",
+      projectId: "ffm-p4xesportscommunity",
+      storageBucket: "ffm-p4xesportscommunity.firebasestorage.app",
+      messagingSenderId: "796835743313",
+      appId: "1:796835743313:web:e4356f63c3d1d51b605a70"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    let currentUser = null;
+    let userData = null;
+    const PROFILE_CACHE_KEY = "p4x_profile_cache";
+    let currentEditField = '';
+    let unsubscribeProfile = null;
+    let selectedTitles = [];
+    let isUserSelecting = false;
+
+    const PLAYER_LEVELS = {
+      1: { name: 'COLLEGE', icon: '🎓', desc: 'Entry Level' },
+      2: { name: 'UNIVERSITY', icon: '🏛️', desc: 'Advanced' },
+      3: { name: 'ZONAL', icon: '⭐', desc: 'Pro Level' },
+      4: { name: 'DISTRICT', icon: '🏅', desc: 'Elite Level' },
+      5: { name: 'STATE', icon: '👑', desc: 'Champion Level' }
+    };
+
+    const CATEGORIES = ['wins', 'diamonds', 'kills', 'matches'];
+    const CATEGORY_NAMES = { wins: 'WINS', diamonds: 'DIAMONDS', kills: 'KILLS', matches: 'MATCHES' };
+
+      const statesDistricts = {
+      "Bihar": ["Patna", "Gaya", "Bhagalpur", "Muzaffarpur", "Darbhanga", "Purnia", "Araria", "Gopalganj", "Siwan", "Chhapra", "Sasaram", "Buxar", "Nawada", "Aurangabad", "Jehanabad"],
+      "Uttar Pradesh": ["Lucknow", "Kanpur", "Varanasi", "Agra", "Meerut", "Allahabad", "Ghaziabad", "Bareilly", "Aligarh", "Moradabad"],
+      "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Nashik", "Aurangabad", "Solapur", "Thane", "Kolhapur"],
+      "Punjab": ["Amritsar", "Ludhiana", "Jalandhar", "Patiala", "Bathinda", "Mohali", "Pathankot"],
+      "West Bengal": ["Kolkata", "Howrah", "Durgapur", "Asansol", "Siliguri", "Bardhaman"],
+      "Rajasthan": ["Jaipur", "Jodhpur", "Udaipur", "Kota", "Bikaner", "Ajmer"],
+      "Madhya Pradesh": ["Bhopal", "Indore", "Gwalior", "Jabalpur", "Ujjain"],
+      "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar"],
+      "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Salem", "Tiruchirappalli"],
+      "Karnataka": ["Bangalore", "Mysore", "Hubli", "Mangalore", "Belgaum"],
+      "Delhi": ["New Delhi", "Central Delhi", "North Delhi", "South Delhi", "East Delhi", "West Delhi"]
+    };
+
+    const districtColleges = {
+      "Patna": ["Patna University", "Magadh University", "Patna College", "Bihar National College"],
+      "Gaya": ["Magadh University", "Gaya College", "Anugrah Memorial College"],
+      "Lucknow": ["Lucknow University", "Amity University", "Babasaheb Bhimrao Ambedkar University"],
+      "Mumbai": ["Mumbai University", "IIT Bombay", "St. Xavier's College", "KC College"],
+      "New Delhi": ["Delhi University", "JNU", "IIT Delhi", "Jamia Millia Islamia"],
+      "Bangalore": ["Bangalore University", "Christ University", "IISc Bangalore"],
+      "Chennai": ["Anna University", "University of Madras", "IIT Madras"],
+      "Kolkata": ["Calcutta University", "Jadavpur University", "Presidency University"]
+    };
+
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const particles = [];
+    for(let i = 0; i < 20; i++) {
+      particles.push({
+        x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+        size: Math.random() * 2 + 1, speedX: (Math.random() - 0.5) * 0.3,
+        speedY: (Math.random() - 0.5) * 0.3, opacity: Math.random() * 0.4 + 0.1
+      });
+    }
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(30, 64, 175, ${p.opacity})`; ctx.fill();
+        p.x += p.speedX; p.y += p.speedY;
+        if(p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+        if(p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+      });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    window.toggleDropdown = function() {
+      document.getElementById('dropdown').classList.toggle('show');
+    }
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.profile-section')) {
+        document.getElementById('dropdown').classList.remove('show');
+      }
+    });
+    window.logout = function() {
+      signOut(auth).then(() => window.location.href = 'index.html');
+    }
+
+    document.getElementById('photoInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file ||!currentUser) return;
+      if (file.size > 2 * 1024 * 1024) {
+        alert('Photo 2MB se chhota hona chahiye');
+        return;
+      }
+      try {
+        document.getElementById('profileAvatar').innerHTML = '⏳';
+        const base64 = await compressImage(file, 400, 0.7);
+        await updateDoc(doc(db, 'users', currentUser.uid), { photoURL: base64 });
+        document.getElementById('profileAvatar').innerHTML = `<img src="${base64}" alt="">`;
+        document.getElementById('navProfileIcon').innerHTML = `<img src="${base64}" alt="">`;
+        alert('Photo uploaded successfully!');
+      } catch (err) {
+        console.error('Upload error:', err);
+        alert('Photo upload failed: ' + err.message);
+        document.getElementById('profileAvatar').innerHTML = '👤';
+      }
+    });
+
+    function compressImage(file, maxSize, quality) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (e) => {
+          const img = new Image();
+          img.src = e.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            if (width > height) {
+              if (width > maxSize) {
+                height = Math.round(height * maxSize / width);
+                width = maxSize;
+              }
+            } else {
+              if (height > maxSize) {
+                width = Math.round(width * maxSize / height);
+                height = maxSize;
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.onerror = reject;
+        };
+        reader.onerror = reject;
+      });
+    }
+
+    async function showRealTimeRank(uid) {
+      try {
+        const usersSnap = await getDocs(collection(db, 'users'));
+        let allUsers = [];
+
+        usersSnap.forEach(docSnap => {
+          const data = docSnap.data();
+          const wins = data.wins || 0;
+          const matches = data.matches || 0;
+          const losses = Math.max(0, matches - wins);
+          const diamonds = data.diamonds || 0;
+          const kills = data.kills || 0;
+          const exp = (wins * 100) + (losses * 25) + (diamonds * 1) + (kills * 10);
+
+          allUsers.push({ uid: docSnap.id, exp: exp });
+        });
+
+        allUsers.sort((a, b) => b.exp - a.exp);
+        const rank = allUsers.findIndex(u => u.uid === uid) + 1;
+
+        document.getElementById('globalRank').textContent = '#' + (rank || 999);
+
+      } catch (e) {
+        console.error('Rank error:', e);
+        document.getElementById('globalRank').textContent = '#999';
+      }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+  if (user) {
+
+    loadCachedProfile();
+
+    currentUser = user;
+    await createReferralIfNotExists(user.uid);
+
+    showRealTimeRank(user.uid);
+    loadProfileRealtime(user.uid);
+    checkAndUnlockTitles(user.uid);
+
+  } else {
+
+    localStorage.removeItem(PROFILE_CACHE_KEY);
+
+    window.location.href = 'index.html';
+  }
+ });
+
+
+    // ===== USERNAME EDIT FEATURE START =====
+    let currentUsernameValue = "";
+    let usernameCheckTimeout = null;
+    
+    function loadCachedProfile() {
+  try {
+    const cached = localStorage.getItem(PROFILE_CACHE_KEY);
+
+    if (!cached) return;
+
+    const data = JSON.parse(cached);
+
+    document.getElementById('profileName').textContent =
+      data.name || 'Player';
+
+    document.getElementById('profileUsername').textContent =
+      data.username || '@unknown';
+
+    document.getElementById('profileUID').textContent =
+      data.ffuid || 'Not Set';
+
+    document.getElementById('profileState').textContent =
+      data.state || 'Not Set';
+
+    document.getElementById('profileDistrict').textContent =
+      data.district || 'Not Set';
+
+    document.getElementById('profileCollege').textContent =
+      data.college || 'Not Set';
+
+    document.getElementById('statKills').textContent =
+      (data.kills || 0).toLocaleString('en-IN');
+
+    document.getElementById('statMatches').textContent =
+      (data.matches || 0).toLocaleString('en-IN');
+
+    document.getElementById('statWins').textContent =
+      (data.wins || 0).toLocaleString('en-IN');
+
+    document.getElementById('statDiamonds').textContent =
+      (data.diamonds || 0).toLocaleString('en-IN');
+
+    document.getElementById('referralCode').textContent =
+      data.referralCode || 'GENERATING...';
+
+    document.getElementById('refEarnings').textContent =
+      (data.referralEarnings || 0).toLocaleString('en-IN');
+
+    if (data.photoURL) {
+      document.getElementById('navProfileIcon').innerHTML =
+        `<img src="${data.photoURL}" alt="">`;
+
+      document.getElementById('profileAvatar').innerHTML =
+        `<img src="${data.photoURL}" alt="">`;
+
+      document.getElementById('navProfilePic').src =
+        data.photoURL;
+    }
+
+  } catch (e) {
+    console.log("Cache load failed", e);
+  }
+}
+    function loadProfileRealtime(uid) {
+      if (unsubscribeProfile) unsubscribeProfile();
+      unsubscribeProfile = onSnapshot(doc(db, 'users', uid), async (docSnap) => {
+        if (!docSnap.exists()) return;
+        userData = docSnap.data();
+        localStorage.setItem(
+  PROFILE_CACHE_KEY,
+  JSON.stringify(userData)
+);
+
+        currentUsernameValue = userData.username || "@unknown";
+        document.getElementById('profileUsername').textContent = currentUsernameValue;
+
+        document.getElementById('referralCode').textContent = userData.referralCode || 'GENERATING...';
+        document.getElementById('refEarnings').textContent = (userData.referralEarnings || 0).toLocaleString('en-IN');
+
+        if (!isUserSelecting) {
+          updateBadges();
+          updateTitleBadges();
+        }
+
+        document.getElementById('profileName').textContent = userData.name || 'Player';
+        document.getElementById('profileUID').textContent = userData.ffuid || 'Not Set';
+
+        if (userData.photoURL) {
+          document.getElementById('navProfileIcon').innerHTML = `<img src="${userData.photoURL}" alt="">`;
+          document.getElementById('profileAvatar').innerHTML = `<img src="${userData.photoURL}" alt="">`;
+          document.getElementById('navProfilePic').src = userData.photoURL;
+        } else {
+          document.getElementById('navProfileIcon').innerHTML = '👤';
+          document.getElementById('profileAvatar').innerHTML = '👤';
+        }
+
+        document.getElementById('profileState').textContent = userData.state || 'Not Set';
+        document.getElementById('profileDistrict').textContent = userData.district || 'Not Set';
+        document.getElementById('profileCollege').textContent = userData.college || 'Not Set';
+
+        document.getElementById('statKills').textContent = (userData.kills || 0).toLocaleString('en-IN');
+        document.getElementById('statMatches').textContent = (userData.matches || 0).toLocaleString('en-IN');
+        document.getElementById('statWins').textContent = (userData.wins || 0).toLocaleString('en-IN');
+        document.getElementById('statDiamonds').textContent = (userData.diamonds || 0).toLocaleString('en-IN');
+      });
+    }
+
+    window.openUsernameEdit = function() {
+      document.getElementById('usernameEditBox').style.display = 'block';
+      document.getElementById('newUsernameInput').value = currentUsernameValue.replace('@', '');
+      document.getElementById('usernameStatus').innerHTML = '';
+      document.getElementById('saveUsernameBtn').disabled = true;
+      document.getElementById('saveUsernameBtn').style.opacity = '0.5';
+    }
+
+    window.closeUsernameEdit = function() {
+      document.getElementById('usernameEditBox').style.display = 'none';
+      document.getElementById('usernameStatus').innerHTML = '';
+    }
+
+    document.getElementById('newUsernameInput').addEventListener('input', (e) => {
+      clearTimeout(usernameCheckTimeout);
+
+      let newName = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+      e.target.value = newName;
+
+      const statusEl = document.getElementById('usernameStatus');
+      const saveBtn = document.getElementById('saveUsernameBtn');
+
+      if (newName.length < 4) {
+        statusEl.innerHTML = '<span style="color:#ff4757">✗ Kam se kam 4 characters</span>';
+        saveBtn.disabled = true;
+        saveBtn.style.opacity = '0.5';
+        return;
+      }
+
+      if ('@' + newName === currentUsernameValue) {
+        statusEl.innerHTML = '<span style="color:#888">Ye tumhara current username hai</span>';
+        saveBtn.disabled = true;
+        saveBtn.style.opacity = '0.5';
+        return;
+      }
+
+      statusEl.innerHTML = '<span style="color:#888">Checking...</span>';
+      saveBtn.disabled = true;
+      saveBtn.style.opacity = '0.5';
+
+      usernameCheckTimeout = setTimeout(async () => {
+        const q = query(collection(db, "users"), where("username", "==", "@" + newName));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          statusEl.innerHTML = '<span style="color:#00ff88">✓ Ye username available hai</span>';
+          saveBtn.disabled = false;
+          saveBtn.style.opacity = '1';
+        } else {
+          statusEl.innerHTML = '<span style="color:#ff4757">✗ Ye username kisi aur ka hai. Number jod ke try karo ya naya naam likho</span>';
+          saveBtn.disabled = true;
+          saveBtn.style.opacity = '0.5';
+        }
+      }, 500);
+    });
+
+    document.getElementById('saveUsernameBtn').onclick = async () => {
+      const newName = document.getElementById('newUsernameInput').value;
+      const finalUsername = "@" + newName;
+
+      try {
+        await updateDoc(doc(db, 'users', currentUser.uid), {
+          username: finalUsername
+        });
+
+        currentUsernameValue = finalUsername;
+        document.getElementById('profileUsername').textContent = finalUsername;
+        closeUsernameEdit();
+        alert('Username update ho gaya ✅');
+      } catch (err) {
+        console.error('Username update error:', err);
+        alert('Update failed: ' + err.message);
+      }
+    };
+    // ===== USERNAME EDIT FEATURE END =====
+
+    function updateBadges() {
+      const levelNum = userData.level || 1;
+      const levelEl = document.getElementById('levelBadge');
+      const levelData = PLAYER_LEVELS[levelNum] || PLAYER_LEVELS[1];
+      levelEl.innerHTML = `<span>${levelData.icon}</span><span>${levelData.name}</span>`;
+    }
+
+    function updateTitleBadges() {
+      const equippedTitles = userData.equippedTitles || [];
+      const badge1 = document.getElementById('leaderboardBadge1');
+      const badge2 = document.getElementById('leaderboardBadge2');
+
+      badge1.classList.add('hidden');
+      badge2.classList.add('hidden');
+
+      equippedTitles.forEach((title, index) => {
+        if (index === 0) {
+          badge1.classList.remove('hidden');
+          badge1.className = `leaderboard-badge ${title.region}`;
+          badge1.innerHTML = `<span>👑</span><span>${title.displayName}</span>`;
+        } else if (index === 1) {
+          badge2.classList.remove('hidden');
+          badge2.className = `leaderboard-badge ${title.region}`;
+          badge2.innerHTML = `<span>👑</span><span>${title.displayName}</span>`;
+        }
+      });
+    }
+
+    window.openLevelModal = function() {
+      isUserSelecting = true;
+      renderLevelList();
+      document.getElementById('levelModal').classList.add('show');
+    }
+
+    window.closeLevelModal = function() {
+      isUserSelecting = false;
+      document.getElementById('levelModal').classList.remove('show');
+    }
+
+    function renderLevelList() {
+      const listEl = document.getElementById('levelList');
+      listEl.innerHTML = '';
+      const unlockedLevels = userData.unlockedLevels || [1];
+      const currentLevel = userData.level || 1;
+
+      Object.keys(PLAYER_LEVELS).forEach(levelNum => {
+        const level = PLAYER_LEVELS[levelNum];
+        const isUnlocked = unlockedLevels.includes(parseInt(levelNum));
+        const isActive = currentLevel == levelNum;
+
+        const item = document.createElement('div');
+        item.className = `level-item ${isUnlocked? 'unlocked' : 'locked'} ${isActive? 'active' : ''}`;
+
+        if (isUnlocked) {
+          item.onclick = () => selectLevel(parseInt(levelNum));
+        }
+
+        item.innerHTML = `
+          <div class="level-item-icon">${isUnlocked? level.icon : '🔒'}</div>
+          <div class="level-item-info">
+            <div class="level-item-name">${level.name} LEVEL</div>
+            <div class="level-item-desc">${level.desc}</div>
+          </div>
+          ${isActive? '<div class="level-lock-icon">✓</div>' : ''}
+        `;
+        listEl.appendChild(item);
+      });
+    }
+
+    async function selectLevel(levelNum) {
+      if (!userData.unlockedLevels ||!userData.unlockedLevels.includes(levelNum)) {
+        alert('Ye level abhi locked hai!');
+        return;
+      }
+      try {
+        isUserSelecting = true;
+        userData.level = levelNum;
+        updateBadges();
+        await updateDoc(doc(db, 'users', currentUser.uid), { level: levelNum });
+        setTimeout(() => { isUserSelecting = false; }, 3000);
+        closeLevelModal();
+      } catch(e) {
+        isUserSelecting = false;
+        console.error('Level select error:', e);
+        alert('Level update failed: ' + e.message);
+      }
+    }
+
+    window.openTitleModal = function() {
+      renderTitleList();
+      document.getElementById('titleModal').classList.add('show');
+    }
+
+    window.closeTitleModal = function() {
+      document.getElementById('titleModal').classList.remove('show');
+      selectedTitles = [];
+    }
+
+    function renderTitleList() {
+      const listEl = document.getElementById('titleList');
+      listEl.innerHTML = '';
+      const unlockedTitles = userData.unlockedTitles || [];
+      selectedTitles = [...(userData.equippedTitles || [])];
+
+      updateTitleLimit();
+
+      if (unlockedTitles.length === 0) {
+        listEl.innerHTML = '<div style="text-align:center;color:#888;padding:20px;">Koi title unlock nahi hai</div>';
+        return;
+      }
+
+      unlockedTitles.forEach(title => {
+        const isSelected = selectedTitles.some(t => t.id === title.id);
+        const item = document.createElement('div');
+        item.className = `title-item ${isSelected? 'selected' : ''}`;
+        item.onclick = () => toggleTitleSelect(title);
+
+        item.innerHTML = `
+          <div class="title-checkbox ${isSelected? 'checked' : ''}"></div>
+          <div class="title-info">
+            <div class="title-name ${title.region}">${title.displayName}</div>
+            <div class="title-desc">${title.category} - ${title.region.toUpperCase()} #${title.rank}</div>
+          </div>
+        `;
+        listEl.appendChild(item);
+      });
+    }
+
+    function toggleTitleSelect(title) {
+      const index = selectedTitles.findIndex(t => t.id === title.id);
+      if (index > -1) {
+        selectedTitles.splice(index, 1);
+      } else {
+        if (selectedTitles.length >= 2) {
+          alert('Maximum 2 titles equip kar sakte ho!');
+          return;
+        }
+        selectedTitles.push(title);
+      }
+      renderTitleList();
+    }
+
+    function updateTitleLimit() {
+      document.getElementById('titleLimit').textContent = `${selectedTitles.length}/2 Selected`;
+    }
+
+    window.saveTitles = async function() {
+      try {
+        await updateDoc(doc(db, 'users', currentUser.uid), { equippedTitles: selectedTitles });
+        closeTitleModal();
+      } catch(e) {
+        console.error('Title save error:', e);
+        alert('Title save failed: ' + e.message);
+      }
+    }
+
+    async function checkAndUnlockTitles(uid) {
+      try {
+        const userRef = doc(db, 'users', uid);
+        const userSnap = await getDoc(userRef);
+        if (!userSnap.exists()) return;
+        const data = userSnap.data();
+
+        let unlockedTitles = data.unlockedTitles || [];
+        let newTitles = [];
+
+        for (const category of CATEGORIES) {
+          const catValue = data[category] || 0;
+          if (catValue === 0) continue;
+
+          const indiaQ = query(collection(db, 'users'), where(category, '>', 0));
+          const indiaSnap = await getDocs(indiaQ);
+          let indiaUsers = [];
+          indiaSnap.forEach(d => indiaUsers.push({ id: d.id, value: d.data()[category] || 0 }));
+          indiaUsers.sort((a, b) => b.value - a.value);
+          const indiaRank = indiaUsers.findIndex(u => u.id === uid) + 1;
+
+          if (indiaRank > 0 && indiaRank <= 100) {
+            const titleId = `india_${category}_${indiaRank}`;
+            const existingIndex = unlockedTitles.findIndex(t => t.id.startsWith(`india_${category}_`));
+            const newTitle = {
+              id: titleId,
+              displayName: `INDIA ${CATEGORY_NAMES[category]} #${indiaRank}`,
+              region: 'india',
+              category: CATEGORY_NAMES[category],
+              rank: indiaRank
+            };
+            if (existingIndex > -1) {
+              unlockedTitles[existingIndex] = newTitle;
+            } else {
+              newTitles.push(newTitle);
+            }
+          }
+
+          if (data.state) {
+            const stateUsers = indiaUsers.filter(u => {
+              const ud = indiaSnap.docs.find(d => d.id === u.id).data();
+              return ud.state === data.state;
+            });
+            const stateRank = stateUsers.findIndex(u => u.id === uid) + 1;
+            if (stateRank > 0 && stateRank <= 100) {
+              const titleId = `state_${category}_${stateRank}`;
+              const existingIndex = unlockedTitles.findIndex(t => t.id.startsWith(`state_${category}_`));
+              const newTitle = {
+                id: titleId,
+                displayName: `${data.state.toUpperCase()} ${CATEGORY_NAMES[category]} #${stateRank}`,
+                region: 'state',
+                category: CATEGORY_NAMES[category],
+                rank: stateRank
+              };
+              if (existingIndex > -1) {
+                unlockedTitles[existingIndex] = newTitle;
+              } else {
+                newTitles.push(newTitle);
+              }
+            }
+
+            if (data.district) {
+              const districtUsers = stateUsers.filter(u => {
+                const ud = indiaSnap.docs.find(d => d.id === u.id).data();
+                return ud.district === data.district;
+              });
+              const districtRank = districtUsers.findIndex(u => u.id === uid) + 1;
+              if (districtRank > 0 && districtRank <= 100) {
+                const titleId = `district_${category}_${districtRank}`;
+                const existingIndex = unlockedTitles.findIndex(t => t.id.startsWith(`district_${category}_`));
+                const newTitle = {
+                  id: titleId,
+                  displayName: `${data.district.toUpperCase()} ${CATEGORY_NAMES[category]} #${districtRank}`,
+                  region: 'district',
+                  category: CATEGORY_NAMES[category],
+                  rank: districtRank
+                };
+                if (existingIndex > -1) {
+                  unlockedTitles[existingIndex] = newTitle;
+                } else {
+                  newTitles.push(newTitle);
+                }
+              }
+            }
+          }
+        }
+
+        if (newTitles.length > 0) {
+          await updateDoc(userRef, { unlockedTitles: [...unlockedTitles,...newTitles] });
+        }
+
+        let equippedTitles = data.equippedTitles || [];
+        let updated = false;
+        for (let i = 0; i < equippedTitles.length; i++) {
+          const title = equippedTitles[i];
+          const category = title.category.toLowerCase();
+          const region = title.region;
+
+          const usersQ = query(collection(db, 'users'), where(category, '>', 0));
+          const usersSnap = await getDocs(usersQ);
+          let filteredUsers = [];
+          usersSnap.forEach(d => {
+            const ud = d.data();
+            if (region === 'india' ||
+                (region === 'state' && ud.state === data.state) ||
+                (region === 'district' && ud.state === data.state && ud.district === data.district)) {
+              filteredUsers.push({ id: d.id, value: ud[category] || 0 });
+            }
+          });
+          filteredUsers.sort((a, b) => b.value - a.value);
+          const newRank = filteredUsers.findIndex(u => u.id === uid) + 1;
+
+          if (newRank > 0 && newRank!== title.rank) {
+            equippedTitles[i].rank = newRank;
+            equippedTitles[i].displayName = `${region === 'india'? 'INDIA' : region === 'state'? data.state.toUpperCase() : data.district.toUpperCase()} ${title.category} #${newRank}`;
+            updated = true;
+          }
+        }
+        if (updated) {
+          await updateDoc(userRef, { equippedTitles: equippedTitles });
+        }
+
+      } catch (e) {
+        console.error('Title unlock error:', e);
+      }
+    }
+
+    window.openEditModal = function(field) {
+      currentEditField = field;
+      const modal = document.getElementById('editModal');
+      const title = document.getElementById('modalTitle');
+      const input = document.getElementById('modalInput');
+      const modalSelects = document.getElementById('modalSelects');
+
+      input.style.display = 'none';
+      modalSelects.innerHTML = '';
+
+      if (field === 'name') {
+        title.textContent = 'EDIT NAME';
+        input.type = 'text';
+        input.placeholder = 'Enter Your Name';
+        input.value = userData.name || '';
+        input.style.display = 'block';
+      } else if (field === 'ffuid') {
+        title.textContent = 'EDIT FF UID';
+        input.type = 'text';
+        input.placeholder = 'Enter FF UID';
+        input.value = userData.ffuid || '';
+        input.style.display = 'block';
+      } else if (field === 'state') {
+        title.textContent = 'SELECT STATE';
+        const select = document.createElement('select');
+        select.id = 'stateSelect';
+        select.className = 'modal-input';
+        select.innerHTML = '<option value="">Select State</option>';
+        Object.keys(statesDistricts).sort().forEach(state => {
+          const opt = document.createElement('option');
+          opt.value = state;
+          opt.textContent = state;
+          if (userData.state === state) opt.selected = true;
+          select.appendChild(opt);
+        });
+        modalSelects.appendChild(select);
+      } else if (field === 'district') {
+        if (!userData.state) {
+          alert('Pehle State select karo');
+          return;
+        }
+        title.textContent = 'SELECT DISTRICT';
+        const select = document.createElement('select');
+        select.id = 'districtSelect';
+        select.className = 'modal-input';
+        select.innerHTML = '<option value="">Select District</option>';
+        statesDistricts[userData.state].sort().forEach(dist => {
+          const opt = document.createElement('option');
+          opt.value = dist;
+          opt.textContent = dist;
+          if (userData.district === dist) opt.selected = true;
+          select.appendChild(opt);
+        });
+        modalSelects.appendChild(select);
+      } else if (field === 'college') {
+        if (!userData.state ||!userData.district) {
+          alert('Pehle State aur District select karo');
+          return;
+        }
+        title.textContent = 'SELECT COLLEGE/UNIVERSITY';
+        const select = document.createElement('select');
+        select.id = 'collegeSelect';
+        select.className = 'modal-input';
+        select.innerHTML = '<option value="">Select College/University</option>';
+        const colleges = districtColleges[userData.district] || ["Other - Type in Name Field"];
+        colleges.sort().forEach(col => {
+          const opt = document.createElement('option');
+          opt.value = col;
+          opt.textContent = col;
+          if (userData.college === col) opt.selected = true;
+          select.appendChild(opt);
+        });
+        modalSelects.appendChild(select);
+      }
+      modal.classList.add('show');
+    }
+
+    window.closeEditModal = function() {
+      document.getElementById('editModal').classList.remove('show');
+      document.getElementById('modalSelects').innerHTML = '';
+    }
+
+    window.saveEdit = async function() {
+      let updateData = {};
+      if (currentEditField === 'name') {
+        const value = document.getElementById('modalInput').value.trim();
+        if (!value) return alert('Name cannot be empty');
+        updateData = { name: value };
+      } else if (currentEditField === 'ffuid') {
+        const value = document.getElementById('modalInput').value.trim();
+        if (!value) return alert('FF UID cannot be empty');
+        updateData = { ffuid: value };
+      } else if (currentEditField === 'state') {
+        const value = document.getElementById('stateSelect').value;
+        if (!value) return alert('Please select a state');
+        updateData = { state: value, district: '', college: '' };
+      } else if (currentEditField === 'district') {
+        const value = document.getElementById('districtSelect').value;
+        if (!value) return alert('Please select a district');
+        updateData = { district: value, college: '' };
+      } else if (currentEditField === 'college') {
+        const value = document.getElementById('collegeSelect').value;
+        if (!value) return alert('Please select a college');
+        updateData = { college: value };
+      }
+      await updateDoc(doc(db, 'users', currentUser.uid), updateData);
+      closeEditModal();
+      alert('Updated successfully!');
+    }
+
+    setInterval(async () => {
+      if (currentUser) {
+        await checkAndUnlockTitles(currentUser.uid);
+      }
+    }, 30000);
+
+    async function createReferralIfNotExists(uid) {
+      const userRef = doc(db, 'users', uid);
+      const userSnap = await getDoc(userRef);
+      if (!userSnap.exists()) return;
+
+      const data = userSnap.data();
+      if (data.referralCode) return;
+
+      const name = (data.name || 'USER').toUpperCase().replace(/[^A-Z]/g, '').substring(0, 5);
+      const uidPart = uid.slice(-4).toUpperCase();
+      let newCode = `P4X${name}${uidPart}`;
+
+      let finalCode = newCode;
+      let counter = 1;
+      while (await isReferralCodeExists(finalCode)) {
+        finalCode = `${newCode}${counter}`;
+        counter++;
+      }
+
+      await updateDoc(userRef, {
+        referralCode: finalCode,
+        referralEarnings: 0
+      });
+    }
+
+    async function isReferralCodeExists(code) {
+      const q = query(collection(db, 'users'), where('referralCode', '==', code));
+      const snap = await getDocs(q);
+      return!snap.empty;
+    }
+
+    window.copyReferral = function() {
+      const code = document.getElementById('referralCode').innerText;
+      navigator.clipboard.writeText(code);
+      alert('Referral Code Copied: ' + code);
+    }
+
+    window.navClick = function(btn, page) {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      if(page === 'profile') return;
+      window.location.href = page + '.html';
+    }
+  </script>
+</body>
+</html>
