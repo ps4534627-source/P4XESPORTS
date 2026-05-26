@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FFM-P4X Wallet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --bg-dark: #0B1120;
+      --card-dark: #111827;
+      --card-border: rgba(255, 255, 255, 0.1);
+      --text-primary: #F9FAFB;
+      --text-secondary: #9CA3AF;
+      --accent-blue: #3B82F6;
+      --accent-green: #10B981;
+      --accent-red: #EF4444;
+      --accent-gold: #F59E0B;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+    
+    body { 
+      background: var(--bg-dark); 
+      color: var(--text-primary); 
+      padding-bottom: 75px;
+      position: relative;
+      min-height: 100vh;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: url('https://images.unsplash.com/photo-1639762681057-408e52192e55?q=80&w=2232') no-repeat center;
+      background-size: cover;
+      filter: blur(8px) brightness(0.3);
+      z-index: -1;
+    }
+    
+    .navbar {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 15px 20px; background: rgba(17, 24, 39, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-left { display: flex; align-items: center; gap: 15px; }
+    .back-btn { background: none; border: none; color: var(--text-primary); font-size: 20px; cursor: pointer; }
+    .nav-title { font-size: 18px; font-weight: 600; }
+    .profile-pic {
+      width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--accent-gold);
+      object-fit: cover; cursor: pointer;
+    }
+
+    .container { padding: 20px; max-width: 480px; margin: 0 auto; }
+    
+    .balance-card {
+      background: linear-gradient(135deg, #B45309, #F59E0B); border-radius: 20px;
+      padding: 25px; text-align: center; margin-bottom: 25px; 
+      box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+    }
+    .balance-card p { font-size: 14px; color: #FEF3C7; opacity: 0.9; }
+    .balance-card h2 { font-size: 40px; font-weight: 700; margin: 5px 0 5px 0; }
+    .p4x-coins { font-size: 16px; color: #FEF3C7; margin-bottom: 20px; }
+    .action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn {
+      padding: 12px; border-radius: 12px; border: none; font-weight: 600;
+      font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+      text-decoration: none;
+    }
+    .btn-primary { background: #fff; color: #B45309; }
+    .btn-secondary { background: rgba(255,255,255,0.2); color: #fff; }
+
+    .card { 
+      background: var(--card-dark);
+      border: 1px solid var(--card-border); 
+      border-radius: 16px; padding: 20px; margin-bottom: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+    .card-title { font-size: 16px; font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+    .qr-section { text-align: center; }
+    .qr-box { background: #fff; padding: 12px; border-radius: 12px; display: inline-block; }
+    .qr-box img { width: 160px; height: 160px; display: block; }
+    .upi-box {
+      background: #0B1120; border: 1px solid var(--card-border); padding: 12px; border-radius: 12px;
+      margin: 15px 0; display: flex; justify-content: space-between; align-items: center; font-size: 14px;
+    }
+    .copy-btn { background: var(--accent-blue); color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+    input {
+      width: 100%; padding: 14px; background: #0B1120; border: 1px solid var(--card-border);
+      border-radius: 12px; color: var(--text-primary); font-size: 16px; margin-top: 8px;
+    }
+    input:focus { outline: none; border-color: var(--accent-gold); }
+    label { font-size: 14px; color: var(--text-secondary); }
+    .submit-btn {
+      width: 100%; padding: 16px; background: var(--accent-green); border: none; border-radius: 12px;
+      color: #fff; font-size: 16px; font-weight: 600; margin-top: 20px; cursor: pointer;
+    }
+    .submit-btn:disabled { background: #374151; color: #6B7280; cursor: not-allowed; }
+    #msg { text-align: center; margin-top: 10px; font-size: 14px; height: 20px; }
+    .error { color: var(--accent-red); } .success { color: var(--accent-green); }
+    .loading { text-align: center; padding: 40px; color: var(--text-secondary); }
+
+    /* ✅ GREEN FIRE BOTTOM NAV */
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #161b22;
+        border-top: 2px solid #10B981;
+        display: flex;
+        height: 58px;
+        z-index: 999;
+        box-shadow: 0 -5px 25px rgba(16, 185, 129, 0.4);
+    }
+    
+    .nav-btn {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        background: none;
+        border: none;
+        color: #777;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .nav-btn:active {
+        transform: scale(0.92);
+    }
+    
+    .nav-btn.active {
+        color: #10B981;
+    }
+    
+    .nav-btn.active i {
+        color: #10B981;
+        text-shadow: 0 0 15px rgba(16, 185, 129, 0.9), 0 0 30px rgba(52, 211, 153, 0.6);
+        animation: greenIconPulse 1.2s ease-in-out infinite;
+    }
+    
+    @keyframes greenIconPulse {
+      0%, 100% { 
+        text-shadow: 0 0 15px rgba(16, 185, 129, 0.9), 0 0 30px rgba(52, 211, 153, 0.6);
+        transform: scale(1);
+      }
+      50% { 
+        text-shadow: 0 0 25px rgba(16, 185, 129, 1), 0 0 50px rgba(52, 211, 153, 0.8);
+        transform: scale(1.12);
+      }
+    }
+    
+    .nav-btn i {
+        font-size: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-btn span {
+        font-size: 10px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-btn.active span {
+        color: #10B981;
+        font-weight: 900;
+    }
+    
+    .profile-img {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid #777;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-btn.active .profile-img {
+        border: 2px solid #10B981;
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.7);
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-left">
+      <button class="back-btn" onclick="wallet_history.back()"><i class="fa-solid fa-arrow-left"></i></button>
+      <span class="nav-title">P4X Wallet</span>
+    </div>
+    <img id="userPic" src="https://i.pravatar.cc/150?img=3" alt="Profile" class="profile-pic" onclick="window.location.href='profile.html'">
+  </nav>
+
+  <div class="container">
+    
+    <div id="loadingState" class="loading">
+      <i class="fa-solid fa-spinner fa-spin"></i> Loading Wallet...
+    </div>
+
+    <div id="walletContent" style="display: none;">
+      <div class="balance-card">
+        <p>Available Balance</p>
+        <h2 id="userBalance">₹ 0</h2>
+        <p class="p4x-coins"><i class="fa-solid fa-coins" style="color: #FEF3C7;"></i> <span id="userCoins">0</span> P4X Coins</p>
+        <div class="action-btns">
+          <a href="wallet_history.html" class="btn btn-primary">
+            <i class="fa-solid fa-clock-rotate-left"></i> History
+          </a>
+          <a href="store.html" class="btn btn-secondary">
+            <i class="fa-solid fa-store"></i> P4X Store
+          </a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-wallet" style="color: var(--accent-gold);"></i> Add Money via UTR</div>
+        <div class="qr-section">
+          <p style="color: var(--text-secondary); font-size: 14px;">Scan QR to pay via any UPI app</p>
+          <div class="qr-box">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=upi://pay?pa=ps4534627@paytm" alt="QR Code">
+          </div>
+          <div class="upi-box">
+            <span id="upiId">ps4534627@paytm</span>
+            <button class="copy-btn" onclick="copyUPI()">Copy</button>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <label for="amount">Enter Amount Paid</label>
+          <input type="number" id="amount" placeholder="e.g. 100">
+        </div>
+        <div style="margin-top: 15px;">
+          <label for="utr">Enter 12-Digit UTR Number</label>
+          <input type="text" id="utr" placeholder="Check your UPI app" maxlength="12">
+        </div>
+        <div id="msg"></div>
+        <button class="submit-btn" id="submitBtn" disabled onclick="submitUTRRequest()">Enter 12-Digit UTR</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ✅ GREEN FIRE BOTTOM NAV -->
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="navClick(this, 'view')">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </button>
+    <button class="nav-btn" onclick="navClick(this, 'rank')">
+      <i class="fa-solid fa-trophy"></i>
+      <span>Rank</span>
+    </button>
+    <button class="nav-btn active" onclick="navClick(this, 'wallet')">
+      <i class="fa-solid fa-wallet"></i>
+      <span>Wallet</span>
+    </button>
+    <button class="nav-btn" onclick="navClick(this, 'history')">
+      <i class="fa-solid fa-clock-rotate-left"></i>
+      <span>History</span>
+    </button>
+    <button class="nav-btn" onclick="navClick(this, 'profile')">
+      <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ProGamer" class="profile-img" id="navProfilePic" alt="Profile">
+      <span>Profile</span>
+    </button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, addDoc, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDGLVLgX33dA3caK7wScbgN4BgE2NCjZx8",
+      authDomain: "ffm-p4xesportscommunity.firebaseapp.com",
+      projectId: "ffm-p4xesportscommunity",
+      storageBucket: "ffm-p4xesportscommunity.firebasestorage.app",
+      messagingSenderId: "796835743313",
+      appId: "1:796835743313:web:e4356f63c3d1d51b605a70"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const msg = document.getElementById('msg');
+    const submitBtn = document.getElementById('submitBtn');
+    const utrInput = document.getElementById('utr');
+    const amountInput = document.getElementById('amount');
+    let currentUser = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        document.getElementById('userPic').src = user.photoURL || `https://i.pravatar.cc/150?u=${user.uid}`;
+        document.getElementById('navProfilePic').src = user.photoURL || `https://i.pravatar.cc/150?u=${user.uid}`;
+        await loadUserData(user.uid);
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('walletContent').style.display = 'block';
+      } else {
+        window.location.href = 'login.html';
+      }
+    });
+
+    async function loadUserData(uid) {
+      const userRef = doc(db, 'users', uid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const data = userSnap.data();
+        document.getElementById('userBalance').innerText = `₹ ${data.balance || 0}`;
+        document.getElementById('userCoins').innerText = data.diamonds || data.p4xCoins || 0;
+        if(data.photoUrl) {
+          document.getElementById('userPic').src = data.photoUrl;
+          document.getElementById('navProfilePic').src = data.photoUrl;
+        }
+      }
+    }
+
+    window.copyUPI = function() {
+      navigator.clipboard.writeText(document.getElementById('upiId').innerText);
+      alert('UPI ID Copied!');
+    }
+
+    async function validateUTR() {
+      const utr = utrInput.value.trim();
+      const amount = Number(amountInput.value);
+      msg.innerHTML = ""; 
+      
+      if (!amount || amount < 10) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Enter Amount First';
+        return;
+      }
+      
+      if (utr.length < 12) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Enter 12-Digit UTR";
+        return;
+      }
+      
+      if (utr.length === 12) {
+        if (isNaN(utr)) {
+          msg.innerHTML = "<p class='error'>❌ UTR must be numbers only</p>";
+          submitBtn.disabled = true;
+          submitBtn.innerText = "Invalid UTR";
+          return;
+        }
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking...';
+        msg.innerHTML = "<p style='color: var(--accent-gold);'>Checking UTR...</p>";
+        
+        try {
+          const q = query(collection(db, "utrRequests"), where("utr", "==", utr));
+          const querySnapshot = await getDocs(q);
+          
+          if (!querySnapshot.empty) {
+            msg.innerHTML = "<p class='error'>❌ UTR already used!</p>";
+            submitBtn.disabled = true;
+            submitBtn.innerText = "UTR Already Used";
+          } else {
+            msg.innerHTML = "<p class='success'>✅ UTR is valid</p>";
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Submit for Approval";
+          }
+        } catch (error) {
+          console.error("UTR Check Error:", error);
+          msg.innerHTML = "<p class='error'>❌ Check failed. Try again</p>";
+          submitBtn.disabled = false;
+          submitBtn.innerText = "Retry Submit";
+        }
+      }
+    }
+
+    utrInput.addEventListener('input', validateUTR);
+    amountInput.addEventListener('input', validateUTR);
+
+    window.submitUTRRequest = async function() {
+      const amount = Number(amountInput.value);
+      const utr = utrInput.value.trim();
+
+      if (!currentUser) { alert("Please login first"); return; }
+      if (amount < 10) { msg.innerHTML = "<p class='error'>❌ Minimum ₹10 required</p>"; return; }
+      if (utr.length !== 12 || isNaN(utr)) { msg.innerHTML = "<p class='error'>❌ Enter valid 12-digit UTR</p>"; return; }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+      msg.innerHTML = "";
+
+      try {
+        const q = query(collection(db, "utrRequests"), where("utr", "==", utr));
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          throw new Error("UTR already used!");
+        }
+
+        await addDoc(collection(db, "utrRequests"), {
+          uid: currentUser.uid,
+          email: currentUser.email,
+          amount: amount,
+          utr: utr,
+          status: "pending",
+          timestamp: serverTimestamp()
+        });
+
+        msg.innerHTML = "<p class='success'>✅ Request Submitted! Admin will approve soon.</p>";
+        submitBtn.innerText = "Submitted";
+        amountInput.value = "";
+        utrInput.value = "";
+        setTimeout(() => { 
+          submitBtn.disabled = true; 
+          submitBtn.innerText = "Enter 12-Digit UTR";
+          msg.innerHTML = "";
+        }, 3000);
+
+      } catch (error) {
+        msg.innerHTML = `<p class='error'>❌ ${error.message}</p>`;
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Submit for Approval";
+      }
+    }
+
+    // ✅ BOTTOM NAV CLICK
+    window.navClick = function(btn, page) {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      if(page === 'wallet') return;
+      window.location.href = page + '.html';
+    }
+  </script>
+</body>
+</html>
