@@ -267,6 +267,24 @@
   </div>
 
   <script type="module">
+  
+  function setSignupMode(isSignup) {
+  const kellyBody = document.querySelector('.kelly-body');
+  const kellyGun = document.querySelector('.kelly-gun');
+  const charRightGun = document.querySelector('.char-right-gun');
+
+  if (isSignup) {
+    // Signup mode
+    kellyBody.style.display = 'none';
+    kellyGun.style.display = 'none';
+    charRightGun.style.display = 'none';
+  } else {
+    // Login mode
+    kellyBody.style.display = 'block';
+    kellyGun.style.display = 'block';
+    charRightGun.style.display = 'block';
+  }
+}
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, fetchSignInMethodsForEmail, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, doc, setDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -383,6 +401,7 @@
           if (!name && nameGroup.style.display === 'none') {
             nameGroup.style.display = 'block';
             usernameGroup.style.display = 'block';
+            setSignupMode(true);
             errorEl.textContent = 'Naya account? Naam aur Username bhi daalo';
             errorEl.style.display = 'block';
             btn.disabled = false;
@@ -457,6 +476,7 @@
           // PURANA USER - SIRF LOGIN
           nameGroup.style.display = 'none';
           usernameGroup.style.display = 'none';
+          setSignupMode(false);
           await signInWithEmailAndPassword(auth, email, password);
           window.location.replace("view.html");
         }
