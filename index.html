@@ -3,19 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- SEO KE LIYE ZAROORI -->
-  <title>P4X ESPORTS - Official Gaming Platform | Tournaments, Leaderboard, Wallet</title>
-  <meta name="description" content="Join P4X ESPORTS official website. Play tournaments, check global leaderboard, earn rewards. P4X ESPORT is India's #1 gaming community platform. Login now.">
-  <meta name="keywords" content="p4x esport, p4x esports, p4xesports, p4x gaming, p4x tournament, p4x leaderboard, ffm p4x, free fire tournament">
-  <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://p4xesports.web.app/" />
-  
-  <!-- Social Media Share -->
-  <meta property="og:title" content="P4X ESPORTS - Official Gaming Platform">
-  <meta property="og:description" content="Join P4X ESPORT tournaments, check leaderboard & win prizes">
-  <meta property="og:url" content="https://p4xesports.web.app/">
-  <meta property="og:type" content="website">
-  <meta property="og:image" content="https://p4xesports.web.app/logo.png">
     <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-E7TSQ60Q87"></script>
 <script>
@@ -25,6 +12,7 @@
 
   gtag('config', 'G-E7TSQ60Q87');
     </script>
+  <title>FFM-P4X Esports Community - Login</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;700&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -45,14 +33,14 @@
                   #0a0a0a;
       z-index: 0;
     }
-    
-    .header {
+
+   .header {
       position: relative;
       z-index: 20;
       text-align: center;
       padding: 25px 20px 0;
     }
-    .header h1 {
+   .header h1 {
       font-family: 'Orbitron', sans-serif;
       font-size: 2rem;
       font-weight: 900;
@@ -62,12 +50,12 @@
       text-shadow: 0 0 50px rgba(0, 212, 255, 0.6);
       margin-bottom: 5px;
     }
-    .header p {
+   .header p {
       color: #b8b8b8;
       font-size: 0.9rem;
     }
 
-    .container {
+   .container {
       position: relative;
       z-index: 1;
       min-height: calc(100vh - 120px);
@@ -77,7 +65,7 @@
       padding: 20px;
     }
 
-    .login-wrap {
+   .login-wrap {
       position: relative;
       width: 100%;
       max-width: 420px;
@@ -85,7 +73,7 @@
     }
 
     /* LEFT SIDE - Kelly Body - Card Ke Peeche */
-    .kelly-body {
+   .kelly-body {
       position: absolute;
       left: -550px;
       bottom: -350px;
@@ -95,12 +83,12 @@
       object-position: top;
       z-index: 4;
       pointer-events: none;
-      filter: drop-shadow(0 0 100px rgba(0, 212, 255, 1)) 
+      filter: drop-shadow(0 0 100px rgba(0, 212, 255, 1))
               drop-shadow(0 0 50px rgba(156, 39, 176, 0.9));
     }
-    
+
     /* LEFT SIDE - Kelly Gun - Card Ke Aage */
-    .kelly-gun {
+   .kelly-gun {
       position: absolute;
       left: -550px;
       bottom: -350px;
@@ -113,7 +101,7 @@
     }
 
     /* CENTER - CharAB Logo - CARD KE PEECHE, TITLE KO TOUCH KAREGA */
-    .char-center-body {
+   .char-center-body {
       position: absolute;
       left: 50%;
       top: -320px;
@@ -128,7 +116,7 @@
     }
 
     /* RIGHT SIDE - CharAB Gun - RIGHT SIDE HI RAHEGI */
-    .char-right-gun {
+   .char-right-gun {
       position: absolute;
       right: -540px;
       bottom: -380px;
@@ -140,7 +128,7 @@
       pointer-events: none;
     }
 
-    .login-section {
+   .login-section {
       position: relative;
       z-index: 15;
       width: 100%;
@@ -152,7 +140,7 @@
       box-shadow: 0 0 180px rgba(0, 212, 255, 0.6),
                   inset 0 0 100px rgba(0, 212, 255, 0.12);
     }
-    .login-section h2 {
+   .login-section h2 {
       font-family: 'Orbitron', sans-serif;
       text-align: center;
       font-size: 1.9rem;
@@ -161,7 +149,7 @@
       text-shadow: 0 0 40px rgba(0, 212, 255, 1);
       letter-spacing: 2px;
     }
-    .form-group { margin-bottom: 22px; }
+   .form-group { margin-bottom: 22px; }
     label {
       display: block;
       margin-bottom: 8px;
@@ -187,7 +175,7 @@
       border-color: #00d4ff;
       box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
     }
-    .btn {
+   .btn {
       width: 100%;
       padding: 17px;
       background: linear-gradient(90deg, #00d4ff, #9c27b0);
@@ -202,33 +190,41 @@
       margin-top: 10px;
       box-shadow: 0 5px 40px rgba(0, 212, 255, 0.6);
     }
-    .error { color: #ff4757; font-size: 0.85rem; margin-top: 8px; display: none; }
-    .success { color: #00ff88; font-size: 0.85rem; margin-top: 8px; display: none; }
-    
+   .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+   .error { color: #ff4757; font-size: 0.85rem; margin-top: 8px; display: none; }
+   .success { color: #00ff88; font-size: 0.85rem; margin-top: 8px; display: none; }
+   .username-status { font-size: 0.75rem; margin-top: 5px; min-height: 18px; }
+   .username-status.available { color: #00ff88; }
+   .username-status.taken { color: #ff4757; }
+   .username-status.checking { color: #888; }
+
     @media (max-width: 1400px) {
-      .kelly-body, .kelly-gun { left: -400px; width: 1500px; height: 1900px; bottom: -280px; }
-      .char-center-body { width: 650px; height: 650px; top: -280px; }
-      .char-right-gun { right: -380px; width: 1305px; height: 1881px; bottom: -268px; }
+     .kelly-body,.kelly-gun { left: -400px; width: 1500px; height: 1900px; bottom: -280px; }
+     .char-center-body { width: 650px; height: 650px; top: -280px; }
+     .char-right-gun { right: -380px; width: 1305px; height: 1881px; bottom: -268px; }
     }
     @media (max-width: 768px) {
-      .header h1 { font-size: 1.5rem; }
-      .login-wrap { margin-top: 40px; max-width: 340px; }
-      .kelly-body, .kelly-gun { left: -180px; width: 700px; bottom: -140px; height: 900px; }
-      .char-center-body { width: 500px; height: 500px; top: -220px; }
-      .char-right-gun { right: -160px; width: 612px; bottom: -140px; height: 891px; }
-      .login-section { padding: 35px 25px; }
-      .login-section h2 { font-size: 1.5rem; }
+     .header h1 { font-size: 1.5rem; }
+     .login-wrap { margin-top: 40px; max-width: 340px; }
+     .kelly-body,.kelly-gun { left: -180px; width: 700px; bottom: -140px; height: 900px; }
+     .char-center-body { width: 500px; height: 500px; top: -220px; }
+     .char-right-gun { right: -160px; width: 612px; bottom: -140px; height: 891px; }
+     .login-section { padding: 35px 25px; }
+     .login-section h2 { font-size: 1.5rem; }
     }
     @media (max-width: 480px) {
-      .kelly-body, .kelly-gun { left: -120px; width: 500px; bottom: -110px; height: 650px; }
-      .char-center-body { width: 400px; height: 400px; top: -180px; }
-      .char-right-gun { right: -108px; width: 432px; bottom: -110px; height: 643px; }
+     .kelly-body,.kelly-gun { left: -120px; width: 500px; bottom: -110px; height: 650px; }
+     .char-center-body { width: 400px; height: 400px; top: -180px; }
+     .char-right-gun { right: -108px; width: 432px; bottom: -110px; height: 643px; }
     }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>P4X ESPORTS OFFICIAL</h1>
+    <h1>FFM-P4X ESPORTS COMMUNITY</h1>
     <p>Join the Ultimate Battlegrounds Arena • Compete • Win • Earn</p>
   </div>
 
@@ -237,13 +233,13 @@
       <!-- LEFT SIDE - Kelly -->
       <img src="kellyz.png" alt="Kelly Body" class="kelly-body">
       <img src="kellyz_gun.png" alt="Kelly Gun" class="kelly-gun">
-      
+
       <!-- CENTER - CharAB Logo PEECHE -->
       <img src="logo.png" alt="P4X Logo" class="char-center-body">
-      
+
       <!-- RIGHT SIDE - CharAB Gun -->
       <img src="charAB_gun.png" alt="CharAB Gun" class="char-right-gun">
-      
+
       <div class="login-section">
         <h2>PLAYER LOGIN</h2>
         <div class="form-group">
@@ -253,6 +249,11 @@
         <div class="form-group" id="name-group" style="display:none;">
           <label>Gamer Name</label>
           <input type="text" id="name-input" placeholder="Pro Player">
+        </div>
+        <div class="form-group" id="username-group" style="display:none;">
+          <label>Username</label>
+          <input type="text" id="username-input" placeholder="proplayer123" maxlength="20">
+          <div class="username-status" id="username-status"></div>
         </div>
         <div class="form-group">
           <label>Password</label>
@@ -268,7 +269,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, fetchSignInMethodsForEmail, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDGLVLgX33dA3caK7wScbgN4BgE2NCjZx8",
@@ -284,19 +285,83 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    let usernameCheckTimeout = null;
+    let isUsernameAvailable = false;
+
+    // Auto-generate username jab naam likhe
+    document.getElementById('name-input').addEventListener('input', (e) => {
+      const name = e.target.value.trim().toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+      if (name.length >= 3) {
+        const suggested = name + Math.floor(100 + Math.random() * 900);
+        document.getElementById('username-input').value = suggested;
+        checkUsernameAvailability(suggested);
+      }
+    });
+
+    // Real-time username check
+    document.getElementById('username-input').addEventListener('input', (e) => {
+      clearTimeout(usernameCheckTimeout);
+
+      let newName = e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '');
+      e.target.value = newName;
+
+      if (newName.length < 4) {
+        updateUsernameStatus('checking', 'Kam se kam 4 characters');
+        isUsernameAvailable = false;
+        return;
+      }
+
+      updateUsernameStatus('checking', 'Checking...');
+
+      usernameCheckTimeout = setTimeout(() => {
+        checkUsernameAvailability(newName);
+      }, 500);
+    });
+
+    async function checkUsernameAvailability(username) {
+      const statusEl = document.getElementById('username-status');
+
+      try {
+        const q = query(collection(db, "users"), where("username", "==", "@" + username));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          statusEl.className = 'username-status available';
+          statusEl.textContent = '✓ @' + username + ' available hai';
+          isUsernameAvailable = true;
+        } else {
+          statusEl.className = 'username-status taken';
+          statusEl.textContent = '✗ Ye username liya hua hai';
+          isUsernameAvailable = false;
+        }
+      } catch (err) {
+        statusEl.className = 'username-status checking';
+        statusEl.textContent = 'Check nahi ho pa raha';
+        isUsernameAvailable = false;
+      }
+    }
+
+    function updateUsernameStatus(type, message) {
+      const statusEl = document.getElementById('username-status');
+      statusEl.className = 'username-status ' + type;
+      statusEl.textContent = message;
+    }
+
     document.getElementById('email-action-btn').addEventListener('click', async () => {
       const email = document.getElementById('email-input').value.trim();
       const password = document.getElementById('password-input').value;
       const name = document.getElementById('name-input').value.trim();
+      const username = document.getElementById('username-input').value.trim();
       const errorEl = document.getElementById('email-error');
       const successEl = document.getElementById('email-success');
       const nameGroup = document.getElementById('name-group');
+      const usernameGroup = document.getElementById('username-group');
       const btn = document.getElementById('email-action-btn');
-      
+
       errorEl.style.display = 'none';
       successEl.style.display = 'none';
 
-      if (!email || !password) {
+      if (!email ||!password) {
         errorEl.textContent = 'Email aur Password daalo';
         errorEl.style.display = 'block';
         return;
@@ -311,20 +376,20 @@
       btn.textContent = 'Wait...';
 
       try {
-        // BUG FIX: PEHLE CHECK KARO EMAIL EXIST KARTA HAI YA NAHI
         const methods = await fetchSignInMethodsForEmail(auth, email);
-        
+
         if (methods.length === 0) {
           // NAYA USER - SIGNUP
           if (!name && nameGroup.style.display === 'none') {
             nameGroup.style.display = 'block';
-            errorEl.textContent = 'Naya account? Naam bhi daalo';
+            usernameGroup.style.display = 'block';
+            errorEl.textContent = 'Naya account? Naam aur Username bhi daalo';
             errorEl.style.display = 'block';
             btn.disabled = false;
             btn.textContent = 'Sign Up Karo';
             return;
           }
-          
+
           if (!name) {
             errorEl.textContent = 'Naam daalo sign up ke liye';
             errorEl.style.display = 'block';
@@ -333,23 +398,76 @@
             return;
           }
 
+          if (!username) {
+            errorEl.textContent = 'Username daalo';
+            errorEl.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Sign Up Karo';
+            return;
+          }
+
+          if (!isUsernameAvailable) {
+            errorEl.textContent = 'Username available nahi hai, dusra chuno';
+            errorEl.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Sign Up Karo';
+            return;
+          }
+
           const userCred = await createUserWithEmailAndPassword(auth, email, password);
           await updateProfile(userCred.user, { displayName: name });
-          await setDoc(doc(db, 'users', userCred.user.uid), { name: name, email: email, createdAt: Date.now() });
+
+          // ✅ POORA USER DATA BANEGA AB
+  await setDoc(doc(db, 'users', userCred.user.uid), {
+  name: name,
+  email: email,
+  username: "@" + username,
+  userId: userCred.user.uid,
+
+  ffuid: "",
+  state: "",
+  district: "",
+  college: "",
+  photoURL: "",
+
+  balance: 0,
+  wallet: 0,
+  p4x_coins: 0,
+  rank: 0,
+
+  kills: 0,
+  matches: 0,
+  wins: 0,
+  diamonds: 0,
+
+  level: 1,
+  unlockedLevels: [1],
+  unlockedTitles: [],
+  equippedTitles: [],
+
+  referralCode: "",
+  referralEarnings: 0,
+
+  createdAt: Date.now()
+});
+
           window.location.replace("view.html");
-          
+
         } else {
-          // PURANA USER - SIRF LOGIN - NAAM NAHI MANGEGA
+          // PURANA USER - SIRF LOGIN
           nameGroup.style.display = 'none';
+          usernameGroup.style.display = 'none';
           await signInWithEmailAndPassword(auth, email, password);
           window.location.replace("view.html");
         }
-        
+
       } catch (error) {
+        console.error('Signup/Login Error:', error);
         let msg = 'Email ya Password galat hai!';
         if (error.code === 'auth/wrong-password') msg = 'Galat password! Sahi password daalo.';
         if (error.code === 'auth/invalid-email') msg = 'Email format galat hai!';
         if (error.code === 'auth/too-many-requests') msg = 'Bahut baar try kar liya. Thodi der baad try karo.';
+        if (error.code === 'auth/email-already-in-use') msg = 'Ye email pehle se register hai';
         errorEl.textContent = msg;
         errorEl.style.display = 'block';
         btn.disabled = false;
