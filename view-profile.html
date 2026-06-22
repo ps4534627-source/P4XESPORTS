@@ -31,6 +31,8 @@
 .profile-username span { color: #fff; font-weight: 700; }
 .profile-uid { font-size: 0.8rem; color: #888; font-weight: 700; display: flex; align-items: center; gap: 6px; }
 .profile-uid span { color: #fff; }
+/* ✅ LEADERBOARD JAISA LOCATION STYLE */
+.profile-location { font-size: 0.65rem; color: #ff6b00; margin-bottom: 4px; font-weight: 700; }
 .copy-btn { background: rgba(0, 212, 255, 0.2); border: 1px solid #00d4ff; border-radius: 4px; padding: 2px 6px; cursor: pointer; display: inline-flex; align-items: center; transition: 0.2s; font-size: 0.65rem; color: #00d4ff; font-weight: 900; }
 .copy-btn:active { transform: scale(0.9); background: #00d4ff; color: #000; }
 .copy-btn.copied { background: #00ff88; border-color: #00ff88; color: #000; }
@@ -77,8 +79,8 @@
 
   <div class="navbar">
     <div class="logo" onclick="history.back()">
-      <img src="logo2.png" alt="P4X">
-      <h1>P4X ESPORTS</h1>
+      <img src="logo.png" alt="P4X">
+      <h1>NEXUS</h1>
     </div>
     <button class="back-btn" onclick="history.back()">← BACK</button>
   </div>
@@ -185,6 +187,8 @@
       const levelNum = userData.level || 1;
       const levelData = LEVEL_TYPES[levelNum] || LEVEL_TYPES[1];
       const lbTitle = userData.equippedLeaderboardTitle;
+      // ✅ LEADERBOARD JAISA LOCATION
+      const location = [userData.district, userData.state].filter(Boolean).join(', ');
 
       document.getElementById('container').innerHTML = `
         <div class="profile-card">
@@ -203,11 +207,13 @@
               ` : ''}
 
               <div class="profile-uid">
-                Free Fire UID: <span id="ffuidText">${userData.ffuid || 'Not Set'}</span>
+                FF UID: <span id="ffuidText">${userData.ffuid || 'Not Set'}</span>
                 ${userData.ffuid? `<button class="copy-btn" onclick="copyToClipboard('ffuidText', this)">📋</button>` : ''}
               </div>
 
+              ${location? `<div class="profile-location">📍 ${location}</div>` : ''}
               ${userData.college? `<div class="profile-college show">🎓 ${userData.college}</div>` : ''}
+
               <div class="badges-row">
                 <div class="profile-rank">
                   <span>🏆</span>
