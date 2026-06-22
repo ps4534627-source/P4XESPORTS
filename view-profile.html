@@ -27,6 +27,7 @@
 
 .profile-details { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 .profile-name { font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 900; color: #00d4ff; text-shadow: 0 0 20px rgba(0, 212, 255, 0.8); line-height: 1.1; word-break: break-word; }
+.profile-username { font-size: 0.9rem; color: #ff6b00; font-weight: 700; margin-top: -2px; }
 .profile-uid { font-size: 0.8rem; color: #888; font-weight: 700; }
 .profile-uid span { color: #fff; }
 .profile-college { font-size: 0.75rem; color: #00ff88; font-weight: 700; display: none; }
@@ -112,7 +113,6 @@
     let viewUID = null;
     let unsubscribeProfile = null;
 
-    // ✅ REAL-TIME RANK CALCULATOR - YE NAYA HAI
     async function showRealTimeRank(uid) {
       try {
         const usersSnap = await getDocs(collection(db, 'users'));
@@ -168,7 +168,7 @@
 
         const userData = docSnap.data();
         renderProfile(uid, userData);
-        showRealTimeRank(uid); // ✅ Real-time rank calculate karo
+        showRealTimeRank(uid);
       });
     }
 
@@ -190,6 +190,7 @@
             </div>
             <div class="profile-details">
               <div class="profile-name">${userData.name || 'Player'}</div>
+              ${userData.username? `<div class="profile-username">@${userData.username}</div>` : ''}
               <div class="profile-uid">FF UID: <span>${userData.ffuid || 'Not Set'}</span></div>
               ${userData.college? `<div class="profile-college show">🎓 ${userData.college}</div>` : ''}
               <div class="badges-row">
