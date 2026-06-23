@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team - FFM-P4X NEXUS</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&family=Exo+2:wght@700;800&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none !important; }
+    body { font-family: 'Rajdhani', sans-serif; background: #0d1117; color: #fff; min-height: 100vh; padding-bottom: 75px; }
+    body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #0d1117 0%, #161b22 100%); z-index: -2; }
+    #particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+    
+    .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(22, 27, 34, 0.98); backdrop-filter: blur(10px); border-bottom: 2px solid #00d4ff; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; height: 60px; }
+    .logo { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .logo img { width: 32px; height: 32px; }
+    .logo h1 { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 900; color: #00d4ff; letter-spacing: 1px; }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .back-btn { background: linear-gradient(135deg, #00d4ff, #0099ff); border: 2px solid #00d4ff; padding: 6px 14px; border-radius: 8px; color: #fff; font-weight: 900; font-size: 0.8rem; cursor: pointer; font-family: 'Orbitron', sans-serif; }
+    .back-btn:active { transform: scale(0.95); }
+    .create-team-btn { background: linear-gradient(135deg, #00ff88, #00cc66); border: 2px solid #00ff88; padding: 6px 12px; border-radius: 8px; color: #000; font-weight: 900; font-size: 0.75rem; cursor: pointer; font-family: 'Orbitron', sans-serif; }
+    .create-team-btn:active { transform: scale(0.95); }
+    .profile-section { position: relative; cursor: pointer; }
+    .profile-btn { width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #00d4ff, #ff0080); border: 2px solid #00d4ff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; overflow: hidden; }
+    .profile-btn img { width: 100%; height: 100%; object-fit: cover; }
+    .dropdown { position: absolute; top: 50px; right: 0; background: #161b22; border: 2px solid #00d4ff; border-radius: 12px; min-width: 200px; box-shadow: 0 0 50px rgba(0, 212, 255, 0.5); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: 0.3s; z-index: 1001; }
+    .dropdown.show { opacity: 1; visibility: visible; transform: translateY(0); }
+    .dropdown-item { padding: 12px 18px; border-bottom: 1px solid rgba(0, 212, 255, 0.2); display: flex; align-items: center; gap: 10px; transition: 0.2s; font-weight: 700; font-size: 0.9rem; cursor: pointer; }
+    .dropdown-item:last-child { border-bottom: none; }
+    .dropdown-item:active { background: rgba(0, 212, 255, 0.1); }
+    .dropdown-item.logout { color: #ff4757; }
+    
+    .container { max-width: 900px; margin: 0 auto; padding: 75px 15px 20px 15px; transition: 0.3s; }
+    .container.detail-view { padding-top: 15px; }
+    
+    .search-section { background: rgba(22, 27, 34, 0.9); border: 2px solid #00d4ff; border-radius: 16px; padding: 15px; margin-bottom: 15px; }
+    .search-section.hidden { display: none; }
+    .search-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .search-title { font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 900; color: #00d4ff; flex: 1; }
+    .refresh-btn { background: rgba(0, 212, 255, 0.1); border: 2px solid #00d4ff; border-radius: 8px; width: 32px; height: 32px; color: #00d4ff; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .refresh-btn:active { transform: scale(0.9) rotate(180deg); transition: 0.3s; }
+    .search-input { width: 100%; padding: 12px; background: #0d1117; border: 2px solid rgba(0, 212, 255, 0.3); border-radius: 8px; color: #fff; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.9rem; outline: none; }
+    .search-input:focus { border-color: #00d4ff; }
+    .search-hint { font-size: 0.7rem; color: #666; text-align: center; margin-top: 8px; }
+    .search-hint span { color: #00d4ff; font-weight: 900; }
+    
+    .team-result { background: #0d1117; border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 8px; padding: 8px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .team-result:active { background: rgba(0, 212, 255, 0.1); }
+    .team-result-avatar { width: 36px; height: 36px; border-radius: 6px; border: 2px solid #00d4ff; overflow: hidden; flex-shrink: 0; }
+    .team-result-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .team-result-info { flex: 1; min-width: 0; }
+    .team-result-name { font-size: 0.85rem; font-weight: 900; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .team-result-username { font-size: 0.7rem; color: #888; }
+    .team-result-members { font-size: 0.7rem; color: #00ff88; font-weight: 700; }
+    .team-result-members.full { color: #ff4757; }
+    
+    .random-teams-section { margin-top: 15px; }
+    .random-title { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; font-weight: 900; color: #00ff88; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .teams-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    @media (min-width: 500px) { .teams-grid { grid-template-columns: repeat(4, 1fr); } }
+    .team-card { background: #0d1117; border: 2px solid rgba(0, 212, 255, 0.3); border-radius: 10px; padding: 10px; text-align: center; cursor: pointer; transition: 0.2s; }
+    .team-card:active { transform: scale(0.95); border-color: #00d4ff; }
+    .team-card-logo { width: 50px; height: 50px; border-radius: 8px; border: 2px solid #00d4ff; margin: 0 auto 8px; overflow: hidden; }
+    .team-card-logo img { width: 100%; height: 100%; object-fit: cover; }
+    .team-card-name { font-size: 0.8rem; font-weight: 900; color: #fff; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .team-card-username { font-size: 0.65rem; color: #888; margin-bottom: 6px; }
+    .team-card-members { font-size: 0.7rem; color: #00ff88; font-weight: 700; margin-bottom: 8px; }
+    .team-card-members.full { color: #ff4757; }
+    .join-request-btn { width: 100%; padding: 6px; background: linear-gradient(135deg, #00ff88, #00cc66); border: 2px solid #00ff88; border-radius: 6px; color: #000; font-weight: 900; font-size: 0.65rem; cursor: pointer; font-family: 'Orbitron', sans-serif; }
+    .join-request-btn:active { transform: scale(0.95); }
+    .join-request-btn:disabled { background: rgba(255, 71, 87, 0.2); border-color: #ff4757; color: #ff4757; cursor: not-allowed; }
+    
+    .team-detail { display: none; }
+    .team-detail.show { display: block; }
+    .team-profile { background: rgba(22, 27, 34, 0.9); border: 2px solid #00d4ff; border-radius: 16px; margin-bottom: 20px; position: relative; overflow: hidden; }
+    .team-cover { height: 135px; position: relative; background: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?w=900&h=200&fit=crop') center/cover; }
+    .team-dp { position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%); width: 135px; height: 135px; border-radius: 50%; border: 4px solid #161b22; background: #0d1117; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 0 40px rgba(0, 212, 255, 0.8); z-index: 20; }
+    .team-dp img { width: 100%; height: 100%; object-fit: cover; }
+    .team-profile-info { padding: 75px 20px 15px 20px; text-align: center; position: relative; z-index: 5; background: rgba(22, 27, 34, 0.9); }
+    .team-profile-name { font-size: 1.5rem; font-weight: 900; color: #fff; margin-bottom: 6px; }
+    .team-profile-username { font-size: 0.9rem; color: #888; font-weight: 700; margin-bottom: 15px; }
+    .members-section { background: rgba(13, 17, 23, 0.8); padding: 15px 20px; border-top: 1px solid rgba(0, 212, 255, 0.2); }
+    .members-title { font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 900; color: #00ff88; margin-bottom: 12px; text-align: left; }
+    .member-box { background: #0d1117; border: 2px solid rgba(0, 212, 255, 0.3); border-radius: 8px; padding: 4px 8px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; position: relative; width: 100%; min-height: 38px; cursor: pointer; }
+    .member-box.filled { border-color: #00ff88; }
+    .member-box.empty { border-style: dashed; border-color: rgba(255, 255, 255, 0.2); cursor: default; }
+    .member-box.extra-player { border-color: #ff6b00; }
+    .status-text { font-size: 0.55rem; font-weight: 900; padding: 1px 5px; border-radius: 3px; flex-shrink: 0; white-space: nowrap; }
+    .status-text.online { background: rgba(0, 255, 136, 0.15); color: #00ff88; border: 1px solid #00ff88; }
+    .status-text.offline { background: rgba(255, 71, 87, 0.15); color: #ff4757; border: 1px solid #ff4757; }
+    .member-position { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; font-weight: 900; color: #00d4ff; width: 22px; text-align: center; flex-shrink: 0; }
+    .member-box.extra-player .member-position { color: #ff6b00; }
+    .member-avatar { width: 28px; height: 28px; border-radius: 6px; border: 2px solid #00d4ff; background: linear-gradient(135deg, #00d4ff, #ff0080); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; overflow: hidden; flex-shrink: 0; }
+    .member-box.extra-player .member-avatar { border-color: #ff6b00; }
+    .member-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .member-info { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
+    .member-name { font-size: 0.8rem; font-weight: 900; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .role-wrapper { flex: 1; display: flex; justify-content: center; align-items: center; gap: 4px; }
+    .role-display { font-size: 0.6rem; color: #00ff88; font-weight: 700; background: rgba(0, 255, 136, 0.1); border: 1px solid #00ff88; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+    .role-display.extra { color: #ff6b00; border-color: #ff6b00; background: rgba(255, 107, 0, 0.1); }
+    .role-display.default { color: #888; border-color: #888; background: rgba(136, 136, 136, 0.1); }
+    .member-badge { font-size: 0.5rem; background: #ff6b00; color: #000; padding: 1px 4px; border-radius: 3px; font-weight: 900; }
+    .join-request-section { margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(0, 212, 255, 0.2); }
+    .join-request-btn-detail { width: 100%; padding: 12px; background: linear-gradient(135deg, #00ff88, #00cc66); border: 2px solid #00ff88; border-radius: 8px; color: #000; font-weight: 900; font-size: 0.9rem; cursor: pointer; font-family: 'Orbitron', sans-serif; transition: 0.2s; }
+    .join-request-btn-detail:active { transform: scale(0.98); background: linear-gradient(135deg, #00cc66, #00ff88); }
+    .join-request-btn-full { width: 100%; padding: 12px; background: rgba(255, 71, 87, 0.2); border: 2px solid #ff4757; border-radius: 8px; color: #ff4757; font-weight: 900; font-size: 0.9rem; cursor: not-allowed; font-family: 'Orbitron', sans-serif; }
+    
+    .create-popup,.confirm-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: #161b22; border: 2px solid #00ff88; border-radius: 16px; padding: 20px; z-index: 2000; display: none; box-shadow: 0 0 60px rgba(0, 255, 136, 0.6); max-width: 90%; width: 400px; max-height: 90vh; overflow-y: auto; opacity: 0; transition: 0.3s; }
+    .create-popup.show,.confirm-popup.show { display: block; transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    .confirm-popup { border-color: #ff6b00; box-shadow: 0 0 60px rgba(255, 107, 0, 0.6); }
+    .popup-title { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; font-weight: 900; color: #00ff88; margin-bottom: 20px; text-align: center; }
+    .confirm-popup .popup-title { color: #ff6b00; }
+    .upload-section { margin-bottom: 15px; }
+    .upload-label { font-size: 0.85rem; font-weight: 700; color: #00d4ff; margin-bottom: 8px; display: block; }
+    .upload-box { width: 100%; height: 120px; background: #0d1117; border: 2px dashed rgba(0, 212, 255, 0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; }
+    .upload-box:active { border-color: #00d4ff; }
+    .upload-box img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .upload-box.has-image img { display: block; }
+    .upload-box.has-image .upload-text { display: none; }
+    .upload-text { text-align: center; color: #666; }
+    .upload-text .icon { font-size: 2rem; margin-bottom: 5px; }
+    .dp-upload { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto; }
+    .input-group { margin-bottom: 12px; }
+    .input-label { font-size: 0.8rem; font-weight: 700; color: #00d4ff; margin-bottom: 5px; display: block; }
+    .popup-input { width: 100%; padding: 10px; background: #0d1117; border: 2px solid rgba(0, 212, 255, 0.3); border-radius: 8px; color: #fff; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.9rem; outline: none; }
+    .popup-input:focus { border-color: #00d4ff; }
+    .popup-input.error { border-color: #ff4757; }
+    .wallet-info { background: rgba(0, 255, 136, 0.1); border: 1px solid #00ff88; border-radius: 8px; padding: 10px; margin: 15px 0; text-align: center; }
+    .wallet-balance { font-size: 0.85rem; color: #888; margin-bottom: 5px; }
+    .wallet-amount { font-size: 1.3rem; font-weight: 900; color: #00ff88; }
+    .cost-info { font-size: 0.75rem; color: #ff6b00; font-weight: 700; margin-top: 5px; }
+    .wallet-info.insufficient { background: rgba(255, 71, 87, 0.1); border-color: #ff4757; }
+    .wallet-info.insufficient .wallet-amount { color: #ff4757; }
+    .wallet-info.insufficient .cost-info { color: #ff4757; }
+    .popup-buttons { display: flex; gap: 10px; margin-top: 20px; }
+    .popup-btn { flex: 1; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 0.9rem; cursor: pointer; font-family: 'Orbitron', sans-serif; transition: 0.2s; }
+    .cancel-btn { background: #0d1117; border: 2px solid #666; color: #888; }
+    .cancel-btn:active { background: #1a1f26; transform: scale(0.95); }
+    .create-btn-popup { background: linear-gradient(135deg, #00ff88, #00cc66); border: 2px solid #00ff88; color: #000; }
+    .create-btn-popup:active { transform: scale(0.95); }
+    .create-btn-popup:disabled { background: rgba(255, 71, 87, 0.3); border-color: #ff4757; color: #ff4757; cursor: not-allowed; }
+    .close-popup { position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; border-radius: 50%; background: rgba(255, 71, 87, 0.2); border: 2px solid #ff4757; color: #ff4757; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 900; }
+    .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1499; display: none; }
+    .overlay.show { display: block; }
+    .popup-icon { font-size: 3rem; text-align: center; margin-bottom: 10px; }
+    .popup-message { font-size: 0.85rem; color: #ccc; text-align: center; margin-bottom: 20px; line-height: 1.5; }
+    .popup-message strong { color: #ff4757; }
+    
+    .quick-card { position: fixed; top: 80px; left: 15px; width: 280px; background: #161b22; border: 3px solid #00d4ff; border-radius: 16px; padding: 15px; box-shadow: 0 0 50px rgba(0, 212, 255, 0.6); z-index: 99999; transform: translateX(-320px); transition: 0.3s; max-height: calc(100vh - 100px); overflow-y: auto; }
+    .quick-card.show { transform: translateX(0); }
+    .quick-close { position: absolute; top: 8px; right: 8px; width: 24px; height: 24px; border-radius: 50%; background: rgba(255, 71, 87, 0.2); border: 2px solid #ff4757; color: #ff4757; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 900; }
+    .quick-close:active { transform: scale(0.9); }
+    .quick-avatar { width: 70px; height: 70px; border-radius: 12px; border: 3px solid #00d4ff; overflow: hidden; background: linear-gradient(135deg, #00d4ff, #ff0080); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 10px; box-shadow: 0 0 30px rgba(0, 212, 255, 0.5); }
+    .quick-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .quick-name { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 900; color: #00d4ff; text-align: center; margin-bottom: 6px; text-shadow: 0 0 15px rgba(0, 212, 255, 0.8); word-break: break-word; }
+    .quick-college { font-size: 0.7rem; color: #00ff88; font-weight: 700; text-align: center; margin-bottom: 8px; }
+    .quick-badges { display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
+    .quick-badge { display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px; border-radius: 10px; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 0.6rem; }
+    .quick-badge.level { background: linear-gradient(135deg, #ff0080, #ff6b00); border: 1px solid #ff6b00; color: #fff; }
+    .quick-badge.title { background: rgba(0, 212, 255, 0.3); border: 1px solid #00d4ff; color: #00d4ff; }
+    .quick-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 12px; }
+    .quick-stat { background: #0d1117; border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 8px; padding: 6px 4px; text-align: center; }
+    .quick-stat-icon { font-size: 0.9rem; margin-bottom: 2px; }
+    .quick-stat-value { font-family: 'Orbitron', sans-serif; font-size: 0.8rem; font-weight: 900; color: #00d4ff; }
+    .quick-stat-label { font-size: 0.5rem; color: #888; text-transform: uppercase; font-weight: 700; }
+    .quick-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .quick-btn { padding: 10px; border: none; border-radius: 8px; font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 0.75rem; cursor: pointer; text-transform: uppercase; }
+    .quick-btn.like { background: linear-gradient(135deg, #ff0064, #ff0080); border: 2px solid #ff0064; color: #fff; }
+    .quick-btn.like.liked { background: #00ff88; border-color: #00ff88; color: #000; }
+    .quick-btn.visit { background: linear-gradient(135deg, #00d4ff, #0099ff); border: 2px solid #00d4ff; color: #fff; }
+    .quick-btn:active { transform: scale(0.95); }
+    .quick-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(100px); background: linear-gradient(135deg, #00ff88, #00cc66); border: 2px solid #00ff88; border-radius: 12px; padding: 12px 20px; color: #000; font-weight: 900; font-size: 0.9rem; z-index: 3000; opacity: 0; transition: 0.3s; box-shadow: 0 0 30px rgba(0, 255, 136, 0.6); }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .toast.error { background: linear-gradient(135deg, #ff4757, #ff0064); border-color: #ff4757; color: #fff; }
+    
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #161b22; border-top: 2px solid #FFD700; display: flex; height: 58px; z-index: 999; box-shadow: 0 -5px 25px rgba(255, 215, 0, 0.4); }
+    .nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; background: none; border: none; color: #777; cursor: pointer; transition: all 0.15s ease; -webkit-tap-highlight-color: transparent; }
+    .nav-btn:active { transform: scale(0.92); }
+    .nav-btn.active { color: #FFD700; }
+    .nav-btn.active i { color: #FFD700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.9), 0 0 30px rgba(255, 215, 0, 0.6); animation: goldenIconPulse 1.2s ease-in-out infinite; }
+    @keyframes goldenIconPulse { 0%, 100% { text-shadow: 0 0 15px rgba(255, 215, 0, 0.9), 0 0 30px rgba(255, 215, 0, 0.6); transform: scale(1); } 50% { text-shadow: 0 0 25px rgba(255, 215, 0, 1), 0 0 50px rgba(255, 215, 0, 0.8); transform: scale(1.12); } }
+    .nav-btn i { font-size: 20px; transition: all 0.3s ease; }
+    .nav-btn span { font-size: 10px; font-weight: 700; transition: all 0.3s ease; }
+    .nav-btn.active span { color: #FFD700; font-weight: 900; }
+    .profile-img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; border: 1px solid #777; transition: all 0.3s ease; }
+    .nav-btn.active .profile-img { border: 2px solid #FFD700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.7); animation: profileBounce 1.2s ease-in-out infinite; }
+    @keyframes profileBounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+    
+    @media (min-width: 768px) {
+      .navbar { padding: 14px 40px; height: 70px; }
+      .logo img { width: 45px; height: 45px; }
+      .logo h1 { font-size: 1.6rem; }
+      .container { padding: 95px 40px; }
+      .quick-card { left: 40px; }
+      .teams-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particles"></canvas>
+  <input type="file" id="photoInput" accept="image/*">
+  
+  <div class="navbar">
+    <div class="logo" onclick="window.location.href='view.html'">
+      <img src="logo.png" alt="P4X">
+      <h1>NEXUS</h1>
+    </div>
+    <div class="nav-right">
+      <button class="back-btn" onclick="handleBack()">← BACK</button>
+      <button class="create-team-btn" onclick="openCreatePopup()">+ CREATE TEAM</button>
+      <div class="profile-section">
+        <div class="profile-btn" id="profileBtn" onclick="toggleDropdown()">
+          <span id="navProfileIcon">👤</span>
+        </div>
+        <div class="dropdown" id="dropdown">
+          <div class="dropdown-item" onclick="window.location.href='profile.html'">👤 My Profile</div>
+          <div class="dropdown-item" onclick="window.location.href='history.html'">📜 Match History</div>
+          <div class="dropdown-item" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</div>
+          <div class="dropdown-item" onclick="window.location.href='wallet.html'">💰 Wallet</div>
+          <div class="dropdown-item logout" onclick="logout()">🚪 Logout</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" id="mainContainer">
+    <div class="search-section" id="searchSection">
+      <div class="search-header">
+        <div class="search-title">🔍 SEARCH TEAMS</div>
+        <button class="refresh-btn" onclick="loadRandomTeams()">↻</button>
+      </div>
+      <input type="text" class="search-input" id="searchInput" placeholder="Search @username or team name..." oninput="searchTeams(this.value)">
+      <div class="search-hint">Search by <span>@username</span> or <span>team name</span></div>
+
+      <div id="searchResults"></div>
+
+      <div class="random-teams-section" id="randomSection">
+        <div class="random-title">
+          <span>⚡ RANDOM TEAMS</span>
+        </div>
+        <div class="teams-grid" id="teamsGrid">
+          <div style="grid-column: 1/-1; text-align: center; padding: 20px; color: #666;">Loading teams...</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="team-detail" id="teamDetail">
+      <div class="team-profile">
+        <div class="team-cover" id="teamCover"></div>
+        <div class="team-dp" id="teamDP">
+          <img src="" id="teamDPImg">
+        </div>
+        <div class="team-profile-info">
+          <div class="team-profile-name" id="detailTeamName">Loading...</div>
+          <div class="team-profile-username" id="detailTeamUsername">@username</div>
+        </div>
+        <div class="members-section">
+          <div class="members-title" id="membersTitle">👥 TEAM MEMBERS (0/5)</div>
+          <div id="membersList"></div>
+          <div class="join-request-section" id="joinRequestSection"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay" onclick="closeCreatePopup()"></div>
+  <div class="create-popup" id="createPopup">
+    <div class="close-popup" onclick="closeCreatePopup()">×</div>
+    <div class="popup-title">⚡ CREATE YOUR TEAM</div>
+
+    <div class="upload-section">
+      <label class="upload-label">Background Cover <span style="color:#666;font-size:0.7rem;">(Optional)</span></label>
+      <div class="upload-box" id="bgUpload" onclick="document.getElementById('bgInput').click()">
+        <input type="file" id="bgInput" accept="image/*" style="display: none;" onchange="previewImage(this, 'bgUpload')">
+        <img id="bgPreview">
+        <div class="upload-text">
+          <div class="icon">🖼️</div>
+          <div>Click to upload</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="upload-section">
+      <label class="upload-label">Team Logo / DP <span style="color:#666;font-size:0.7rem;">(Optional)</span></label>
+      <div class="upload-box dp-upload" id="dpUpload" onclick="document.getElementById('dpInput').click()">
+        <input type="file" id="dpInput" accept="image/*" style="display: none;" onchange="previewImage(this, 'dpUpload')">
+        <img id="dpPreview">
+        <div class="upload-text">
+          <div class="icon">👤</div>
+          <div>Upload</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">Team Name *</label>
+      <input type="text" class="popup-input" id="teamName" placeholder="Enter team name" maxlength="30">
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">Team Username *</label>
+      <div style="display: flex; align-items: center; gap: 0;">
+        <span style="background: #0d1117; border: 2px solid rgba(0, 212, 255, 0.3); border-right: 0; border-radius: 8px 0 8px; padding: 10px; color: #00d4ff; font-weight: 900; font-size: 0.9rem;">@</span>
+        <input type="text" class="popup-input" id="teamUsername" placeholder="team_username" maxlength="20" style="border-radius: 0 8px 8px 0; border-left: 0;" oninput="checkUsername(this.value)">
+      </div>
+      <div id="usernameError" style="font-size: 0.7rem; color: #ff4757; margin-top: 4px; display: none;">Username already taken!</div>
+      <div id="usernameSuccess" style="font-size: 0.7rem; color: #00ff88; margin-top: 4px; display: none;">✓ Username available</div>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">WhatsApp Number *</label>
+      <div style="display: flex; align-items: center; gap: 0;">
+        <span style="background: #0d1117; border: 2px solid rgba(0, 212, 255, 0.3); border-right: 0; border-radius: 8px 0 0 8px; padding: 10px; color: #00d4ff; font-weight: 900; font-size: 0.9rem;">+91</span>
+        <input type="tel" class="popup-input" id="whatsappNumber" placeholder="9876543210" maxlength="10" style="border-radius: 0 8px 8px 0; border-left: 0;" oninput="validatePhone(this)">
+      </div>
+      <div id="phoneError" style="font-size: 0.7rem; color: #ff4757; margin-top: 4px; display: none;">Enter valid 10 digit number</div>
+    </div>
+
+    <div class="wallet-info" id="walletInfo">
+      <div class="wallet-balance">Your Wallet Balance</div>
+      <div class="wallet-amount" id="walletAmount">₹ 0.00</div>
+      <div class="cost-info">Team Creation Cost: ₹ 20.00</div>
+    </div>
+
+    <div class="popup-buttons">
+      <button class="popup-btn cancel-btn" onclick="closeCreatePopup()">CANCEL</button>
+      <button class="popup-btn create-btn-popup" id="createBtn" onclick="confirmCreateTeam()">₹20 CREATE TEAM</button>
+    </div>
+  </div>
+
+  <div class="confirm-popup" id="confirmPopup">
+    <div class="close-popup" onclick="closeConfirmPopup()">×</div>
+    <div class="popup-icon">💰</div>
+    <div class="popup-title">CONFIRM PAYMENT</div>
+    <div class="popup-message">
+      Aap <strong>₹20.00</strong> pay karke team create karna chahte hain?<br>
+      <span style="color: #888; font-size: 0.75rem;" id="balanceAfter">Balance deduct hoga</span>
+    </div>
+    <div class="popup-buttons">
+      <button class="popup-btn cancel-btn" onclick="closeConfirmPopup()">CANCEL</button>
+      <button class="popup-btn create-btn-popup" onclick="executeCreateTeam()">CONFIRM & PAY</button>
+    </div>
+  </div>
+
+  <div class="quick-card" id="quickCard">
+    <div class="quick-close" onclick="closeQuickCard()">×</div>
+    <div id="quickContent">Loading...</div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="navClick(this, 'view')">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </button>
+    <button class="nav-btn" onclick="navClick(this, 'rank')">
+      <i class="fa-solid fa-trophy"></i>
+      <span>Rank</span>
+    </button>
+    <button class="nav-btn" onclick="navClick(this, 'wallet')">
+      <i class="fa-solid fa-wallet"></i>
+      <span>Wallet</span>
+    </button>
+    <button class="nav-btn" onclick="navClick(this, 'history')">
+      <i class="fa-solid fa-clock-rotate-left"></i>
+      <span>History</span>
+    </button>
+    <button class="nav-btn" onclick="navClick(this, 'profile')">
+      <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=ProGamer" class="profile-img" id="navProfilePic" alt="Profile">
+      <span>Profile</span>
+    </button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, where, getDocs, limit, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDGLVLgX33dA3caK7wScbgN4BgE2NCjZx8",
+      authDomain: "ffm-p4xesportscommunity.firebaseapp.com",
+      projectId: "ffm-p4xesportscommunity",
+      storageBucket: "ffm-p4xesportscommunity.firebasestorage.app",
+      messagingSenderId: "796835743313",
+      appId: "1:796835743313:web:e4356f63c3d1d51b605a70"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    let currentUser = null;
+    let myUID = null;
+    let userWallet = 0;
+    const TEAM_COST = 20;
+    let bgImageFile = null;
+    let dpImageFile = null;
+    let isUsernameValid = false;
+    let currentTeamData = null;
+    let allTeams = [];
+    let searchTimeout = null;
+
+    const LEVEL_TYPES = {
+      1: { name: 'COLLEGE', icon: '🎓' },
+      2: { name: 'UNIVERSITY', icon: '🏛️' },
+      3: { name: 'ZONAL', icon: '⭐' },
+      4: { name: 'DISTRICT', icon: '🏅' },
+      5: { name: 'STATE', icon: '👑' }
+    };
+
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const particles = [];
+    for(let i = 0; i < 20; i++) {
+      particles.push({
+        x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+        size: Math.random() * 2 + 1, speedX: (Math.random() - 0.5) * 0.3,
+        speedY: (Math.random() - 0.5) * 0.3, opacity: Math.random() * 0.4 + 0.1
+      });
+    }
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0, 212, 255, ${p.opacity})`; ctx.fill();
+        p.x += p.speedX; p.y += p.speedY;
+        if(p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+        if(p.y < 0 || p.y > canvas.height) p.speedY *= -1;
+      });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        myUID = user.uid;
+        await loadUserData();
+        await loadRandomTeams();
+      } else {
+        window.location.href = 'index.html';
+      }
+    });
+
+    async function loadUserData() {
+      const userDoc = await getDoc(doc(db, 'users', myUID));
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        userWallet = data.wallet || data.balance || 0;
+        document.getElementById('walletAmount').textContent = `₹ ${userWallet.toFixed(2)}`;
+        if (data.photoURL) {
+          document.getElementById('navProfileIcon').innerHTML = `<img src="${data.photoURL}" alt="">`;
+          document.getElementById('navProfilePic').src = data.photoURL;
+        }
+        updateWalletDisplay();
+      }
+    }
+
+    window.toggleDropdown = function() {
+      document.getElementById('dropdown').classList.toggle('show');
+    }
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.profile-section')) {
+        document.getElementById('dropdown').classList.remove('show');
+      }
+    });
+    window.logout = function() {
+      signOut(auth).then(() => window.location.href = 'index.html');
+    }
+
+    window.handleBack = function() {
+      if (document.getElementById('teamDetail').classList.contains('show')) {
+        document.getElementById('teamDetail').classList.remove('show');
+        document.getElementById('searchSection').classList.remove('hidden');
+        document.getElementById('mainContainer').classList.remove('detail-view');
+      } else {
+        window.location.href = 'view.html';
+      }
+    }
+
+    window.searchTeams = async function(value) {
+      clearTimeout(searchTimeout);
+      const resultsDiv = document.getElementById('searchResults');
+
+      if (!value || value.length < 2) {
+        resultsDiv.innerHTML = '';
+        return;
+      }
+
+      searchTimeout = setTimeout(async () => {
+        resultsDiv.innerHTML = '<div style="text-align:center;padding:10px;color:#666;">Searching...</div>';
+
+        try {
+          const teamsRef = collection(db, 'teams');
+          const snap = await getDocs(teamsRef);
+          const results = [];
+          const searchLower = value.toLowerCase().replace('@', '');
+
+          snap.forEach(docSnap => {
+            const team = { id: docSnap.id,...docSnap.data() };
+            const nameMatch = team.name?.toLowerCase().includes(searchLower);
+            const usernameMatch = team.username?.toLowerCase().includes(searchLower);
+            if (nameMatch || usernameMatch) results.push(team);
+          });
+
+          if (results.length === 0) {
+            resultsDiv.innerHTML = '<div style="text-align:center;padding:10px;color:#888;">No teams found</div>';
+            return;
+          }
+
+          resultsDiv.innerHTML = '';
+          results.forEach(team => {
+            const div = document.createElement('div');
+            div.className = 'team-result';
+            div.onclick = () => openTeamDetail(team);
+            const isFull = (team.members?.length || 0) >= 5;
+            div.innerHTML = `
+              <div class="team-result-avatar"><img src="${team.logo || 'https://via.placeholder.com/50'}"></div>
+              <div class="team-result-info">
+                <div class="team-result-name">${team.name}</div>
+                <div class="team-result-username">@${team.username}</div>
+              </div>
+              <div class="team-result-members ${isFull? 'full' : ''}">${team.members?.length || 0}/5</div>
+            `;
+            resultsDiv.appendChild(div);
+          });
+        } catch (e) {
+          console.error(e);
+          resultsDiv.innerHTML = '<div style="text-align:center;padding:10px;color:#ff4757;">Error searching</div>';
+        }
+      }, 300);
+    }
+
+    window.loadRandomTeams = async function() {
+      const grid = document.getElementById('teamsGrid');
+      grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: #666;">Loading...</div>';
+
+      try {
+        const teamsRef = collection(db, 'teams');
+        const snap = await getDocs(query(teamsRef, limit(8)));
+
+        if (snap.empty) {
+          grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: #888;">No teams yet. Create one!</div>';
+          return;
+        }
+
+        grid.innerHTML = '';
+        allTeams = [];
+
+        snap.forEach(docSnap => {
+          const team = { id: docSnap.id,...docSnap.data() };
+          allTeams.push(team);
+          const isFull = (team.members?.length || 0) >= 5;
+          const isMember = team.members?.some(m => m.uid === myUID);
+
+          const card = document.createElement('div');
+          card.className = 'team-card';
+          card.innerHTML = `
+            <div class="team-card-logo"><img src="${team.logo || 'https://via.placeholder.com/50'}"></div>
+            <div class="team-card-name">${team.name}</div>
+            <div class="team-card-username">@${team.username}</div>
+            <div class="team-card-members ${isFull? 'full' : ''}">${team.members?.length || 0}/5</div>
+            <button class="join-request-btn" ${isFull || isMember? 'disabled' : ''} onclick="event.stopPropagation(); sendJoinRequest('${team.id}', '${team.name}', ${isFull}, ${isMember})">
+              ${isMember? 'JOINED' : isFull? 'FULL' : 'REQUEST'}
+            </button>
+          `;
+          card.onclick = () => openTeamDetail(team);
+          grid.appendChild(card);
+        });
+      } catch (e) {
+        console.error('FIREBASE ERROR:', e);
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: #ff4757;">
+          <div style="font-size: 1.2rem; margin-bottom: 8px;">❌ ${e.code || 'Error'}</div>
+          <div style="font-size: 0.85rem;">${e.message}</div>
+          <div style="font-size: 0.7rem; margin-top: 8px; color: #888;">Check Console [F12] for details</div>
+        </div>`;
+      }
+    }
+
+    window.sendJoinRequest = async function(teamId, teamName, isFull, isMember) {
+      if (isFull || isMember) return;
+      showToast(`Join request sent to ${teamName}!`);
+    }
+
+    window.openTeamDetail = async function(team) {
+      currentTeamData = team;
+      document.getElementById('searchSection').classList.add('hidden');
+      document.getElementById('mainContainer').classList.add('detail-view');
+      document.getElementById('teamDetail').classList.add('show');
+
+      document.getElementById('teamCover').style.backgroundImage = `url('${team.cover || 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=900&h=200&fit=crop'}')`;
+      document.getElementById('teamDPImg').src = team.logo || 'https://via.placeholder.com/135';
+      document.getElementById('detailTeamName').textContent = team.name;
+      document.getElementById('detailTeamUsername').textContent = `@${team.username}`;
+
+      renderMembers(team);
+      renderJoinRequestButton(team);
+    }
+
+    function renderMembers(team) {
+      const members = team.members || [];
+      const memberCount = members.length;
+      document.getElementById('membersTitle').textContent = `👥 TEAM MEMBERS (${memberCount}/5)`;
+
+      const listDiv = document.getElementById('membersList');
+      listDiv.innerHTML = '';
+
+      for (let i = 0; i < 5; i++) {
+        const member = members[i];
+        const isOwner = member && member.uid === team.ownerId;
+        const isExtra = i >= 4;
+
+        const box = document.createElement('div');
+        box.className = `member-box ${member? 'filled' : 'empty'} ${isExtra && member? 'extra-player' : ''}`;
+
+        if (member) {
+          box.onclick = () => openQuickCard(member.uid);
+          box.innerHTML = `
+            <div class="status-text ${member.online? 'online' : 'offline'}">${member.online? 'ONLINE' : 'OFFLINE'}</div>
+            <div class="member-position">${i + 1}</div>
+            <div class="member-avatar"><img src="${member.photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + member.name}"></div>
+            <div class="member-info">
+              <div class="member-name">${member.name}</div>
+              <div class="role-wrapper">
+                <div class="role-display ${isExtra? 'extra' : isOwner? '' : 'default'}">${isOwner? 'OWNER' : isExtra? 'EXTRA' : 'PLAYER'}</div>
+              </div>
+            ${isOwner? '<div class="member-badge">★</div>' : ''}
+          `;
+        } else {
+          box.innerHTML = `
+            <div class="member-position">${i + 1}</div>
+            <div class="member-avatar" style="background:#1a1f26;border-color:#333;">+</div>
+            <div class="member-info">
+              <div class="member-name" style="color:#666;">Empty Slot</div>
+              <div class="role-wrapper">
+                <div class="role-display default">VACANT</div>
+              </div>
+            </div>
+          `;
+        }
+        listDiv.appendChild(box);
+      }
+    }
+
+    function renderJoinRequestButton(team) {
+      const section = document.getElementById('joinRequestSection');
+      const memberCount = team.members?.length || 0;
+      const isFull = memberCount >= 5;
+      const isMember = team.members?.some(m => m.uid === myUID);
+
+      if (isMember) {
+        section.innerHTML = '';
+        return;
+      }
+
+      if (isFull) {
+        section.innerHTML = `<button class="join-request-btn-full" disabled>🚫 TEAM FULL (5/5)</button>`;
+      } else {
+        section.innerHTML = `<button class="join-request-btn-detail" onclick="sendJoinRequestDetail('${team.id}', '${team.name}')">✉️ SEND JOIN REQUEST</button>`;
+      }
+    }
+
+    window.sendJoinRequestDetail = function(teamId, teamName) {
+      showToast(`Join request sent to ${teamName}!`);
+      const btn = document.querySelector('.join-request-btn-detail');
+      btn.textContent = '✓ REQUEST SENT';
+      btn.disabled = true;
+      btn.style.background = 'rgba(136, 136, 0.2)';
+      btn.style.borderColor = '#666';
+      btn.style.color = '#666';
+    }
+
+    function updateWalletDisplay() {
+      const walletAmount = document.getElementById('walletAmount');
+      const walletInfo = document.getElementById('walletInfo');
+      const createBtn = document.getElementById('createBtn');
+
+      walletAmount.textContent = `₹ ${userWallet.toFixed(2)}`;
+
+      if (userWallet < TEAM_COST) {
+        walletInfo.classList.add('insufficient');
+        createBtn.disabled = true;
+        createBtn.textContent = `INSUFFICIENT BALANCE - ₹${TEAM_COST}`;
+      } else {
+        walletInfo.classList.remove('insufficient');
+        createBtn.disabled = false;
+        createBtn.textContent = `₹${TEAM_COST} CREATE TEAM`;
+      }
+    }
+
+    window.openCreatePopup = async function() {
+      await loadUserData();
+      updateWalletDisplay();
+      document.getElementById('createPopup').classList.add('show');
+      document.getElementById('overlay').classList.add('show');
+    }
+
+    window.closeCreatePopup = function() {
+      document.getElementById('createPopup').classList.remove('show');
+      document.getElementById('overlay').classList.remove('show');
+      resetForm();
+    }
+
+    window.previewImage = function(input, boxId) {
+      const file = input.files[0];
+      if (file) {
+        if (boxId === 'bgUpload') bgImageFile = file;
+        if (boxId === 'dpUpload') dpImageFile = file;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const box = document.getElementById(boxId);
+          const img = box.querySelector('img');
+          img.src = e.target.result;
+          box.classList.add('has-image');
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+
+    window.checkUsername = async function(value) {
+      const errorDiv = document.getElementById('usernameError');
+      const successDiv = document.getElementById('usernameSuccess');
+      const input = document.getElementById('teamUsername');
+
+      if (!value) {
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
+        input.classList.remove('error');
+        isUsernameValid = false;
+        return;
+      }
+
+      value = value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+      input.value = value;
+
+      const teamsRef = collection(db, 'teams');
+      const q = query(teamsRef, where('username', '==', value));
+      const snap = await getDocs(q);
+
+      if (!snap.empty) {
+        errorDiv.style.display = 'block';
+        successDiv.style.display = 'none';
+        input.classList.add('error');
+        isUsernameValid = false;
+      } else if (value.length >= 3) {
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'block';
+        input.classList.remove('error');
+        isUsernameValid = true;
+      } else {
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
+        input.classList.remove('error');
+        isUsernameValid = false;
+      }
+    }
+
+    window.validatePhone = function(input) {
+      const value = input.value.replace(/[^0-9]/g, '');
+      input.value = value;
+      const errorDiv = document.getElementById('phoneError');
+
+      if (value.length > 0 && value.length!== 10) {
+        errorDiv.style.display = 'block';
+        input.classList.add('error');
+      } else {
+        errorDiv.style.display = 'none';
+        input.classList.remove('error');
+      }
+    }
+
+    function validateForm() {
+      const teamName = document.getElementById('teamName').value.trim();
+      const teamUsername = document.getElementById('teamUsername').value.trim();
+      const whatsapp = document.getElementById('whatsappNumber').value.trim();
+
+      let isValid = true;
+
+      if (!teamName) {
+        document.getElementById('teamName').classList.add('error');
+        isValid = false;
+      } else {
+        document.getElementById('teamName').classList.remove('error');
+      }
+
+      if (!teamUsername ||!isUsernameValid) {
+        document.getElementById('teamUsername').classList.add('error');
+        showToast('Please choose a valid username!', true);
+        isValid = false;
+      } else {
+        document.getElementById('teamUsername').classList.remove('error');
+      }
+
+      if (!whatsapp || whatsapp.length!== 10) {
+        document.getElementById('whatsappNumber').classList.add('error');
+        showToast('Enter valid 10 digit number!', true);
+        isValid = false;
+      } else {
+        document.getElementById('whatsappNumber').classList.remove('error');
+      }
+
+      return isValid;
+    }
+
+    window.confirmCreateTeam = function() {
+      if (!validateForm()) return;
+      if (userWallet < TEAM_COST) {
+        showToast('Insufficient balance! Need ₹20', true);
+        return;
+      }
+      document.getElementById('balanceAfter').textContent = `Balance deduct hoga: ₹${userWallet} → ₹${userWallet - TEAM_COST}`;
+      document.getElementById('confirmPopup').classList.add('show');
+    }
+
+    window.closeConfirmPopup = function() {
+      document.getElementById('confirmPopup').classList.remove('show');
+    }
+
+    window.executeCreateTeam = async function() {
+      try {
+        userWallet -= TEAM_COST;
+
+        let bgUrl = 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=900&h=200&fit=crop';
+        let dpUrl = 'https://via.placeholder.com/135';
+
+        if (bgImageFile) {
+          const bgRef = ref(storage, `team_covers/${myUID}_${Date.now()}.jpg`);
+          await uploadBytes(bgRef, bgImageFile);
+          bgUrl = await getDownloadURL(bgRef);
+        }
+
+        if (dpImageFile) {
+          const dpRef = ref(storage, `team_logos/${myUID}_${Date.now()}.jpg`);
+          await uploadBytes(dpRef, dpImageFile);
+          dpUrl = await getDownloadURL(dpRef);
+        }
+
+        const teamId = `team_${Date.now()}`;
+        const teamData = {
+          name: document.getElementById('teamName').value,
+          username: document.getElementById('teamUsername').value,
+          whatsapp: '+91' + document.getElementById('whatsappNumber').value,
+          cover: bgUrl,
+          logo: dpUrl,
+          ownerId: myUID,
+          members: [{
+            uid: myUID,
+            name: currentUser.displayName || 'Owner',
+            photoURL: currentUser.photoURL || '',
+            online: true,
+            role: 'OWNER'
+          }],
+          createdAt: new Date().toISOString()
+        };
+
+        await setDoc(doc(db, 'teams', teamId), teamData);
+        await updateDoc(doc(db, 'users', myUID), {
+          wallet: userWallet,
+          balance: userWallet
+        });
+
+        showToast('Team Created Successfully! ₹20 deducted');
+        closeConfirmPopup();
+        closeCreatePopup();
+
+        setTimeout(() => {
+          openTeamDetail({ id: teamId,...teamData });
+        }, 1500);
+      } catch (e) {
+        console.error(e);
+        showToast('Error creating team!', true);
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('teamName').value = '';
+      document.getElementById('teamUsername').value = '';
+      document.getElementById('whatsappNumber').value = '';
+      document.getElementById('bgUpload').classList.remove('has-image');
+      document.getElementById('dpUpload').classList.remove('has-image');
+      bgImageFile = null;
+      dpImageFile = null;
+      isUsernameValid = false;
+    }
+
+    window.openQuickCard = async function(uid) {
+      const card = document.getElementById('quickCard');
+      const content = document.getElementById('quickContent');
+      card.classList.add('show');
+      content.innerHTML = '<div style="text-align:center;padding:20px;">Loading...</div>';
+
+      try {
+        const userSnap = await getDoc(doc(db, 'users', uid));
+        if (!userSnap.exists()) {
+          content.innerHTML = '<div style="text-align:center;padding:20px;color:#ff4757;">User not found</div>';
+          return;
+        }
+
+        const userData = userSnap.data();
+        const levelData = LEVEL_TYPES[userData.level || 1];
+        const lbTitle = userData.equippedLeaderboardTitle;
+        const likedBy = userData.likedBy || [];
+        const isLiked = auth.currentUser && likedBy.includes(auth.currentUser.uid);
+        const isOwnProfile = auth.currentUser && auth.currentUser.uid === uid;
+
+        content.innerHTML = `
+          <div class="quick-avatar">
+            ${userData.photoURL? `<img src="${userData.photoURL}" alt="">` : '👤'}
+          </div>
+          <div class="quick-name">${userData.name || 'Player'}</div>
+          ${userData.college? `<div class="quick-college">🎓 ${userData.college}</div>` : ''}
+          <div class="quick-badges">
+            <div class="quick-badge level">
+              <span>${levelData.icon}</span>
+              <span>${levelData.name}</span>
+            </div>
+            ${lbTitle? `<div class="quick-badge title"><span>👑</span><span>${lbTitle.name}</span></div>` : ''}
+          </div>
+          <div class="quick-stats">
+            <div class="quick-stat"><div class="quick-stat-icon">💀</div><div class="quick-stat-value">${(userData.kills || 0).toLocaleString('en-IN')}</div><div class="quick-stat-label">KILLS</div></div>
+            <div class="quick-stat"><div class="quick-stat-icon">⚔️</div><div class="quick-stat-value">${(userData.matches || 0).toLocaleString('en-IN')}</div><div class="quick-stat-label">MATCHES</div></div>
+            <div class="quick-stat"><div class="quick-stat-icon">🏆</div><div class="quick-stat-value">${(userData.wins || 0).toLocaleString('en-IN')}</div><div class="quick-stat-label">WINS</div></div>
+            <div class="quick-stat"><div class="quick-stat-icon">💎</div><div class="quick-stat-value">${(userData.diamonds || 0).toLocaleString('en-IN')}</div><div class="quick-stat-label">DIAMONDS</div></div>
+          </div>
+          <div class="quick-btns">
+            <button class="quick-btn like ${isLiked? 'liked' : ''}" onclick="toggleLikeQuick('${uid}')" ${isOwnProfile? 'disabled' : ''}>
+              ${isOwnProfile? 'YOUR PROFILE' : isLiked? '✓ LIKED' : '❤️ LIKE'}
+            </button>
+            <button class="quick-btn visit" onclick="window.location.href='profile.html?uid=${uid}'">👤 VISIT</button>
+          </div>
+        `;
+      } catch (e) {
+        console.error(e);
+        content.innerHTML = '<div style="text-align:center;padding:20px;color:#ff4757;">Error loading</div>';
+      }
+    }
+
+    window.closeQuickCard = function() {
+      document.getElementById('quickCard').classList.remove('show');
+    }
+
+    window.toggleLikeQuick = async function(uid) {
+      if (!auth.currentUser) {
+        alert('Login to like profiles');
+        return;
+      }
+      if (auth.currentUser.uid === uid) return;
+
+      try {
+        const userRef = doc(db, 'users', uid);
+        const userSnap = await getDoc(userRef);
+        const likedBy = userSnap.data().likedBy || [];
+
+        if (likedBy.includes(auth.currentUser.uid)) {
+          await updateDoc(userRef, { likedBy: arrayRemove(auth.currentUser.uid) });
+        } else {
+          await updateDoc(userRef, { likedBy: arrayUnion(auth.currentUser.uid) });
+        }
+        openQuickCard(uid);
+      } catch (e) {
+        console.error(e);
+        alert('Error updating like');
+      }
+    }
+
+    document.addEventListener('click', function(e) {
+      const card = document.getElementById('quickCard');
+      const isClickInsideCard = card.contains(e.target);
+      const isClickOnMember = e.target.closest('.member-box');
+
+      if (!isClickInsideCard &&!isClickOnMember && card.classList.contains('show')) {
+        closeQuickCard();
+      }
+    });
+
+    window.navClick = function(btn, page) {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if(page!== 'home') {
+        window.location.href = page + '.html';
+      }
+    }
+
+    function showToast(message, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast' + (isError? ' error' : '');
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
