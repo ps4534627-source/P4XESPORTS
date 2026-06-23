@@ -21,6 +21,7 @@
     .back-btn:active { transform: scale(0.95); }
     .create-team-btn { background: linear-gradient(135deg, #00ff88, #00cc66); border: 2px solid #00ff88; padding: 6px 12px; border-radius: 8px; color: #000; font-weight: 900; font-size: 0.75rem; cursor: pointer; font-family: 'Orbitron', sans-serif; }
     .create-team-btn:active { transform: scale(0.95); }
+    .create-team-btn.hidden { display: none; }
     .profile-section { position: relative; cursor: pointer; }
     .profile-btn { width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, #00d4ff, #ff0080); border: 2px solid #00d4ff; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; overflow: hidden; }
     .profile-btn img { width: 100%; height: 100%; object-fit: cover; }
@@ -33,6 +34,12 @@
     
     .container { max-width: 900px; margin: 0 auto; padding: 75px 15px 20px 15px; transition: 0.3s; }
     .container.detail-view { padding-top: 15px; }
+    
+    .loading-screen { position: fixed; top: 60px; left: 0; right: 0; bottom: 0; background: #0d1117; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; }
+    .loading-screen.hidden { display: none; }
+    .loader { width: 60px; height: 60px; border: 4px solid rgba(0, 212, 255, 0.2); border-top: 4px solid #00d4ff; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .loading-text { margin-top: 20px; font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 900; color: #00d4ff; }
     
     .search-section { background: rgba(22, 27, 34, 0.9); border: 2px solid #00d4ff; border-radius: 16px; padding: 15px; margin-bottom: 15px; }
     .search-section.hidden { display: none; }
@@ -80,6 +87,7 @@
     .team-profile-info { padding: 75px 20px 15px 20px; text-align: center; position: relative; z-index: 5; background: rgba(22, 27, 34, 0.9); }
     .team-profile-name { font-size: 1.5rem; font-weight: 900; color: #fff; margin-bottom: 6px; }
     .team-profile-username { font-size: 0.9rem; color: #888; font-weight: 700; margin-bottom: 15px; }
+    .owner-badge { display: inline-block; background: linear-gradient(135deg, #ff6b00, #ff4757); border: 2px solid #ff6b00; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 900; color: #fff; margin-bottom: 10px; }
     .members-section { background: rgba(13, 17, 23, 0.8); padding: 15px 20px; border-top: 1px solid rgba(0, 212, 255, 0.2); }
     .members-title { font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 900; color: #00ff88; margin-bottom: 12px; text-align: left; }
     .member-box { background: #0d1117; border: 2px solid rgba(0, 212, 255, 0.3); border-radius: 8px; padding: 4px 8px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; position: relative; width: 100%; min-height: 38px; cursor: pointer; }
@@ -99,7 +107,7 @@
     .role-wrapper { flex: 1; display: flex; justify-content: center; align-items: center; gap: 4px; }
     .role-display { font-size: 0.6rem; color: #00ff88; font-weight: 700; background: rgba(0, 255, 136, 0.1); border: 1px solid #00ff88; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
     .role-display.extra { color: #ff6b00; border-color: #ff6b00; background: rgba(255, 107, 0, 0.1); }
-    .role-display.default { color: #888; border-color: #888; background: rgba(136, 136, 136, 0.1); }
+    .role-display.default { color: #888; border-color: #888; background: rgba(136, 136, 0.1); }
     .member-badge { font-size: 0.5rem; background: #ff6b00; color: #000; padding: 1px 4px; border-radius: 3px; font-weight: 900; }
     .join-request-section { margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(0, 212, 255, 0.2); }
     .join-request-btn-detail { width: 100%; padding: 12px; background: linear-gradient(135deg, #00ff88, #00cc66); border: 2px solid #00ff88; border-radius: 8px; color: #000; font-weight: 900; font-size: 0.9rem; cursor: pointer; font-family: 'Orbitron', sans-serif; transition: 0.2s; }
@@ -202,7 +210,7 @@
 <body>
   <canvas id="particles"></canvas>
   <input type="file" id="photoInput" accept="image/*">
-  
+
   <div class="navbar">
     <div class="logo" onclick="window.location.href='view.html'">
       <img src="logo.png" alt="P4X">
@@ -210,7 +218,7 @@
     </div>
     <div class="nav-right">
       <button class="back-btn" onclick="handleBack()">← BACK</button>
-      <button class="create-team-btn" onclick="openCreatePopup()">+ CREATE TEAM</button>
+      <button class="create-team-btn" id="createTeamBtn" onclick="openCreatePopup()">+ CREATE TEAM</button>
       <div class="profile-section">
         <div class="profile-btn" id="profileBtn" onclick="toggleDropdown()">
           <span id="navProfileIcon">👤</span>
@@ -224,6 +232,11 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loader"></div>
+    <div class="loading-text">LOADING YOUR TEAM...</div>
   </div>
 
   <div class="container" id="mainContainer">
@@ -254,6 +267,7 @@
           <img src="" id="teamDPImg">
         </div>
         <div class="team-profile-info">
+          <div id="ownerBadgeContainer"></div>
           <div class="team-profile-name" id="detailTeamName">Loading...</div>
           <div class="team-profile-username" id="detailTeamUsername">@username</div>
         </div>
@@ -405,6 +419,8 @@
     let currentTeamData = null;
     let allTeams = [];
     let searchTimeout = null;
+    let isTeamOwner = false;
+    let myTeamData = null;
 
     const LEVEL_TYPES = {
       1: { name: 'COLLEGE', icon: '🎓' },
@@ -444,7 +460,7 @@
         currentUser = user;
         myUID = user.uid;
         await loadUserData();
-        await loadRandomTeams();
+        await checkUserTeam();
       } else {
         window.location.href = 'index.html';
       }
@@ -464,6 +480,53 @@
       }
     }
 
+    async function checkUserTeam() {
+      document.getElementById('loadingScreen').classList.remove('hidden');
+
+      try {
+        // Check if user is owner of any team
+        const teamsRef = collection(db, 'teams');
+        const ownerQuery = query(teamsRef, where('ownerId', '==', myUID));
+        const ownerSnap = await getDocs(ownerQuery);
+
+        if (!ownerSnap.empty) {
+          // User is owner - open their team directly
+          const teamDoc = ownerSnap.docs[0];
+          myTeamData = { id: teamDoc.id,...teamDoc.data() };
+          isTeamOwner = true;
+          document.getElementById('createTeamBtn').classList.add('hidden');
+          document.getElementById('loadingScreen').classList.add('hidden');
+          openTeamDetail(myTeamData);
+          return;
+        }
+
+        // Check if user is member of any team
+        const allTeamsSnap = await getDocs(teamsRef);
+        for (const docSnap of allTeamsSnap.docs) {
+          const team = { id: docSnap.id,...docSnap.data() };
+          if (team.members?.some(m => m.uid === myUID)) {
+            myTeamData = team;
+            isTeamOwner = false;
+            document.getElementById('createTeamBtn').classList.add('hidden');
+            document.getElementById('loadingScreen').classList.add('hidden');
+            openTeamDetail(myTeamData);
+            return;
+          }
+        }
+
+        // User has no team - show search section
+        document.getElementById('loadingScreen').classList.add('hidden');
+        document.getElementById('searchSection').classList.remove('hidden');
+        await loadRandomTeams();
+
+      } catch (e) {
+        console.error('Error checking user team:', e);
+        document.getElementById('loadingScreen').classList.add('hidden');
+        document.getElementById('searchSection').classList.remove('hidden');
+        await loadRandomTeams();
+      }
+    }
+
     window.toggleDropdown = function() {
       document.getElementById('dropdown').classList.toggle('show');
     }
@@ -477,7 +540,7 @@
     }
 
     window.handleBack = function() {
-      if (document.getElementById('teamDetail').classList.contains('show')) {
+      if (document.getElementById('teamDetail').classList.contains('show') &&!myTeamData) {
         document.getElementById('teamDetail').classList.remove('show');
         document.getElementById('searchSection').classList.remove('hidden');
         document.getElementById('mainContainer').classList.remove('detail-view');
@@ -592,6 +655,8 @@
 
     window.openTeamDetail = async function(team) {
       currentTeamData = team;
+      isTeamOwner = team.ownerId === myUID;
+
       document.getElementById('searchSection').classList.add('hidden');
       document.getElementById('mainContainer').classList.add('detail-view');
       document.getElementById('teamDetail').classList.add('show');
@@ -600,6 +665,14 @@
       document.getElementById('teamDPImg').src = team.logo || 'https://via.placeholder.com/135';
       document.getElementById('detailTeamName').textContent = team.name;
       document.getElementById('detailTeamUsername').textContent = `@${team.username}`;
+
+      // Show owner badge if user is owner
+      const badgeContainer = document.getElementById('ownerBadgeContainer');
+      if (isTeamOwner) {
+        badgeContainer.innerHTML = '<div class="owner-badge">👑 YOU ARE OWNER</div>';
+      } else {
+        badgeContainer.innerHTML = '';
+      }
 
       renderMembers(team);
       renderJoinRequestButton(team);
@@ -656,7 +729,7 @@
       const isFull = memberCount >= 5;
       const isMember = team.members?.some(m => m.uid === myUID);
 
-      if (isMember) {
+      if (isMember || isTeamOwner) {
         section.innerHTML = '';
         return;
       }
@@ -873,6 +946,9 @@
         closeCreatePopup();
 
         setTimeout(() => {
+          myTeamData = { id: teamId,...teamData };
+          isTeamOwner = true;
+          document.getElementById('createTeamBtn').classList.add('hidden');
           openTeamDetail({ id: teamId,...teamData });
         }, 1500);
       } catch (e) {
