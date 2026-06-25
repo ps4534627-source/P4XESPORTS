@@ -399,56 +399,113 @@
     let currentEditingPosition = null;
     let currentMenuPosition = null;
 
-    /* ===== AUTH ===== */
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) { window.location.href = 'login.html'; return; }
-      currentUser = user;
-      listenToMyUser();
+/* ===== AUTH ===== */
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { 
+    window.location.href = 'login.html'; 
+    return; 
+  }
+  currentUser = user;
+  
+  // User doc check karo, nahi hai to bana do
+  const userRef = doc(db,'users',currentUser.uid);
+  const userSnap = await getDoc(userRef);
+  
+  if (!userSnap.exists()) {
+    console.log('Creating new user profile...');
+    await setDoc(userRef, {
+      name: currentUser.displayName || 'Player',
+      email: currentUser.email,
+      photoURL: currentUser.photoURL || '',
+      balance: 0, diamonds: 0, wallet: 0,
+      kills: 0, wins: 0, matches: 0, rank: 0, p4x_coins: 0,
+      teamId: null, // IMPORTANT
+      friends: [], friendRequests: [], sentRequests: [],
+      online: true, createdAt: serverTimestamp()
     });
+  }
+  
+  listenToMyUser();
+});
 
-    function listenToMyUser() {
-      if (userUnsub) userUnsub();
-      userUnsub = onSnapshot(doc(db,'users',currentUser.uid), (snap) => {
-        if (!snap.exists()) { showError('User profile not found'); return; }
-        myData = snap.data();
-        if (myData.photoURL) document.getElementById('navProfilePic').src = myData.photoURL;
-        const newTeamId = myData.teamId || null;
-        if (newTeamId !== myTeamId) {
-          myTeamId = newTeamId;
-          if (myTeamId) listenToTeam(myTeamId); else showNoTeamView();
-        }
-      });
+function listenToMyUser() {
+  if (userUnsub) userUnsub();
+  userUnsub = onSnapshot(doc(db,'users',currentUser.uid), (snap) => {
+    if (!snap.exists()) { 
+      // Doc delete ho gaya to no team dikha do
+      myData = { teamId: null };
+      myTeamId = null;
+      showNoTeamView();
+      return; 
     }
-
-    function listenToTeam(teamId) {
-      if (teamUnsub) teamUnsub();
-      teamUnsub = onSnapshot(doc(db,'teams',teamId), (snap) => {
-        if (!snap.exists()) {
-          // team deleted -> clear my teamId locally and show no team
-          myTeamId = null;
-          showNoTeamView();
-          return;
-        }
-        currentTeam = { id: snap.id, ...snap.data() };
-        isOwner = currentTeam.ownerUid === currentUser.uid;
-        renderTeamView();
-      });
+    
+    myData = snap.data();
+    if (myData.photoURL) document.getElementById('navProfilePic').src = myData.photoURL;
+    
+    const newTeamId = myData.teamId || null;
+    
+    // Team ID change hua hai
+    if (newTeamId !== myTeamId) {
+      myTeamId = newTeamId;
+      if (myTeamId) {
+        listenToTeam(myTeamId); 
+      } else {
+        // Team nahi hai
+        if (teamUnsub) { teamUnsub(); teamUnsub = null; }
+        currentTeam = null;
+        showNoTeamView();
+      }
+    } else if (!myTeamId) {
+      // Pehli baar load hua aur team nahi hai
+      showNoTeamView();
     }
+  }, (error) => {
+    // Snapshot error me bhi loading hide karo
+    console.error('User snapshot error:', error);
+    showError('Error loading profile: ' + error.message);
+  });
+}
 
-    /* ===== VIEW SWITCH ===== */
-    function hideLoading() { document.getElementById('loadingScreen').style.display = 'none'; document.getElementById('navbar').classList.remove('hidden'); }
-    function showError(msg) { hideLoading(); showToast(msg, true); }
-
-    function showNoTeamView() {
-      hideLoading();
-      document.getElementById('teamView').classList.add('hidden');
-      document.getElementById('noTeamView').classList.remove('hidden');
-      document.getElementById('navCreateBtn').classList.remove('hidden');
-      document.getElementById('navLeaveBtn').classList.add('hidden');
-      document.getElementById('navDeleteBtn').classList.add('hidden');
-      document.getElementById('teamSearchInput').value = '';
-      document.getElementById('teamSearchResults').innerHTML = '';
+function listenToTeam(teamId) {
+  if (teamUnsub) teamUnsub();
+  teamUnsub = onSnapshot(doc(db,'teams',teamId), (snap) => {
+    if (!snap.exists()) {
+      // Team delete ho gayi
+      myTeamId = null;
+      updateDoc(doc(db,'users',currentUser.uid), { teamId: null }).catch(()=>{});
+      showNoTeamView();
+      return;
     }
+    currentTeam = { id: snap.id, ...snap.data() };
+    isOwner = currentTeam.ownerUid === currentUser.uid;
+    renderTeamView();
+  }, (error) => {
+    console.error('Team snapshot error:', error);
+    showError('Error loading team: ' + error.message);
+  });
+}
+
+/* ===== VIEW SWITCH ===== */
+function hideLoading() { 
+  document.getElementById('loadingScreen').style.display = 'none'; 
+  document.getElementById('navbar').classList.remove('hidden'); 
+}
+
+function showError(msg) { 
+  hideLoading(); 
+  showToast(msg, true); 
+}
+
+function showNoTeamView() {
+  hideLoading(); // YE ZARURI HAI
+  document.getElementById('teamView').classList.add('hidden');
+  document.getElementById('noTeamView').classList.remove('hidden');
+  document.getElementById('navCreateBtn').classList.remove('hidden');
+  document.getElementById('navLeaveBtn').classList.add('hidden');
+  document.getElementById('navDeleteBtn').classList.add('hidden');
+  document.getElementById('teamSearchInput').value = '';
+  document.getElementById('teamSearchResults').innerHTML = '';
+}
 
     async function renderTeamView() {
       hideLoading();
