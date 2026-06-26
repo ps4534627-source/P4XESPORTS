@@ -306,7 +306,19 @@
     </div>
     <div class="input-group"><label class="input-label">Team Name *</label><input type="text" class="popup-input" id="teamName" placeholder="Enter team name" maxlength="30"></div>
     <div class="input-group"><label class="input-label">Team Username *</label><input type="text" class="popup-input" id="teamUsername" placeholder="@team_username" maxlength="20"></div>
-    <div class="input-group"><label class="input-label">WhatsApp Number *</label><input type="tel" class="popup-input" id="whatsappNumber" placeholder="+91 9876543210" maxlength="15"></div>
+    <div class="input-group"><div style="display:flex;gap:8px;">
+  <div style="width:70px;background:#0d1117;border:2px solid rgba(0,212,255,.3);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#00d4ff;font-weight:900;">
+    +91
+  </div>
+
+  <input
+    type="tel"
+    class="popup-input"
+    id="whatsappNumber"
+    placeholder="9876543210"
+    maxlength="10"
+    style="flex:1;">
+</div>
     <div class="wallet-info">
       <div class="wallet-balance">Your Wallet Balance</div>
       <div class="wallet-amount" id="createWalletBalance">₹ 0.00</div>
@@ -679,7 +691,14 @@ function showNoTeamView() {
     window.submitCreateTeam = async function() {
       const name = document.getElementById('teamName').value.trim();
       let username = document.getElementById('teamUsername').value.trim().replace(/^@/,'');
-      const whatsapp = document.getElementById('whatsappNumber').value.trim();
+      const phone = document.getElementById('whatsappNumber').value.trim();
+
+if (phone.length !== 10) {
+  showToast('Enter valid 10 digit WhatsApp number!', true);
+  return;
+}
+
+const whatsapp = "+91" + phone;
       if (!name || !username || !whatsapp) { showToast('Please fill all fields!', true); return; }
       if (Number(myData?.balance||0) < TEAM_COST) { showToast('Insufficient balance!', true); return; }
       const btn = document.getElementById('createTeamSubmit');
@@ -703,17 +722,13 @@ function showNoTeamView() {
             joinRequests: [], createdAt: serverTimestamp()
           });
           tx.update(userRef, { balance: bal - TEAM_COST, teamId: teamRef.id });
-          
+          const histRef = doc(collection(db,'users',currentUser.uid,'walletHistory'));
+          tx.set(histRef, { type:'debit', amount:TEAM_COST, reason:'Team Creation', timestamp: serverTimestamp() });
         });
         showToast('Team created! ₹20 deducted');
         closeCreatePopup();
       } catch(e) {
-        console.error(e); alert(
-"Code: " + (e.code || "No Code") +
-"\n\nMessage:\n" + e.message
-);
-
-showToast(e.message || 'Error creating team', true);
+        console.error(e); showToast(e.message||'Error creating team', true);
         btn.disabled=false; btn.textContent='CREATE TEAM';
       }
     }
