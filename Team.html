@@ -703,9 +703,7 @@ function showNoTeamView() {
             joinRequests: [], createdAt: serverTimestamp()
           });
           tx.update(userRef, { balance: bal - TEAM_COST, teamId: teamRef.id });
-          const histRef = doc(collection(db,'users',currentUser.uid,'walletHistory'));
-          tx.set(histRef, { type:'debit', amount:TEAM_COST, reason:'Team Creation', timestamp: serverTimestamp() });
-        });
+          
         showToast('Team created! ₹20 deducted');
         closeCreatePopup();
       } catch(e) {
