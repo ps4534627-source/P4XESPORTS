@@ -353,10 +353,17 @@
           isUsernameAvailable = false;
         }
       } catch (err) {
-        statusEl.className = 'username-status checking';
-        statusEl.textContent = 'Check nahi ho pa raha';
-        isUsernameAvailable = false;
-      }
+  console.error(err);
+
+  alert(
+    "Code: " + err.code +
+    "\n\nMessage:\n" + err.message
+  );
+
+  statusEl.className = 'username-status checking';
+  statusEl.textContent = 'Check nahi ho pa raha';
+  isUsernameAvailable = false;
+}
     }
 
     function updateUsernameStatus(type, message) {
@@ -516,4 +523,4 @@
     });
   </script>
 </body>
-  </html>
+</html>
