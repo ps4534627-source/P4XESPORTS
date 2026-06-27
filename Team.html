@@ -193,7 +193,32 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
 .toast.error { background:linear-gradient(135deg,#ff4757,#ff0064); border-color:#ff4757; color:#fff; }
 .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1499; display:none; }
 .overlay.show { display:block; }
-.overlay.top { z-index:1999; }
+.overlay.top
+#miniTeamMembers{
+margin-top:15px;
+}
+
+.mini-member{
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:8px;
+margin-bottom:8px;
+background:#0d1117;
+border:1px solid rgba(0,212,255,.3);
+border-radius:8px;
+cursor:pointer;
+}
+
+.mini-member:hover{
+border-color:#00d4ff;
+}
+
+.mini-role{
+color:#00ff88;
+font-weight:bold;
+font-size:13px;
+} { z-index:1999; }
 .overlay.quick { z-index:2400; }
 </style>
 </head>
@@ -330,6 +355,83 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
 </div>
 <input type="text" class="sidebar-search-input hidden" id="sidebarSearchInput" placeholder="Search username..." onkeyup="searchUsers(this.value)">
 <div id="sidebarResults"></div>
+</div>
+
+<!-- MINI TEAM PROFILE -->
+<div class="overlay top"
+id="miniTeamOverlay"
+onclick="closeMiniTeamProfile()"></div>
+
+<div class="popup"
+id="miniTeamPopup"
+style="width:92%;
+max-width:450px;
+max-height:80vh;
+overflow-y:auto;">
+
+<div class="close-popup"
+onclick="closeMiniTeamProfile()">×</div>
+
+<div id="miniTeamContent">
+
+<div class="team-cover"
+id="miniTeamCover"></div>
+
+<div class="team-dp"
+id="miniTeamLogo"
+style="position:relative;
+left:auto;
+top:auto;
+transform:none;
+margin:-60px auto 10px;">
+👥
+</div>
+
+<div class="team-profile-info">
+
+<div class="team-profile-name"
+id="miniTeamName">
+Loading...
+</div>
+
+<div class="team-profile-username"
+id="miniTeamUsername"
+><div id="miniTeamOwner" class="team-owner"></div>
+
+<div id="miniTeamMemberCount" class="team-member-count"></div>
+@loading
+</div>
+
+<div id="miniTeamMemberCount"
+style="color:#00ff88;
+font-weight:bold;
+margin-bottom:12px;">
+0 / 5 Members
+</div>
+
+<div id="miniTeamMembers">
+</div>
+
+<div style="margin-top:20px;display:flex;gap:10px;">
+
+<button
+class="popup-btn confirm-btn"
+id="miniJoinBtn">
+JOIN TEAM
+</button>
+
+<button
+class="popup-btn cancel-btn"
+onclick="closeMiniTeamProfile()">
+CLOSE
+</button>
+
+</div>
+
+</div>
+
+</div>
+
 </div>
 
 <div class="toast" id="toast">Done!</div>
@@ -568,9 +670,11 @@ window.searchTeams = async function(qstr) {
       const div = document.createElement('div');
       div.className = 'team-result';
       div.innerHTML =
-        '<div class="team-result-avatar">' + logo + '</div>' +
+        '<div class="team-result-avatar"
+onclick="openMiniTeamProfile('${t.id}')">' + logo + '</div>' +
         '<div class="team-result-info">' +
-          '<div class="team-result-name">' + (t.teamName||'Team') + '</div>' +
+          '<div class="team-result-name"
+onclick="openMiniTeamProfile('${t.id}')">' + (t.teamName||'Team') + '</div>' +
           '<div class="team-result-username">@' + (t.teamUsername||'').replace(/^@/,'') + '</div>' +
           '<div class="team-result-members">' + count + '/5 Members</div>' +
         '</div>' +
@@ -586,6 +690,118 @@ window.sendJoinRequest = async function(teamId, btn) {
     btn.textContent = 'REQUESTED'; btn.classList.add('requested'); btn.disabled = true;
     showToast('Join request sent!');
   } catch(e){ console.error(e); showToast('Error sending request', true); }
+}
+
+async function openMiniTeamProfile(teamId){
+
+  const snap = await getDoc(doc(db,"teams",teamId));
+
+  if(!snap.exists()){
+    showToast("Team not found",true);
+    return;
+  }
+
+  const team = snap.data();
+  // Team Cover
+const cover = document.getElementById("miniTeamCover");
+
+cover.style.backgroundImage =
+team.teamCover
+? `url(${team.teamCover})`
+: "none";
+
+cover.style.backgroundSize = "cover";
+cover.style.backgroundPosition = "center";
+
+// Team Logo
+const logo = document.getElementById("miniTeamLogo");
+
+if(team.teamLogo){
+
+logo.innerHTML =
+`<img src="${team.teamLogo}"
+style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+
+}else{
+
+logo.innerHTML="👥";
+
+}
+
+// Team Owner
+document.getElementById("miniTeamOwner").textContent =
+team.ownerName || "Unknown";
+
+// Member Count
+document.getElementById("miniTeamMemberCount").textContent =
+(team.members ? team.members.length : 0) + " / 5 Members";
+
+  document.getElementById("miniTeamName").textContent =
+    team.teamName || "Unknown Team";
+
+  document.getElementById("miniTeamUsername").textContent =
+    "@" + (team.teamUsername || "");
+
+  document.getElementById("miniTeamMemberCount").textContent =
+    (team.memberCount || 0) + " / 5 Members";
+
+ const membersDiv = document.getElementById("miniTeamMembers");
+membersDiv.innerHTML = "";
+
+const memberSnap = await getDocs(
+  query(
+    collection(db,"teamMembers"),
+    where("teamId","==",teamId)
+  )
+);
+
+const members = [];
+
+memberSnap.forEach(docSnap=>{
+  members.push(docSnap.data());
+});
+
+members.sort((a,b)=>a.position-b.position);
+
+for(const member of members){
+
+  let userName = "Player";
+
+  try{
+    const userSnap = await getDoc(doc(db,"users",member.uid));
+
+    if(userSnap.exists()){
+      userName = userSnap.data().name || "Player";
+    }
+  }catch(e){}
+
+  membersDiv.innerHTML += `
+    <div class="mini-member"
+         onclick="openQuickCard('${member.uid}')">
+
+      <div>
+        <div>${userName}</div>
+        <div class="mini-role">${member.role || "Default"}</div>
+      </div>
+
+    </div>
+  `;
+}
+  document.getElementById("miniJoinBtn").onclick = () =>
+    sendJoinRequest(teamId, document.getElementById("miniJoinBtn"));
+
+  document.getElementById("miniTeamOverlay").classList.add("show");
+  document.getElementById("miniTeamPopup").classList.add("show");
+}
+
+function closeMiniTeamProfile(){
+
+document.getElementById("miniTeamOverlay")
+.classList.remove("show");
+
+document.getElementById("miniTeamPopup")
+.classList.remove("show");
+
 }
 
 /* ===== CREATE TEAM ===== */
