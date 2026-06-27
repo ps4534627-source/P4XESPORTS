@@ -763,44 +763,94 @@ memberSnap.forEach(docSnap=>{
 
 members.sort((a,b)=>a.position-b.position);
 
-for(const member of members){
+for (const member of members) {
 
-  let userName = "Player";
+    let userName = "Player";
+    let photoURL = "";
+    let online = false;
 
-  try{
-    const userSnap = await getDoc(doc(db,"users",member.uid));
+    try {
 
-    if(userSnap.exists()){
-      userName = userSnap.data().name || "Player";
-    }
-  }catch(e){}
+        const userSnap = await getDoc(doc(db, "users", member.uid));
 
-  membersDiv.innerHTML += `
-    <div class="mini-member"
-         onclick="openQuickCard('${member.uid}')">
+        if (userSnap.exists()) {
 
-      <div>
-        <div>${userName}</div>
-        <div class="mini-role">${member.role || "Default"}</div>
-      </div>
+            const user = userSnap.data();
 
-    </div>
-  `;
+            userName = user.name || "Player";
+            photoURL = user.photoURL || "";
+            online = user.online || false;
+
+        }
+
+    } catch (e) {}
+
+    membersDiv.innerHTML += `
+
+<div class="mini-member"
+onclick="openQuickCard('${member.uid}')">
+
+<img
+class="mini-member-photo"
+src="${photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + member.uid}">
+
+<div class="mini-member-info">
+
+<div class="mini-member-name">
+
+${userName}
+
+</div>
+
+<div class="mini-member-role">
+
+${member.role || "Member"}
+
+</div>
+
+<div class="mini-member-status">
+
+${online ? "🟢 Online" : "⚪ Offline"}
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
 }
-  document.getElementById("miniJoinBtn").onclick = () =>
-    sendJoinRequest(teamId, document.getElementById("miniJoinBtn"));
+  const joinBtn = document.getElementById("miniJoinBtn");
 
-  document.getElementById("miniTeamOverlay").classList.add("show");
-  document.getElementById("miniTeamPopup").classList.add("show");
-}
+joinBtn.style.display = "block";
+joinBtn.disabled = false;
 
-function closeMiniTeamProfile(){
+if(myTeamId){
 
-document.getElementById("miniTeamOverlay")
-.classList.remove("show");
+    joinBtn.innerText = "ALREADY IN TEAM";
+    joinBtn.disabled = true;
 
-document.getElementById("miniTeamPopup")
-.classList.remove("show");
+}else if(team.memberCount >= 5){
+
+    joinBtn.innerText = "TEAM FULL";
+    joinBtn.disabled = true;
+
+}else if(
+    team.joinRequests &&
+    team.joinRequests.includes(currentUser.uid)
+){
+
+    joinBtn.innerText = "REQUEST SENT";
+    joinBtn.disabled = true;
+
+}else{
+
+    joinBtn.innerText = "JOIN TEAM";
+
+    joinBtn.onclick = () => {
+        sendJoinRequest(teamId, joinBtn);
+    };
 
 }
 
