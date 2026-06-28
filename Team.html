@@ -14,6 +14,8 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
 .loader-ring { width:60px; height:60px; border:5px solid rgba(0,212,255,0.2); border-top-color:#00d4ff; border-radius:50%; animation:spin 0.9s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 .loader-text { font-size:0.9rem; color:#888; font-weight:700; letter-spacing:1px; }
+
+/* NAVBAR */
 .navbar { position:fixed; top:0; left:0; right:0; z-index:1000; background:rgba(22,27,34,0.98); backdrop-filter:blur(10px); border-bottom:2px solid #00d4ff; padding:8px 12px; display:flex; justify-content:space-between; align-items:center; height:60px; }
 .nav-left { display:flex; align-items:center; gap:12px; }
 .back-btn { background:linear-gradient(135deg,#00d4ff,#0099ff); border:2px solid #00d4ff; padding:6px 14px; border-radius:8px; color:#fff; font-weight:900; font-size:0.8rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
@@ -24,9 +26,23 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
 .leave-btn { background:linear-gradient(135deg,#ff6b00,#ff4757); border:2px solid #ff6b00; padding:6px 12px; border-radius:8px; color:#fff; font-weight:900; font-size:0.75rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
 .delete-btn { background:linear-gradient(135deg,#ff4757,#ff0064); border:2px solid #ff4757; padding:6px 12px; border-radius:8px; color:#fff; font-weight:900; font-size:0.75rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
 .create-team-btn:active, .leave-btn:active, .delete-btn:active { transform:scale(0.95); }
-.profile-pic { width:36px; height:36px; border-radius:50%; border:2px solid #00d4ff; cursor:pointer; object-fit:cover; }
+
+/* PROFILE SECTION IN NAVBAR - profile.html jaisi */
+.profile-section { position:relative; cursor:pointer; }
+.profile-btn { width:36px; height:36px; border-radius:8px; background:linear-gradient(135deg,#00d4ff,#ff0080); border:2px solid #00d4ff; display:flex; align-items:center; justify-content:center; font-size:1.2rem; overflow:hidden; }
+.profile-btn img { width:100%; height:100%; object-fit:cover; }
+.dropdown { position:absolute; top:50px; right:0; background:#161b22; border:2px solid #00d4ff; border-radius:12px; min-width:200px; box-shadow:0 0 50px rgba(0,212,255,0.5); opacity:0; visibility:hidden; transform:translateY(-10px); transition:0.3s; z-index:1001; }
+.dropdown.show { opacity:1; visibility:visible; transform:translateY(0); }
+.dropdown-item { padding:12px 18px; border-bottom:1px solid rgba(0,212,255,0.2); display:flex; align-items:center; gap:10px; transition:0.2s; font-weight:700; font-size:0.9rem; cursor:pointer; }
+.dropdown-item:last-child { border-bottom:none; }
+.dropdown-item:active { background:rgba(0,212,255,0.1); }
+.dropdown-item.logout { color:#ff4757; }
+.dropdown-item.logout:active { background:rgba(255,71,87,0.1); }
+
 .container { max-width:900px; margin:0 auto; padding:75px 15px 20px 15px; }
 .hidden { display:none !important; }
+
+/* SEARCH SECTION */
 .search-section { background:rgba(22,27,34,0.9); border:2px solid #00d4ff; border-radius:16px; padding:20px; margin-bottom:20px; }
 .search-title { font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:900; color:#00d4ff; margin-bottom:12px; text-align:center; }
 .search-input { width:100%; padding:12px; background:#0d1117; border:2px solid rgba(0,212,255,0.3); border-radius:8px; color:#fff; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:0.9rem; outline:none; margin-bottom:15px; }
@@ -34,15 +50,87 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
 .search-hint { font-size:0.7rem; color:#666; text-align:center; margin-bottom:15px; }
 .search-hint span { color:#00d4ff; font-weight:900; }
 .team-result { background:#0d1117; border:1px solid rgba(0,212,255,0.3); border-radius:8px; padding:10px; margin-bottom:8px; display:flex; align-items:center; gap:10px; }
-.team-result-avatar { width:45px; height:45px; border-radius:8px; border:2px solid #00d4ff; overflow:hidden; flex-shrink:0; background:#161b22; }
+.team-result-avatar { width:45px; height:45px; border-radius:8px; border:2px solid #00d4ff; overflow:hidden; flex-shrink:0; background:#161b22; cursor:pointer; }
 .team-result-avatar img { width:100%; height:100%; object-fit:cover; }
 .team-result-info { flex:1; min-width:0; }
-.team-result-name { font-size:0.95rem; font-weight:900; color:#fff; }
+.team-result-name { font-size:0.95rem; font-weight:900; color:#fff; cursor:pointer; }
+.team-result-name:active { color:#00d4ff; }
 .team-result-username { font-size:0.75rem; color:#888; }
 .team-result-members { font-size:0.7rem; color:#00ff88; font-weight:700; }
 .join-btn { padding:6px 14px; background:linear-gradient(135deg,#00ff88,#00cc66); border:2px solid #00ff88; border-radius:6px; color:#000; font-weight:900; font-size:0.7rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
 .join-btn.requested { background:rgba(136,136,136,0.1); border-color:#666; color:#888; cursor:default; }
 .empty-msg { text-align:center; color:#666; padding:20px; }
+
+/* ===== RANDOM TEAMS SECTION ===== */
+.random-section { background:rgba(22,27,34,0.9); border:2px solid rgba(0,212,255,0.4); border-radius:16px; padding:20px; margin-bottom:20px; }
+.random-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; }
+.random-title { font-family:'Orbitron',sans-serif; font-size:1rem; font-weight:900; color:#00d4ff; display:flex; align-items:center; gap:8px; }
+.refresh-btn { display:flex; align-items:center; gap:6px; padding:8px 14px; background:rgba(0,212,255,0.15); border:2px solid #00d4ff; border-radius:8px; color:#00d4ff; font-family:'Orbitron',sans-serif; font-weight:900; font-size:0.7rem; cursor:pointer; transition:0.3s; }
+.refresh-btn:disabled { border-color:#333; color:#555; cursor:not-allowed; background:rgba(0,0,0,0.3); }
+.refresh-btn:active:not(:disabled) { transform:scale(0.95); }
+.refresh-countdown { font-size:0.65rem; color:#ff6b00; font-weight:900; min-width:20px; text-align:center; }
+.random-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+@media(min-width:600px){ .random-grid { grid-template-columns:repeat(3,1fr); } }
+.random-card { background:#0d1117; border:2px solid rgba(0,212,255,0.25); border-radius:12px; overflow:hidden; transition:0.3s; }
+.random-card:active { transform:scale(0.97); }
+.random-card-cover { width:100%; height:70px; object-fit:cover; background:linear-gradient(135deg,#00d4ff,#ff0080); cursor:pointer; display:block; }
+.random-card-body { padding:10px; }
+.random-card-logo-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; cursor:pointer; }
+.random-card-logo { width:36px; height:36px; border-radius:8px; border:2px solid #00d4ff; overflow:hidden; flex-shrink:0; background:#161b22; }
+.random-card-logo img { width:100%; height:100%; object-fit:cover; }
+.random-card-name { font-family:'Orbitron',sans-serif; font-size:0.75rem; font-weight:900; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.random-card-members { font-size:0.65rem; color:#00ff88; font-weight:700; }
+.random-join-btn { width:100%; padding:7px; background:linear-gradient(135deg,#00ff88,#00cc66); border:none; border-radius:6px; color:#000; font-weight:900; font-size:0.7rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
+.random-join-btn.requested { background:rgba(136,136,136,0.1); border:2px solid #666; color:#888; cursor:default; }
+.random-empty { text-align:center; color:#666; padding:20px; font-size:0.85rem; }
+
+/* ===== TEAM INVITES SECTION ===== */
+.invites-section { background:rgba(22,27,34,0.9); border:2px solid rgba(255,107,0,0.5); border-radius:16px; padding:20px; margin-bottom:20px; box-shadow:0 0 20px rgba(255,107,0,0.15); }
+.invites-title { font-family:'Orbitron',sans-serif; font-size:1rem; font-weight:900; color:#ff6b00; margin-bottom:15px; display:flex; align-items:center; gap:8px; }
+.invite-card { background:#0d1117; border:2px solid rgba(255,107,0,0.3); border-radius:10px; padding:12px; margin-bottom:10px; display:flex; align-items:center; gap:10px; }
+.invite-logo { width:45px; height:45px; border-radius:8px; border:2px solid #ff6b00; overflow:hidden; flex-shrink:0; background:#161b22; cursor:pointer; }
+.invite-logo img { width:100%; height:100%; object-fit:cover; }
+.invite-info { flex:1; min-width:0; }
+.invite-name { font-size:0.9rem; font-weight:900; color:#fff; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.invite-name:active { color:#ff6b00; }
+.invite-members { font-size:0.7rem; color:#888; }
+.invite-actions { display:flex; gap:6px; flex-shrink:0; }
+.invite-accept-btn { padding:7px 12px; background:linear-gradient(135deg,#00ff88,#00cc66); border:2px solid #00ff88; border-radius:6px; color:#000; font-weight:900; font-size:0.7rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
+.invite-reject-btn { padding:7px 12px; background:rgba(255,71,87,0.15); border:2px solid #ff4757; border-radius:6px; color:#ff4757; font-weight:900; font-size:0.7rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
+.invite-accept-btn:active, .invite-reject-btn:active { transform:scale(0.95); }
+.invites-empty { text-align:center; color:#666; padding:15px; font-size:0.85rem; }
+
+/* ===== TEAM DETAIL POPUP ===== */
+.team-popup-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:3000; display:flex; align-items:center; justify-content:center; padding:20px; opacity:0; visibility:hidden; transition:0.3s; }
+.team-popup-overlay.show { opacity:1; visibility:visible; }
+.team-popup { background:#161b22; border:3px solid #00d4ff; border-radius:20px; width:100%; max-width:420px; max-height:85vh; overflow-y:auto; box-shadow:0 0 80px rgba(0,212,255,0.5); transform:scale(0.9); transition:0.3s; position:relative; }
+.team-popup-overlay.show .team-popup { transform:scale(1); }
+.team-popup-close { position:absolute; top:10px; right:10px; width:28px; height:28px; border-radius:50%; background:rgba(255,71,87,0.2); border:2px solid #ff4757; color:#ff4757; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:900; z-index:5; }
+.team-popup-close:active { transform:scale(0.9); }
+.team-popup-cover { width:100%; height:130px; object-fit:cover; background:linear-gradient(135deg,#00d4ff,#ff0080); display:block; border-radius:17px 17px 0 0; }
+.team-popup-dp-wrap { display:flex; justify-content:center; margin-top:-35px; margin-bottom:10px; position:relative; z-index:2; }
+.team-popup-dp { width:70px; height:70px; border-radius:50%; border:4px solid #161b22; overflow:hidden; background:#0d1117; display:flex; align-items:center; justify-content:center; font-size:2rem; box-shadow:0 0 30px rgba(0,212,255,0.6); }
+.team-popup-dp img { width:100%; height:100%; object-fit:cover; }
+.team-popup-info { text-align:center; padding:0 20px 15px; }
+.team-popup-name { font-family:'Orbitron',sans-serif; font-size:1.2rem; font-weight:900; color:#fff; margin-bottom:4px; }
+.team-popup-username { font-size:0.8rem; color:#888; margin-bottom:10px; }
+.team-popup-slots { display:inline-flex; align-items:center; gap:6px; background:rgba(0,255,136,0.1); border:1px solid #00ff88; border-radius:20px; padding:4px 12px; font-size:0.75rem; font-weight:900; color:#00ff88; margin-bottom:15px; }
+.team-popup-members-title { font-family:'Orbitron',sans-serif; font-size:0.85rem; font-weight:900; color:#00d4ff; margin-bottom:10px; text-align:left; padding:0 20px; }
+.team-popup-members { padding:0 15px 15px; display:flex; flex-direction:column; gap:8px; }
+.team-popup-member { background:#0d1117; border:1px solid rgba(0,212,255,0.3); border-radius:8px; padding:10px; display:flex; align-items:center; gap:10px; cursor:pointer; transition:0.2s; }
+.team-popup-member:active { border-color:#00d4ff; background:rgba(0,212,255,0.05); }
+.team-popup-member-av { width:38px; height:38px; border-radius:8px; border:2px solid #00d4ff; overflow:hidden; flex-shrink:0; background:linear-gradient(135deg,#00d4ff,#ff0080); display:flex; align-items:center; justify-content:center; font-size:1rem; }
+.team-popup-member-av img { width:100%; height:100%; object-fit:cover; }
+.team-popup-member-name { font-size:0.85rem; font-weight:900; color:#fff; }
+.team-popup-member-role { font-size:0.65rem; color:#00ff88; font-weight:700; }
+.team-popup-btns { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 15px 20px; }
+.team-popup-join-btn { padding:12px; background:linear-gradient(135deg,#00ff88,#00cc66); border:none; border-radius:10px; color:#000; font-weight:900; font-size:0.85rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
+.team-popup-join-btn.requested { background:rgba(136,136,136,0.1); border:2px solid #666; color:#888; cursor:default; }
+.team-popup-join-btn.full { background:rgba(255,71,87,0.15); border:2px solid #ff4757; color:#ff4757; cursor:default; }
+.team-popup-cancel-btn { padding:12px; background:transparent; border:2px solid rgba(255,255,255,0.2); border-radius:10px; color:#888; font-weight:900; font-size:0.85rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
+.team-popup-cancel-btn:active { border-color:#ff4757; color:#ff4757; }
+
+/* TEAM PROFILE */
 .team-profile { background:rgba(22,27,34,0.9); border:2px solid #00d4ff; border-radius:16px; margin-bottom:20px; position:relative; overflow:hidden; }
 .team-cover { height:135px; position:relative; background-size:cover; background-position:center; background-color:#161b22; }
 .team-dp { position:absolute; top:20%; left:50%; transform:translate(-50%,-50%); width:135px; height:135px; border-radius:50%; border:4px solid #161b22; background:#0d1117; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 0 40px rgba(0,212,255,0.8); z-index:20; font-size:2.5rem; }
@@ -79,6 +167,8 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
 .menu-dots.show { display:flex; }
 .menu-dots:active { background:rgba(0,212,255,0.2); }
 .add-member { width:100%; text-align:center; color:#00d4ff; font-size:1.3rem; }
+
+/* REQUEST CARD */
 .request-card { background:rgba(22,27,34,0.9); border:2px solid #ff6b00; border-radius:16px; margin-bottom:20px; padding:15px 20px; box-shadow:0 0 30px rgba(255,107,0,0.3); }
 .request-title { font-family:'Orbitron',sans-serif; font-size:1rem; font-weight:900; color:#ff6b00; margin-bottom:12px; text-align:left; display:flex; align-items:center; gap:8px; }
 .request-badge { background:#ff4757; color:#fff; font-size:0.65rem; padding:2px 6px; border-radius:10px; font-weight:900; }
@@ -94,6 +184,8 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
 .reject-btn { background:linear-gradient(135deg,#ff4757,#ff0064); border-color:#ff4757; color:#fff; }
 .request-btn:active { transform:scale(0.95); }
 .no-requests { text-align:center; color:#666; font-size:0.85rem; padding:20px 0; }
+
+/* POPUPS */
 .popup { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.9); background:#161b22; border:2px solid #00d4ff; border-radius:14px; padding:18px; z-index:2000; display:none; box-shadow:0 0 50px rgba(0,212,255,0.5); max-width:90%; width:400px; max-height:90vh; overflow-y:auto; opacity:0; transition:0.25s; }
 .popup.show { display:block; transform:translate(-50%,-50%) scale(1); opacity:1; }
 .popup.green { border-color:#00ff88; box-shadow:0 0 50px rgba(0,255,136,0.5); }
@@ -141,6 +233,8 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
 .menu-option.danger { border-color:#ff4757; color:#ff4757; }
 .menu-option.danger:active { background:rgba(255,71,87,0.1); }
 .lock-icon { font-size:0.7rem; }
+
+/* QUICK CARD */
 .quick-card { position:fixed; top:70px; left:15px; width:280px; background:#161b22; border:3px solid #00d4ff; border-radius:16px; padding:15px; box-shadow:0 0 50px rgba(0,212,255,0.6); z-index:2500; transform:translateX(-330px); transition:0.3s; max-height:calc(100vh - 100px); overflow-y:auto; }
 .quick-card.show { transform:translateX(0); }
 .quick-close { position:absolute; top:8px; right:8px; width:24px; height:24px; border-radius:50%; background:rgba(255,71,87,0.2); border:2px solid #ff4757; color:#ff4757; font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:900; }
@@ -164,6 +258,8 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
 .quick-btn.visit { background:linear-gradient(135deg,#00d4ff,#0099ff); border:2px solid #00d4ff; color:#fff; }
 .quick-btn:active { transform:scale(0.95); }
 .quick-btn:disabled { opacity:0.5; cursor:not-allowed; }
+
+/* SEARCH SIDEBAR */
 .search-sidebar { position:fixed; top:60px; right:-350px; width:320px; height:calc(100vh - 60px); background:#161b22; border-left:3px solid #00d4ff; z-index:1500; transition:0.3s; padding:15px; overflow-y:auto; }
 .search-sidebar.show { right:0; }
 .sidebar-title { font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:900; color:#00d4ff; margin-bottom:8px; text-align:center; }
@@ -188,38 +284,19 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
 .invite-btn:active, .friend-request-btn:active { transform:scale(0.95); }
 .joined-btn { padding:6px 14px; background:rgba(136,136,136,0.1); border:2px solid #666; border-radius:6px; color:#666; font-weight:900; font-size:0.7rem; cursor:not-allowed; font-family:'Orbitron',sans-serif; }
 .close-sidebar { position:absolute; top:10px; right:10px; width:28px; height:28px; border-radius:50%; background:rgba(255,71,87,0.2); border:2px solid #ff4757; color:#ff4757; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:900; }
-.toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(100px); background:linear-gradient(135deg,#00ff88,#00cc66); border:2px solid #00ff88; border-radius:12px; padding:12px 20px; color:#000; font-weight:900; font-size:0.9rem; z-index:3000; opacity:0; transition:0.3s; box-shadow:0 0 30px rgba(0,255,136,0.6); max-width:90%; text-align:center; }
+
+.toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(100px); background:linear-gradient(135deg,#00ff88,#00cc66); border:2px solid #00ff88; border-radius:12px; padding:12px 20px; color:#000; font-weight:900; font-size:0.9rem; z-index:4000; opacity:0; transition:0.3s; box-shadow:0 0 30px rgba(0,255,136,0.6); max-width:90%; text-align:center; }
 .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
 .toast.error { background:linear-gradient(135deg,#ff4757,#ff0064); border-color:#ff4757; color:#fff; }
 .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1499; display:none; }
 .overlay.show { display:block; }
-.overlay.top
-#miniTeamMembers{
-margin-top:15px;
-}
-
-.mini-member{
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:8px;
-margin-bottom:8px;
-background:#0d1117;
-border:1px solid rgba(0,212,255,.3);
-border-radius:8px;
-cursor:pointer;
-}
-
-.mini-member:hover{
-border-color:#00d4ff;
-}
-
-.mini-role{
-color:#00ff88;
-font-weight:bold;
-font-size:13px;
-} { z-index:1999; }
+.overlay.top { z-index:1999; }
 .overlay.quick { z-index:2400; }
+
+#miniTeamMembers { margin-top:15px; }
+.mini-member { display:flex; align-items:center; justify-content:space-between; padding:8px; margin-bottom:8px; background:#0d1117; border:1px solid rgba(0,212,255,.3); border-radius:8px; cursor:pointer; }
+.mini-member:hover { border-color:#00d4ff; }
+.mini-role { color:#00ff88; font-weight:bold; font-size:13px; }
 </style>
 </head>
 <body>
@@ -232,50 +309,95 @@ font-size:13px;
 
 <div class="navbar hidden" id="navbar">
 <div class="nav-left">
-<button class="back-btn" onclick="history.back()">← BACK</button>
-<div class="nav-title">TEAM</div>
+  <button class="back-btn" onclick="history.back()">← BACK</button>
+  <div class="nav-title">TEAM</div>
 </div>
 <div class="nav-right">
-<button class="create-team-btn hidden" id="navCreateBtn" onclick="openCreatePopup()">+ CREATE TEAM</button>
-<button class="leave-btn hidden" id="navLeaveBtn" onclick="confirmLeaveTeam()">🚪 LEAVE</button>
-<button class="delete-btn hidden" id="navDeleteBtn" onclick="confirmDeleteTeam()">🗑️ DELETE</button>
-<img src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" class="profile-pic" id="navProfilePic" onclick="openMyMiniProfile()">
+  <button class="create-team-btn hidden" id="navCreateBtn" onclick="openCreatePopup()">+ CREATE TEAM</button>
+  <button class="leave-btn hidden" id="navLeaveBtn" onclick="confirmLeaveTeam()">🚪 LEAVE</button>
+  <button class="delete-btn hidden" id="navDeleteBtn" onclick="confirmDeleteTeam()">🗑️ DELETE</button>
+  <!-- PROFILE SECTION - profile.html jaisa -->
+  <div class="profile-section">
+    <div class="profile-btn" id="profileBtn" onclick="toggleProfileDropdown()">
+      <span id="navProfileIcon">👤</span>
+    </div>
+    <div class="dropdown" id="profileDropdown">
+      <div class="dropdown-item" onclick="window.location.href='profile.html'">👤 My Profile</div>
+      <div class="dropdown-item" onclick="window.location.href='history.html'">📜 Match History</div>
+      <div class="dropdown-item" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</div>
+      <div class="dropdown-item" onclick="window.location.href='wallet.html'">💰 Wallet</div>
+      <div class="dropdown-item logout" onclick="doLogout()">🚪 Logout</div>
+    </div>
+  </div>
 </div>
 </div>
 
+<!-- GUEST VIEW: No Team -->
 <div class="container hidden" id="noTeamView">
-<div class="search-section">
-<div class="search-title">🔍 SEARCH TEAMS</div>
-<input type="text" class="search-input" id="teamSearchInput" placeholder="Search team name or @username..." onkeyup="searchTeams(this.value)">
-<div class="search-hint">Use <span>@username</span> to search by username or type name directly</div>
-<div id="teamSearchResults"></div>
-</div>
+  <!-- Search Section -->
+  <div class="search-section">
+    <div class="search-title">🔍 SEARCH TEAMS</div>
+    <input type="text" class="search-input" id="teamSearchInput" placeholder="Search team name or @username..." onkeyup="searchTeams(this.value)">
+    <div class="search-hint">Use <span>@username</span> to search by username or type name directly</div>
+    <div id="teamSearchResults"></div>
+  </div>
+
+  <!-- RANDOM TEAMS SECTION -->
+  <div class="random-section">
+    <div class="random-header">
+      <div class="random-title">🎲 DISCOVER TEAMS</div>
+      <button class="refresh-btn" id="refreshBtn" onclick="loadRandomTeams()">
+        🔄 REFRESH <span class="refresh-countdown hidden" id="refreshCountdown"></span>
+      </button>
+    </div>
+    <div id="randomTeamsGrid" class="random-grid">
+      <div class="random-empty" style="grid-column:1/-1;">Loading...</div>
+    </div>
+  </div>
+
+  <!-- TEAM INVITES SECTION -->
+  <div class="invites-section">
+    <div class="invites-title">📨 TEAM INVITES</div>
+    <div id="invitesList">
+      <div class="invites-empty">Loading invites...</div>
+    </div>
+  </div>
 </div>
 
+<!-- TEAM VIEW: Member/Owner -->
 <div class="container hidden" id="teamView">
-<div class="team-profile">
-<div class="team-cover" id="teamCover"></div>
-<div class="team-dp" id="teamDp">👥</div>
-<div class="team-profile-info">
-<div class="team-profile-name" id="teamNameDisplay">Team</div>
-<div class="team-profile-username" id="teamUsernameDisplay">@team</div>
-</div>
-<div class="members-section">
-<div class="members-title" id="membersTitle">👥 TEAM MEMBERS (0/5)</div>
-<div id="membersList"></div>
-</div>
-</div>
-<div class="request-card hidden" id="requestCard">
-<div class="request-title">📥 TEAM REQUESTS <span class="request-badge" id="requestCount">0</span></div>
-<div id="requestList"></div>
-<div class="no-requests hidden" id="noRequests">No pending requests</div>
-</div>
+  <div class="team-profile">
+    <div class="team-cover" id="teamCover"></div>
+    <div class="team-dp" id="teamDp">👥</div>
+    <div class="team-profile-info">
+      <div class="team-profile-name" id="teamNameDisplay">Team</div>
+      <div class="team-profile-username" id="teamUsernameDisplay">@team</div>
+    </div>
+    <div class="members-section">
+      <div class="members-title" id="membersTitle">👥 TEAM MEMBERS (0/5)</div>
+      <div id="membersList"></div>
+    </div>
+  </div>
+  <div class="request-card hidden" id="requestCard">
+    <div class="request-title">📥 TEAM REQUESTS <span class="request-badge" id="requestCount">0</span></div>
+    <div id="requestList"></div>
+    <div class="no-requests hidden" id="noRequests">No pending requests</div>
+  </div>
 </div>
 
+<!-- TEAM DETAIL POPUP -->
+<div class="team-popup-overlay" id="teamPopupOverlay" onclick="closeTeamPopup(event)">
+  <div class="team-popup" id="teamPopup">
+    <div class="team-popup-close" onclick="closeTeamPopupDirect()">×</div>
+    <div id="teamPopupContent">Loading...</div>
+  </div>
+</div>
+
+<!-- OVERLAYS -->
 <div class="overlay quick" id="quickOverlay" onclick="closeQuickCard()"></div>
 <div class="quick-card" id="quickCard">
-<div class="quick-close" onclick="closeQuickCard()">×</div>
-<div id="quickContent">Loading...</div>
+  <div class="quick-close" onclick="closeQuickCard()">×</div>
+  <div id="quickContent">Loading...</div>
 </div>
 
 <div class="overlay top" id="createOverlay" onclick="closeCreatePopup()"></div>
@@ -283,35 +405,35 @@ font-size:13px;
 <div class="close-popup" onclick="closeCreatePopup()">×</div>
 <div class="popup-title">⚡ CREATE YOUR TEAM</div>
 <div class="upload-section">
-<label class="upload-label">Background Cover</label>
-<div class="upload-box" id="bgUpload" onclick="document.getElementById('bgInput').click()">
-<input type="file" id="bgInput" accept="image/*" style="display:none" onchange="previewImage(this,'bgUpload','bgPreview')">
-<img id="bgPreview">
-<div class="upload-text"><div class="icon">🖼️</div><div>Click to upload</div></div>
-</div>
+  <label class="upload-label">Background Cover</label>
+  <div class="upload-box" id="bgUpload" onclick="document.getElementById('bgInput').click()">
+    <input type="file" id="bgInput" accept="image/*" style="display:none" onchange="previewImage(this,'bgUpload','bgPreview')">
+    <img id="bgPreview">
+    <div class="upload-text"><div class="icon">🖼️</div><div>Click to upload</div></div>
+  </div>
 </div>
 <div class="upload-section">
-<label class="upload-label">Team Logo / DP</label>
-<div class="upload-box dp-upload" id="dpUpload" onclick="document.getElementById('dpInput').click()">
-<input type="file" id="dpInput" accept="image/*" style="display:none" onchange="previewImage(this,'dpUpload','dpPreview')">
-<img id="dpPreview">
-<div class="upload-text"><div class="icon">👤</div><div>Upload</div></div>
-</div>
+  <label class="upload-label">Team Logo / DP</label>
+  <div class="upload-box dp-upload" id="dpUpload" onclick="document.getElementById('dpInput').click()">
+    <input type="file" id="dpInput" accept="image/*" style="display:none" onchange="previewImage(this,'dpUpload','dpPreview')">
+    <img id="dpPreview">
+    <div class="upload-text"><div class="icon">👤</div><div>Upload</div></div>
+  </div>
 </div>
 <div class="input-group"><label class="input-label">Team Name *</label><input type="text" class="popup-input" id="teamName" placeholder="Enter team name" maxlength="30"></div>
 <div class="input-group"><label class="input-label">Team Username *</label><input type="text" class="popup-input" id="teamUsername" placeholder="@team_username" maxlength="20"></div>
 <div class="input-group"><div style="display:flex;gap:8px;">
-<div style="width:70px;background:#0d1117;border:2px solid rgba(0,212,255,.3);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#00d4ff;font-weight:900;">+91</div>
-<input type="tel" class="popup-input" id="whatsappNumber" placeholder="9876543210" maxlength="10" style="flex:1;">
+  <div style="width:70px;background:#0d1117;border:2px solid rgba(0,212,255,.3);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#00d4ff;font-weight:900;">+91</div>
+  <input type="tel" class="popup-input" id="whatsappNumber" placeholder="9876543210" maxlength="10" style="flex:1;">
 </div></div>
 <div class="wallet-info">
-<div class="wallet-balance">Your Wallet Balance</div>
-<div class="wallet-amount" id="createWalletBalance">₹ 0.00</div>
-<div class="cost-info">Team Creation Cost: ₹ 20.00</div>
+  <div class="wallet-balance">Your Wallet Balance</div>
+  <div class="wallet-amount" id="createWalletBalance">₹ 0.00</div>
+  <div class="cost-info">Team Creation Cost: ₹ 20.00</div>
 </div>
 <div class="popup-buttons">
-<button class="popup-btn cancel-btn" onclick="closeCreatePopup()">CANCEL</button>
-<button class="popup-btn confirm-btn" id="createTeamSubmit" onclick="submitCreateTeam()">CREATE TEAM</button>
+  <button class="popup-btn cancel-btn" onclick="closeCreatePopup()">CANCEL</button>
+  <button class="popup-btn confirm-btn" id="createTeamSubmit" onclick="submitCreateTeam()">CREATE TEAM</button>
 </div>
 </div>
 
@@ -338,8 +460,8 @@ font-size:13px;
 <div class="popup-title" id="confirmTitle">CONFIRM ACTION</div>
 <div class="popup-message" id="confirmMessage">Are you sure?</div>
 <div class="popup-buttons">
-<button class="popup-btn cancel-btn" onclick="closeConfirmPopup()">CANCEL</button>
-<button class="popup-btn confirm-btn warn" id="confirmActionBtn" onclick="executeConfirmedAction()">CONFIRM</button>
+  <button class="popup-btn cancel-btn" onclick="closeConfirmPopup()">CANCEL</button>
+  <button class="popup-btn confirm-btn warn" id="confirmActionBtn" onclick="executeConfirmedAction()">CONFIRM</button>
 </div>
 </div>
 
@@ -349,96 +471,19 @@ font-size:13px;
 <div class="sidebar-title">🔍 INVITE PLAYER</div>
 <div class="friend-counter" id="friendCounter">Friends: 0</div>
 <div class="tab-buttons">
-<button class="tab-btn" id="searchTab" onclick="switchTab('search')">SEARCH</button>
-<button class="tab-btn active" id="friendTab" onclick="switchTab('friend')">FRIEND</button>
-<button class="tab-btn" id="requestTab" onclick="switchTab('requests')">REQUESTS <span class="tab-badge hidden" id="requestTabBadge">0</span></button>
+  <button class="tab-btn" id="searchTab" onclick="switchTab('search')">SEARCH</button>
+  <button class="tab-btn active" id="friendTab" onclick="switchTab('friend')">FRIEND</button>
+  <button class="tab-btn" id="requestTab" onclick="switchTab('requests')">REQUESTS <span class="tab-badge hidden" id="requestTabBadge">0</span></button>
 </div>
 <input type="text" class="sidebar-search-input hidden" id="sidebarSearchInput" placeholder="Search username..." onkeyup="searchUsers(this.value)">
 <div id="sidebarResults"></div>
-</div>
-
-<!-- MINI TEAM PROFILE -->
-<div class="overlay top"
-id="miniTeamOverlay"
-onclick="closeMiniTeamProfile()"></div>
-
-<div class="popup"
-id="miniTeamPopup"
-style="width:92%;
-max-width:450px;
-max-height:80vh;
-overflow-y:auto;">
-
-<div class="close-popup"
-onclick="closeMiniTeamProfile()">×</div>
-
-<div id="miniTeamContent">
-
-<div class="team-cover"
-id="miniTeamCover"></div>
-
-<div class="team-dp"
-id="miniTeamLogo"
-style="position:relative;
-left:auto;
-top:auto;
-transform:none;
-margin:-60px auto 10px;">
-👥
-</div>
-
-<div class="team-profile-info">
-
-<div class="team-profile-name"
-id="miniTeamName">
-Loading...
-</div>
-
-<div class="team-profile-username"
-id="miniTeamUsername"
-><div id="miniTeamOwner" class="team-owner"></div>
-
-<div id="miniTeamMemberCount" class="team-member-count"></div>
-@loading
-</div>
-
-<div id="miniTeamMemberCount"
-style="color:#00ff88;
-font-weight:bold;
-margin-bottom:12px;">
-0 / 5 Members
-</div>
-
-<div id="miniTeamMembers">
-</div>
-
-<div style="margin-top:20px;display:flex;gap:10px;">
-
-<button
-class="popup-btn confirm-btn"
-id="miniJoinBtn">
-JOIN TEAM
-</button>
-
-<button
-class="popup-btn cancel-btn"
-onclick="closeMiniTeamProfile()">
-CLOSE
-</button>
-
-</div>
-
-</div>
-
-</div>
-
 </div>
 
 <div class="toast" id="toast">Done!</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, arrayUnion, arrayRemove, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -471,10 +516,29 @@ let pendingConfirmAction = null;
 let createBgData = null, createDpData = null;
 let currentEditingPosition = null;
 let currentMenuPosition = null;
+let refreshCooldown = false;
+let refreshTimer = null;
+let invitesUnsub = null;
 
-/* ===== AUTH (UNCHANGED) ===== */
+/* ===== PROFILE DROPDOWN ===== */
+window.toggleProfileDropdown = function() {
+  document.getElementById('profileDropdown').classList.toggle('show');
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.profile-section')) {
+    document.getElementById('profileDropdown').classList.remove('show');
+  }
+});
+window.doLogout = async function() {
+  if (confirm('Logout karna chahte ho?')) {
+    await signOut(auth);
+    window.location.href = 'index.html';
+  }
+}
+
+/* ===== AUTH ===== */
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = 'login.html'; return; }
+  if (!user) { window.location.href = 'index.html'; return; }
   currentUser = user;
   const userRef = doc(db,'users',currentUser.uid);
   const userSnap = await getDoc(userRef);
@@ -486,7 +550,7 @@ onAuthStateChanged(auth, async (user) => {
       balance: 0, diamonds: 0, wallet: 0,
       kills: 0, wins: 0, matches: 0, rank: 0, p4x_coins: 0,
       teamId: null,
-      friends: [], friendRequests: [], sentRequests: [],
+      friends: [], friendRequests: [], sentRequests: [], teamInvites: [],
       online: true, createdAt: serverTimestamp()
     });
   }
@@ -498,7 +562,11 @@ function listenToMyUser() {
   userUnsub = onSnapshot(doc(db,'users',currentUser.uid), (snap) => {
     if (!snap.exists()) { myData = { teamId: null }; myTeamId = null; showNoTeamView(); return; }
     myData = snap.data();
-    if (myData.photoURL) document.getElementById('navProfilePic').src = myData.photoURL;
+    // Profile picture update
+    if (myData.photoURL) {
+      const icon = document.getElementById('navProfileIcon');
+      if (icon) icon.innerHTML = '<img src="' + myData.photoURL + '" alt="" style="width:100%;height:100%;object-fit:cover;">';
+    }
     const newTeamId = myData.teamId || null;
     if (newTeamId !== myTeamId) {
       myTeamId = newTeamId;
@@ -509,7 +577,7 @@ function listenToMyUser() {
         currentTeam = null; currentMembers = []; showNoTeamView();
       }
     } else if (!myTeamId) { showNoTeamView(); }
-  }, (error) => { console.error('User snapshot error:', error); showError('Error loading profile: ' + error.message); });
+  }, (error) => { console.error('User snapshot error:', error); showError('Error loading profile'); });
 }
 
 function listenToTeam(teamId) {
@@ -519,16 +587,14 @@ function listenToTeam(teamId) {
       myTeamId = null;
       updateDoc(doc(db,'users',currentUser.uid), { teamId: null }).catch(()=>{});
       if (membersUnsub) { membersUnsub(); membersUnsub = null; }
-      showNoTeamView();
-      return;
+      showNoTeamView(); return;
     }
     currentTeam = { id: snap.id, ...snap.data() };
     isOwner = currentTeam.ownerUid === currentUser.uid;
     listenToMembers(teamId);
-  }, (error) => { console.error('Team snapshot error:', error); showError('Error loading team: ' + error.message); });
+  }, (error) => { console.error('Team snapshot error:', error); });
 }
 
-/* NEW: live members from teamMembers collection */
 function listenToMembers(teamId) {
   if (membersUnsub) membersUnsub();
   const qy = query(collection(db,'teamMembers'), where('teamId','==',teamId));
@@ -536,12 +602,16 @@ function listenToMembers(teamId) {
     currentMembers = [];
     snap.forEach(d => currentMembers.push({ id:d.id, ...d.data() }));
     renderTeamView();
-  }, (error) => { console.error('Members snapshot error:', error); showError('Error loading members: ' + error.message); });
+  }, (error) => { console.error('Members snapshot error:', error); });
 }
 
 /* ===== VIEW SWITCH ===== */
-function hideLoading() { document.getElementById('loadingScreen').style.display = 'none'; document.getElementById('navbar').classList.remove('hidden'); }
+function hideLoading() {
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('navbar').classList.remove('hidden');
+}
 function showError(msg) { hideLoading(); showToast(msg, true); }
+
 function showNoTeamView() {
   hideLoading();
   document.getElementById('teamView').classList.add('hidden');
@@ -551,6 +621,8 @@ function showNoTeamView() {
   document.getElementById('navDeleteBtn').classList.add('hidden');
   document.getElementById('teamSearchInput').value = '';
   document.getElementById('teamSearchResults').innerHTML = '';
+  loadRandomTeams();
+  loadInvites();
 }
 
 function roleOf(m){ return (m.uid===currentTeam.ownerUid) ? 'IGL' : (m.role || 'Default'); }
@@ -646,6 +718,101 @@ async function renderJoinRequests(uids) {
   }
 }
 
+/* ===== TEAM DETAIL POPUP ===== */
+window.openTeamPopup = async function(teamId) {
+  const overlay = document.getElementById('teamPopupOverlay');
+  const content = document.getElementById('teamPopupContent');
+  overlay.classList.add('show');
+  content.innerHTML = '<div style="text-align:center;padding:40px;color:#00d4ff;">Loading...</div>';
+
+  try {
+    const teamSnap = await getDoc(doc(db,'teams',teamId));
+    if (!teamSnap.exists()) { content.innerHTML = '<div style="text-align:center;padding:40px;color:#ff4757;">Team not found</div>'; return; }
+    const team = { id: teamSnap.id, ...teamSnap.data() };
+
+    const memberSnap = await getDocs(query(collection(db,'teamMembers'), where('teamId','==',teamId)));
+    let members = [];
+    memberSnap.forEach(d => members.push({ id:d.id, ...d.data() }));
+    members.sort((a,b) => a.position - b.position);
+
+    const memberCount = members.length;
+    const remaining = MAX_MEMBERS - memberCount;
+    const isRequested = (team.joinRequests||[]).includes(currentUser.uid);
+    const isFull = memberCount >= MAX_MEMBERS;
+    const alreadyInTeam = !!myTeamId;
+
+    // Cover image
+    const coverHtml = team.teamCover
+      ? '<img src="' + team.teamCover + '" class="team-popup-cover" onerror="this.style.background=\'linear-gradient(135deg,#00d4ff,#ff0080)\'">'
+      : '<div class="team-popup-cover" style="background:linear-gradient(135deg,#00d4ff,#ff0080);"></div>';
+
+    // Logo
+    const logoHtml = team.teamLogo
+      ? '<img src="' + team.teamLogo + '">'
+      : '👥';
+
+    // Members HTML
+    let membersHtml = '';
+    for (const m of members) {
+      let u = {};
+      try { const us = await getDoc(doc(db,'users',m.uid)); if(us.exists()) u = us.data(); } catch(e){}
+      const photo = u.photoURL ? '<img src="' + u.photoURL + '">' : '👤';
+      const role = (m.uid === team.ownerUid) ? 'IGL' : (m.role || 'Default');
+      membersHtml += '<div class="team-popup-member" onclick="openQuickCard(\'' + m.uid + '\')">' +
+        '<div class="team-popup-member-av">' + photo + '</div>' +
+        '<div>' +
+          '<div class="team-popup-member-name">' + (u.name||'Player') + '</div>' +
+          '<div class="team-popup-member-role">' + role + (m.uid===team.ownerUid?' 👑':'') + '</div>' +
+        '</div>' +
+        '</div>';
+    }
+
+    // Join button state
+    let joinBtnClass = 'team-popup-join-btn';
+    let joinBtnText = '✅ JOIN TEAM';
+    let joinBtnOnclick = 'sendJoinRequestFromPopup(\'' + teamId + '\')';
+    let joinBtnDisabled = '';
+    if (alreadyInTeam) { joinBtnClass += ' requested'; joinBtnText = 'ALREADY IN TEAM'; joinBtnDisabled = 'disabled'; }
+    else if (isRequested) { joinBtnClass += ' requested'; joinBtnText = '✓ REQUESTED'; joinBtnDisabled = 'disabled'; }
+    else if (isFull) { joinBtnClass += ' full'; joinBtnText = '❌ TEAM FULL'; joinBtnDisabled = 'disabled'; }
+
+    content.innerHTML =
+      coverHtml +
+      '<div class="team-popup-dp-wrap"><div class="team-popup-dp">' + logoHtml + '</div></div>' +
+      '<div class="team-popup-info">' +
+        '<div class="team-popup-name">' + (team.teamName||'Team') + '</div>' +
+        '<div class="team-popup-username">@' + (team.teamUsername||'').replace(/^@/,'') + '</div>' +
+        '<div class="team-popup-slots">👥 ' + memberCount + '/5 Members | ' + remaining + ' Slots Left</div>' +
+      '</div>' +
+      '<div class="team-popup-members-title">👥 MEMBERS</div>' +
+      '<div class="team-popup-members">' + (membersHtml || '<div style="text-align:center;color:#666;padding:10px;">No members yet</div>') + '</div>' +
+      '<div class="team-popup-btns">' +
+        '<button class="' + joinBtnClass + '" onclick="' + joinBtnOnclick + '" ' + joinBtnDisabled + '>' + joinBtnText + '</button>' +
+        '<button class="team-popup-cancel-btn" onclick="closeTeamPopupDirect()">CANCEL</button>' +
+      '</div>';
+  } catch(e) {
+    console.error(e);
+    content.innerHTML = '<div style="text-align:center;padding:40px;color:#ff4757;">Error loading team</div>';
+  }
+}
+
+window.closeTeamPopup = function(e) {
+  if (e.target === document.getElementById('teamPopupOverlay')) {
+    document.getElementById('teamPopupOverlay').classList.remove('show');
+  }
+}
+window.closeTeamPopupDirect = function() {
+  document.getElementById('teamPopupOverlay').classList.remove('show');
+}
+
+window.sendJoinRequestFromPopup = async function(teamId) {
+  try {
+    await updateDoc(doc(db,'teams',teamId), { joinRequests: arrayUnion(currentUser.uid) });
+    showToast('Join request sent!');
+    openTeamPopup(teamId); // Refresh popup
+  } catch(e) { console.error(e); showToast('Error sending request', true); }
+}
+
 /* ===== SEARCH TEAMS ===== */
 window.searchTeams = async function(qstr) {
   const resultsDiv = document.getElementById('teamSearchResults');
@@ -666,15 +833,13 @@ window.searchTeams = async function(qstr) {
       const count = Number(t.memberCount || 0);
       const requested = (t.joinRequests||[]).includes(currentUser.uid);
       const full = count >= MAX_MEMBERS;
-      const logo = t.teamLogo ? ('<img src="' + t.teamLogo + '">') : '';
+      const logo = t.teamLogo ? ('<img src="' + t.teamLogo + '">') : '👥';
       const div = document.createElement('div');
       div.className = 'team-result';
       div.innerHTML =
-        '<div class="team-result-avatar"
-onclick="openMiniTeamProfile('${t.id}')">' + logo + '</div>' +
+        '<div class="team-result-avatar" onclick="openTeamPopup(\'' + t.id + '\')">' + logo + '</div>' +
         '<div class="team-result-info">' +
-          '<div class="team-result-name"
-onclick="openMiniTeamProfile('${t.id}')">' + (t.teamName||'Team') + '</div>' +
+          '<div class="team-result-name" onclick="openTeamPopup(\'' + t.id + '\')">' + (t.teamName||'Team') + '</div>' +
           '<div class="team-result-username">@' + (t.teamUsername||'').replace(/^@/,'') + '</div>' +
           '<div class="team-result-members">' + count + '/5 Members</div>' +
         '</div>' +
@@ -687,171 +852,182 @@ onclick="openMiniTeamProfile('${t.id}')">' + (t.teamName||'Team') + '</div>' +
 window.sendJoinRequest = async function(teamId, btn) {
   try {
     await updateDoc(doc(db,'teams',teamId), { joinRequests: arrayUnion(currentUser.uid) });
-    btn.textContent = 'REQUESTED'; btn.classList.add('requested'); btn.disabled = true;
+    if (btn) { btn.textContent = 'REQUESTED'; btn.classList.add('requested'); btn.disabled = true; }
     showToast('Join request sent!');
   } catch(e){ console.error(e); showToast('Error sending request', true); }
 }
 
-async function openMiniTeamProfile(teamId){
+/* ===== RANDOM TEAMS ===== */
+window.loadRandomTeams = async function() {
+  if (refreshCooldown) return;
+  const btn = document.getElementById('refreshBtn');
+  const grid = document.getElementById('randomTeamsGrid');
+  btn.disabled = true;
+  grid.innerHTML = '<div class="random-empty" style="grid-column:1/-1;">Loading teams...</div>';
 
-  const snap = await getDoc(doc(db,"teams",teamId));
+  try {
+    const snap = await getDocs(collection(db,'teams'));
+    let allTeams = [];
+    snap.forEach(d => {
+      const data = d.data();
+      const count = Number(data.memberCount || 0);
+      if (count < MAX_MEMBERS) allTeams.push({ id:d.id, ...data });
+    });
 
-  if(!snap.exists()){
-    showToast("Team not found",true);
-    return;
+    // Shuffle randomly
+    for (let i = allTeams.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [allTeams[i], allTeams[j]] = [allTeams[j], allTeams[i]];
+    }
+    const shown = allTeams.slice(0, 6);
+
+    if (!shown.length) {
+      grid.innerHTML = '<div class="random-empty" style="grid-column:1/-1;">Koi available team nahi mili</div>';
+    } else {
+      grid.innerHTML = '';
+      shown.forEach(t => {
+        const count = Number(t.memberCount || 0);
+        const requested = (t.joinRequests||[]).includes(currentUser.uid);
+        const card = document.createElement('div');
+        card.className = 'random-card';
+
+        const coverEl = t.teamCover
+          ? '<img class="random-card-cover" src="' + t.teamCover + '" onerror="this.style.background=\'linear-gradient(135deg,#00d4ff,#ff0080)\'" onclick="openTeamPopup(\'' + t.id + '\')">'
+          : '<div class="random-card-cover" style="background:linear-gradient(135deg,#00d4ff,#ff0080);" onclick="openTeamPopup(\'' + t.id + '\')"></div>';
+
+        const logoHtml = t.teamLogo ? '<img src="' + t.teamLogo + '">' : '👥';
+
+        card.innerHTML = coverEl +
+          '<div class="random-card-body">' +
+            '<div class="random-card-logo-row" onclick="openTeamPopup(\'' + t.id + '\')">' +
+              '<div class="random-card-logo">' + logoHtml + '</div>' +
+              '<div>' +
+                '<div class="random-card-name">' + (t.teamName||'Team') + '</div>' +
+                '<div class="random-card-members">' + count + '/5 Members</div>' +
+              '</div>' +
+            '</div>' +
+            '<button class="random-join-btn ' + (requested?'requested':'') + '" ' + (requested?'disabled':'') + ' onclick="sendJoinRequest(\'' + t.id + '\', this)">' + (requested?'REQUESTED':'JOIN') + '</button>' +
+          '</div>';
+        grid.appendChild(card);
+      });
+    }
+  } catch(e) {
+    console.error(e);
+    grid.innerHTML = '<div class="random-empty" style="grid-column:1/-1;">Error loading teams</div>';
   }
 
-  const team = snap.data();
-  // Team Cover
-const cover = document.getElementById("miniTeamCover");
+  // Start 15 second cooldown
+  refreshCooldown = true;
+  let seconds = 15;
+  const countdown = document.getElementById('refreshCountdown');
+  countdown.classList.remove('hidden');
+  countdown.textContent = seconds + 's';
+  btn.querySelector ? null : null;
 
-cover.style.backgroundImage =
-team.teamCover
-? `url(${team.teamCover})`
-: "none";
-
-cover.style.backgroundSize = "cover";
-cover.style.backgroundPosition = "center";
-
-// Team Logo
-const logo = document.getElementById("miniTeamLogo");
-
-if(team.teamLogo){
-
-logo.innerHTML =
-`<img src="${team.teamLogo}"
-style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-
-}else{
-
-logo.innerHTML="👥";
-
+  refreshTimer = setInterval(() => {
+    seconds--;
+    countdown.textContent = seconds + 's';
+    if (seconds <= 0) {
+      clearInterval(refreshTimer);
+      refreshCooldown = false;
+      btn.disabled = false;
+      countdown.classList.add('hidden');
+    }
+  }, 1000);
 }
 
-// Team Owner
-document.getElementById("miniTeamOwner").textContent =
-team.ownerName || "Unknown";
+/* ===== TEAM INVITES ===== */
+async function loadInvites() {
+  const listEl = document.getElementById('invitesList');
+  listEl.innerHTML = '<div class="invites-empty">Loading...</div>';
 
-// Member Count
-document.getElementById("miniTeamMemberCount").textContent =
-(team.members ? team.members.length : 0) + " / 5 Members";
+  try {
+    const userSnap = await getDoc(doc(db,'users',currentUser.uid));
+    if (!userSnap.exists()) { listEl.innerHTML = '<div class="invites-empty">No invites</div>'; return; }
+    const inviteIds = userSnap.data().teamInvites || [];
 
-  document.getElementById("miniTeamName").textContent =
-    team.teamName || "Unknown Team";
+    if (!inviteIds.length) { listEl.innerHTML = '<div class="invites-empty">Abhi koi team invite nahi hai</div>'; return; }
 
-  document.getElementById("miniTeamUsername").textContent =
-    "@" + (team.teamUsername || "");
+    listEl.innerHTML = '';
+    for (const teamId of inviteIds) {
+      let team = null;
+      try {
+        const ts = await getDoc(doc(db,'teams',teamId));
+        if (ts.exists()) team = { id:ts.id, ...ts.data() };
+      } catch(e){}
+      if (!team) continue;
 
-  document.getElementById("miniTeamMemberCount").textContent =
-    (team.memberCount || 0) + " / 5 Members";
-
- const membersDiv = document.getElementById("miniTeamMembers");
-membersDiv.innerHTML = "";
-
-const memberSnap = await getDocs(
-  query(
-    collection(db,"teamMembers"),
-    where("teamId","==",teamId)
-  )
-);
-
-const members = [];
-
-memberSnap.forEach(docSnap=>{
-  members.push(docSnap.data());
-});
-
-members.sort((a,b)=>a.position-b.position);
-
-for (const member of members) {
-
-    let userName = "Player";
-    let photoURL = "";
-    let online = false;
-
-    try {
-
-        const userSnap = await getDoc(doc(db, "users", member.uid));
-
-        if (userSnap.exists()) {
-
-            const user = userSnap.data();
-
-            userName = user.name || "Player";
-            photoURL = user.photoURL || "";
-            online = user.online || false;
-
-        }
-
-    } catch (e) {}
-
-    membersDiv.innerHTML += `
-
-<div class="mini-member"
-onclick="openQuickCard('${member.uid}')">
-
-<img
-class="mini-member-photo"
-src="${photoURL || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + member.uid}">
-
-<div class="mini-member-info">
-
-<div class="mini-member-name">
-
-${userName}
-
-</div>
-
-<div class="mini-member-role">
-
-${member.role || "Member"}
-
-</div>
-
-<div class="mini-member-status">
-
-${online ? "🟢 Online" : "⚪ Offline"}
-
-</div>
-
-</div>
-
-</div>
-
-`;
-
+      const count = Number(team.memberCount || 0);
+      const logoHtml = team.teamLogo ? '<img src="' + team.teamLogo + '">' : '👥';
+      const card = document.createElement('div');
+      card.className = 'invite-card';
+      card.innerHTML =
+        '<div class="invite-logo" onclick="openTeamPopup(\'' + teamId + '\')">' + logoHtml + '</div>' +
+        '<div class="invite-info">' +
+          '<div class="invite-name" onclick="openTeamPopup(\'' + teamId + '\')">' + (team.teamName||'Team') + '</div>' +
+          '<div class="invite-members">' + count + '/5 Members</div>' +
+        '</div>' +
+        '<div class="invite-actions">' +
+          '<button class="invite-accept-btn" onclick="acceptInvite(\'' + teamId + '\', this)">✓ ACCEPT</button>' +
+          '<button class="invite-reject-btn" onclick="rejectInvite(\'' + teamId + '\', this)">✕ REJECT</button>' +
+        '</div>';
+      listEl.appendChild(card);
+    }
+    if (!listEl.children.length) listEl.innerHTML = '<div class="invites-empty">Koi valid invite nahi mili</div>';
+  } catch(e) {
+    console.error(e);
+    listEl.innerHTML = '<div class="invites-empty">Error loading invites</div>';
+  }
 }
-  const joinBtn = document.getElementById("miniJoinBtn");
 
-joinBtn.style.display = "block";
-joinBtn.disabled = false;
+window.acceptInvite = async function(teamId, btn) {
+  btn.disabled = true;
+  btn.textContent = 'Joining...';
+  try {
+    const userRef = doc(db,'users',currentUser.uid);
+    const memberRef = doc(db,'teamMembers',currentUser.uid);
+    const teamRef = doc(db,'teams',teamId);
 
-if(myTeamId){
+    await runTransaction(db, async (tx) => {
+      const tSnap = await tx.get(teamRef);
+      if (!tSnap.exists()) throw new Error('Team not found');
+      const team = tSnap.data();
+      if ((team.memberUids||[]).length >= MAX_MEMBERS) throw new Error('Team full hai');
+      if ((team.memberUids||[]).includes(currentUser.uid)) throw new Error('Already in team');
 
-    joinBtn.innerText = "ALREADY IN TEAM";
-    joinBtn.disabled = true;
+      const uSnap = await tx.get(userRef);
+      if (uSnap.data().teamId) throw new Error('Pehle se kisi team mein ho');
 
-}else if(team.memberCount >= 5){
+      const positionsTaken = team.memberPositions || [];
+      let pos = 1;
+      for (let p=1;p<=5;p++){ if(!positionsTaken.includes(p)){ pos=p; break; } }
 
-    joinBtn.innerText = "TEAM FULL";
-    joinBtn.disabled = true;
+      tx.set(memberRef, { uid: currentUser.uid, teamId, role: 'Default', position: pos, joinedAt: serverTimestamp() });
+      tx.update(userRef, { teamId, teamInvites: arrayRemove(teamId) });
+      tx.update(teamRef, {
+        memberUids: arrayUnion(currentUser.uid),
+        memberCount: Number(team.memberCount||0) + 1,
+        memberPositions: arrayUnion(pos),
+        approvedUids: arrayRemove(currentUser.uid)
+      });
+    });
+    showToast('Team join ho gaye! 🎉');
+  } catch(e) {
+    console.error(e);
+    showToast(e.message || 'Error joining team', true);
+    btn.disabled = false;
+    btn.textContent = '✓ ACCEPT';
+  }
+}
 
-}else if(
-    team.joinRequests &&
-    team.joinRequests.includes(currentUser.uid)
-){
-
-    joinBtn.innerText = "REQUEST SENT";
-    joinBtn.disabled = true;
-
-}else{
-
-    joinBtn.innerText = "JOIN TEAM";
-
-    joinBtn.onclick = () => {
-        sendJoinRequest(teamId, joinBtn);
-    };
-
+window.rejectInvite = async function(teamId, btn) {
+  try {
+    await updateDoc(doc(db,'users',currentUser.uid), { teamInvites: arrayRemove(teamId) });
+    btn.closest('.invite-card').remove();
+    const listEl = document.getElementById('invitesList');
+    if (!listEl.children.length) listEl.innerHTML = '<div class="invites-empty">Koi invite nahi hai</div>';
+    showToast('Invite reject kar di');
+  } catch(e) { console.error(e); showToast('Error', true); }
 }
 
 /* ===== CREATE TEAM ===== */
@@ -898,7 +1074,8 @@ window.submitCreateTeam = async function() {
         teamLogo: createDpData || '', teamCover: createBgData || '',
         ownerUid: currentUser.uid,
         memberCount: 1, memberUids: [currentUser.uid],
-        joinRequests: [], createdAt: serverTimestamp()
+        joinRequests: [], approvedUids: [], memberPositions: [1],
+        createdAt: serverTimestamp()
       });
       tx.set(memberRef, { uid: currentUser.uid, teamId: teamRef.id, role: 'IGL', position: 1, joinedAt: serverTimestamp() });
       tx.update(userRef, { balance: bal - TEAM_COST, teamId: teamRef.id });
@@ -910,7 +1087,7 @@ window.submitCreateTeam = async function() {
   } catch(e) { console.error(e); showToast(e.message||'Error creating team', true); btn.disabled=false; btn.textContent='CREATE TEAM'; }
 }
 
-/* ===== JOIN REQUESTS (owner approves -> approvedUids; joiner self-claims) ===== */
+/* ===== JOIN REQUESTS ===== */
 window.acceptJoinRequest = async function(uid) {
   try {
     const teamRef = doc(db,'teams',currentTeam.id);
@@ -928,37 +1105,6 @@ window.acceptJoinRequest = async function(uid) {
 window.rejectJoinRequest = async function(uid) {
   try { await updateDoc(doc(db,'teams',currentTeam.id), { joinRequests: arrayRemove(uid) }); showToast('Request rejected'); }
   catch(e){ console.error(e); showToast('Error', true); }
-}
-
-/* Joiner self-claim: runs for the approved user to create own teamMembers doc */
-async function tryClaimApprovedTeams() {
-  if (myTeamId) return;
-  try {
-    const snap = await getDocs(query(collection(db,'teams'), where('approvedUids','array-contains',currentUser.uid)));
-    if (snap.empty) return;
-    const teamDoc = snap.docs[0];
-    const teamRef = teamDoc.ref;
-    const userRef = doc(db,'users',currentUser.uid);
-    const memberRef = doc(db,'teamMembers',currentUser.uid);
-    await runTransaction(db, async (tx) => {
-      const tSnap = await tx.get(teamRef);
-      if (!tSnap.exists()) throw new Error('Team not found');
-      const team = tSnap.data();
-      if (!(team.approvedUids||[]).includes(currentUser.uid)) return;
-      const uSnap = await tx.get(userRef);
-      if (uSnap.data().teamId) { tx.update(teamRef, { approvedUids: arrayRemove(currentUser.uid) }); return; }
-      const used = (team.memberUids||[]);
-      if (used.length >= MAX_MEMBERS) { tx.update(teamRef, { approvedUids: arrayRemove(currentUser.uid) }); throw new Error('Team is full'); }
-      let pos = 1; const usedPositions = team.usedPositions || [];
-      for (let p=1;p<=5;p++){ if(!usedPositions.includes(p) && !used.length===false){ } }
-      const positionsTaken = team.memberPositions || [];
-      for (let p=1;p<=5;p++){ if(!positionsTaken.includes(p)){ pos=p; break; } }
-      tx.set(memberRef, { uid: currentUser.uid, teamId: teamDoc.id, role: 'Default', position: pos, joinedAt: serverTimestamp() });
-      tx.update(userRef, { teamId: teamDoc.id });
-      tx.update(teamRef, { approvedUids: arrayRemove(currentUser.uid), memberUids: arrayUnion(currentUser.uid), memberCount: (Number(team.memberCount||0)+1), memberPositions: arrayUnion(pos) });
-    });
-    showToast('You joined the team!');
-  } catch(e){ console.error('claim error', e); }
 }
 
 /* ===== LEAVE / DELETE ===== */
@@ -1242,8 +1388,7 @@ window.inviteToTeam = async function(uid, btn) {
   } catch(e){ console.error(e); showToast('Error', true); }
 }
 
-/* ===== MINI PROFILE ===== */
-window.openMyMiniProfile = function(){ openQuickCard(currentUser.uid); }
+/* ===== QUICK CARD (Existing - Reused) ===== */
 window.openQuickCard = async function(uid) {
   const card = document.getElementById('quickCard');
   const content = document.getElementById('quickContent');
@@ -1291,7 +1436,7 @@ window.toggleLikeQuick = async function(uid) {
   } catch(e){ console.error(e); showToast('Error updating like', true); }
 }
 
-/* ===== CONFIRM POPUP HELPERS ===== */
+/* ===== CONFIRM POPUP ===== */
 function showConfirm(icon, title, message, action, variant='warn') {
   document.getElementById('confirmIcon').textContent = icon;
   document.getElementById('confirmTitle').textContent = title;
