@@ -154,7 +154,6 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
 .request-avatar img { width:100%; height:100%; object-fit:cover; }
 .request-info { flex:1; min-width:0; }
 .request-name { font-size:0.9rem; font-weight:900; color:#fff; cursor:pointer; }
-.request-name:active { color:#ff6b00; }
 .request-actions { display:flex; gap:6px; }
 .request-btn { padding:6px 14px; border-radius:6px; font-weight:900; font-size:0.7rem; cursor:pointer; font-family:'Orbitron',sans-serif; border:2px solid; }
 .accept-btn { background:linear-gradient(135deg,#00ff88,#00cc66); border-color:#00ff88; color:#000; }
@@ -253,7 +252,7 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
 .invite-btn-sm:active,.friend-request-btn:active { transform:scale(0.95); }
 .joined-btn { padding:6px 14px; background:rgba(136,136,136,0.1); border:2px solid #666; border-radius:6px; color:#666; font-weight:900; font-size:0.7rem; cursor:not-allowed; font-family:'Orbitron',sans-serif; }
 .close-sidebar { position:absolute; top:10px; right:10px; width:28px; height:28px; border-radius:50%; background:rgba(255,71,87,0.2); border:2px solid #ff4757; color:#ff4757; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:900; }
-.toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(100px); background:linear-gradient(135deg,#00ff88,#00cc66); border:2px solid #00ff88; border-radius:12px; padding:12px 20px; color:#000; font-weight:900; font-size:0.9rem; z-index:9999; opacity:0; transition:0.3s; max-width:90%; text-align:center; }
+.toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(100px); background:linear-gradient(135deg,#00ff88,#00cc66); border:2px solid #00ff88; border-radius:12px; padding:12px 20px; color:#000; font-weight:900; font-size:0.9rem; z-index:9999; opacity:0; transition:0.3s; max-width:90%; text-align:center; pointer-events:none; }
 .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
 .toast.error { background:linear-gradient(135deg,#ff4757,#ff0064); border-color:#ff4757; color:#fff; }
 .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1499; display:none; }
@@ -305,7 +304,7 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
   <div class="random-section">
     <div class="random-header">
       <div class="random-title">🎲 DISCOVER TEAMS</div>
-      <button class="refresh-btn" id="refreshBtn" onclick="loadRandomTeams()">🔄 REFRESH <span id="refreshCountdown" style="display:none;margin-left:4px;color:#ff6b00;"></span></button>
+      <button class="refresh-btn" id="refreshBtn" onclick="loadRandomTeams()">🔄 REFRESH <span id="refreshCountdown" style="display:none;margin-left:4px;color:#ff6b00;font-weight:900;"></span></button>
     </div>
     <div id="randomTeamsGrid" class="random-grid">
       <div class="random-empty">Loading...</div>
@@ -443,7 +442,7 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, arrayUnion, arrayRemove, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, arrayUnion, arrayRemove, runTransaction, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDGLVLgX33dA3caK7wScbgN4BgE2NCjZx8",
@@ -477,10 +476,11 @@ let currentEditingPosition = null;
 let currentMenuPosition = null;
 let refreshCooldown = false;
 let refreshTimer = null;
-// ✅ FIX: loading guard to prevent multiple calls
 let loadingHidden = false;
+// ✅ FIX: Delete operation ke dauran snapshots ko pause karne ke liye flag
+let isDeletingTeam = false;
 
-/* ===== SAFE HIDE LOADING — FIX #1 ===== */
+/* ===== SAFE HIDE LOADING ===== */
 function hideLoading() {
   if (loadingHidden) return;
   loadingHidden = true;
@@ -510,27 +510,23 @@ window.doLogout = async function() {
   }
 }
 
-/* ===== AUTH ===== */
-// ✅ FIX: Safety timeout — agar 10 sec mein kuch nahi hua toh loading hatao
+/* ===== SAFETY TIMEOUT ===== */
 const safetyTimeout = setTimeout(() => {
   if (!loadingHidden) {
-    console.warn('Safety timeout triggered — forcing loading hide');
+    console.warn('Safety timeout — forcing loading hide');
     showNoTeamView();
   }
 }, 10000);
 
+/* ===== AUTH ===== */
 onAuthStateChanged(auth, async (user) => {
   clearTimeout(safetyTimeout);
-  if (!user) {
-    window.location.href = 'index.html';
-    return;
-  }
+  if (!user) { window.location.href = 'index.html'; return; }
   currentUser = user;
   try {
     const userRef = doc(db, 'users', currentUser.uid);
     const userSnap = await getDoc(userRef);
     if (!userSnap.exists()) {
-      // ✅ FIX: New user — safe defaults with all required fields
       await setDoc(userRef, {
         name: currentUser.displayName || 'Player',
         email: currentUser.email || '',
@@ -543,7 +539,6 @@ onAuthStateChanged(auth, async (user) => {
         online: true, createdAt: serverTimestamp()
       });
     } else {
-      // ✅ FIX: Purane users mein missing fields add karo silently
       const data = userSnap.data();
       const missing = {};
       if (!Array.isArray(data.teamInvites)) missing.teamInvites = [];
@@ -551,132 +546,106 @@ onAuthStateChanged(auth, async (user) => {
       if (!Array.isArray(data.friendRequests)) missing.friendRequests = [];
       if (!Array.isArray(data.sentRequests)) missing.sentRequests = [];
       if (!Array.isArray(data.likedBy)) missing.likedBy = [];
-      if (Object.keys(missing).length > 0) {
-        updateDoc(userRef, missing).catch(() => {});
-      }
+      if (Object.keys(missing).length > 0) updateDoc(userRef, missing).catch(() => {});
     }
     listenToMyUser();
   } catch (e) {
     console.error('Auth setup error:', e);
-    // ✅ FIX: Error aane par bhi loading hatao
     hideLoading();
     showToast('Connection error. Please refresh.', true);
   }
 });
 
-/* ===== LISTEN TO USER — FIX #2 (MAIN BUG) ===== */
+/* ===== LISTEN TO USER ===== */
 function listenToMyUser() {
   if (userUnsub) userUnsub();
   userUnsub = onSnapshot(
     doc(db, 'users', currentUser.uid),
     (snap) => {
+      // ✅ FIX: Delete operation ke dauran user snapshot ko ignore karo
+      if (isDeletingTeam) return;
+
       if (!snap.exists()) {
-        myData = { teamId: null };
-        myTeamId = null;
-        showNoTeamView();
-        return;
+        myData = { teamId: null }; myTeamId = null; showNoTeamView(); return;
       }
       myData = snap.data();
-
-      // Profile picture
       if (myData.photoURL) {
         const icon = document.getElementById('navProfileIcon');
         if (icon) icon.innerHTML = '<img src="' + myData.photoURL + '" alt="" style="width:100%;height:100%;object-fit:cover;">';
       }
-
       const newTeamId = myData.teamId || null;
-
       if (newTeamId !== myTeamId) {
         myTeamId = newTeamId;
         if (myTeamId) {
           listenToTeam(myTeamId);
-          // ✅ NOTE: hideLoading() renderTeamView() mein hogi
         } else {
           if (teamUnsub) { teamUnsub(); teamUnsub = null; }
           if (membersUnsub) { membersUnsub(); membersUnsub = null; }
-          currentTeam = null;
-          currentMembers = [];
-          showNoTeamView(); // hideLoading() andar hai
+          currentTeam = null; currentMembers = [];
+          showNoTeamView();
         }
       } else if (!myTeamId) {
-        // ✅ FIX #2: Yahan hideLoading() call thi hi nahi — yahi main bug tha!
         showNoTeamView();
       } else {
-        // ✅ FIX: User team mein hai aur teamId same hai — loading already hide hogi renderTeamView se
-        // Kuch nahi karna — snapshot already live hai
-        hideLoading(); // Safety call
+        hideLoading();
       }
     },
     (error) => {
-      console.error('User snapshot error:', error.code, error.message);
-      // ✅ FIX: Permission error par bhi loading hatao
+      console.error('User snapshot error:', error.code);
       hideLoading();
-      if (error.code === 'permission-denied') {
-        showToast('Permission denied. Check Firebase Rules.', true);
-      } else {
-        showToast('Error loading profile: ' + error.message, true);
-      }
+      if (error.code === 'permission-denied') showToast('Permission denied. Check Firebase Rules.', true);
+      else showToast('Profile load error.', true);
     }
   );
 }
 
-/* ===== LISTEN TO TEAM — FIX #3 ===== */
+/* ===== LISTEN TO TEAM ===== */
 function listenToTeam(teamId) {
   if (teamUnsub) teamUnsub();
   teamUnsub = onSnapshot(
     doc(db, 'teams', teamId),
     (snap) => {
+      // ✅ FIX: Delete operation ke dauran team snapshot ignore karo
+      if (isDeletingTeam) return;
+
       if (!snap.exists()) {
         myTeamId = null;
         updateDoc(doc(db, 'users', currentUser.uid), { teamId: null }).catch(() => {});
         if (membersUnsub) { membersUnsub(); membersUnsub = null; }
-        showNoTeamView();
-        return;
+        showNoTeamView(); return;
       }
       currentTeam = { id: snap.id, ...snap.data() };
       isOwner = currentTeam.ownerUid === currentUser.uid;
       listenToMembers(teamId);
     },
     (error) => {
-      console.error('Team snapshot error:', error.code, error.message);
-      // ✅ FIX #3: Error par bhi loading hatao
+      console.error('Team snapshot error:', error.code);
+      if (isDeletingTeam) return;
       hideLoading();
-      if (error.code === 'permission-denied') {
-        showToast('Team access denied. Check Firebase Rules.', true);
-        // teamId invalid ho sakta hai — reset karo
-        updateDoc(doc(db, 'users', currentUser.uid), { teamId: null }).catch(() => {});
-        showNoTeamView();
-      } else {
-        showToast('Team loading error: ' + error.message, true);
-        showNoTeamView();
-      }
+      updateDoc(doc(db, 'users', currentUser.uid), { teamId: null }).catch(() => {});
+      showNoTeamView();
     }
   );
 }
 
-/* ===== LISTEN TO MEMBERS — FIX #4 ===== */
+/* ===== LISTEN TO MEMBERS ===== */
 function listenToMembers(teamId) {
   if (membersUnsub) membersUnsub();
   const qy = query(collection(db, 'teamMembers'), where('teamId', '==', teamId));
   membersUnsub = onSnapshot(
     qy,
     (snap) => {
+      // ✅ FIX: Delete operation ke dauran members snapshot ignore karo
+      if (isDeletingTeam) return;
+
       currentMembers = [];
       snap.forEach(d => currentMembers.push({ id: d.id, ...d.data() }));
       renderTeamView();
     },
     (error) => {
-      console.error('Members snapshot error:', error.code, error.message);
-      // ✅ FIX #4: Members error par bhi loading hatao — team view dikhao (members khali)
+      console.error('Members snapshot error:', error.code);
+      if (isDeletingTeam) return;
       hideLoading();
-      if (error.code === 'failed-precondition') {
-        showToast('Firestore Index missing for teamMembers. Create index.', true);
-      } else if (error.code === 'permission-denied') {
-        showToast('Members access denied. Check Firebase Rules.', true);
-      } else {
-        showToast('Members loading error.', true);
-      }
-      // Fallback: team dikhao bina members ke
       currentMembers = [];
       renderTeamView();
     }
@@ -692,7 +661,7 @@ function showNoTeamView() {
   document.getElementById('navLeaveBtn').classList.add('hidden');
   document.getElementById('navDeleteBtn').classList.add('hidden');
   const si = document.getElementById('teamSearchInput');
-  if (si) { si.value = ''; }
+  if (si) si.value = '';
   document.getElementById('teamSearchResults').innerHTML = '';
   loadRandomTeams();
   loadInvites();
@@ -700,7 +669,6 @@ function showNoTeamView() {
 
 function roleOf(m) { return (m.uid === currentTeam.ownerUid) ? 'IGL' : (m.role || 'Default'); }
 
-// ✅ FIX #6: renderTeamView — batch user fetching, safe rendering
 async function renderTeamView() {
   hideLoading();
   document.getElementById('noTeamView').classList.add('hidden');
@@ -710,26 +678,17 @@ async function renderTeamView() {
   document.getElementById('navDeleteBtn').classList.toggle('hidden', !isOwner);
   document.getElementById('teamNameDisplay').textContent = currentTeam.teamName || 'Team';
   document.getElementById('teamUsernameDisplay').textContent = '@' + (currentTeam.teamUsername || '').replace(/^@/, '');
-
-  if (currentTeam.teamCover) {
-    document.getElementById('teamCover').style.backgroundImage = "url('" + currentTeam.teamCover + "')";
-  }
+  if (currentTeam.teamCover) document.getElementById('teamCover').style.backgroundImage = "url('" + currentTeam.teamCover + "')";
   const dp = document.getElementById('teamDp');
   dp.innerHTML = currentTeam.teamLogo ? ('<img src="' + currentTeam.teamLogo + '">') : '👥';
 
   const members = currentMembers.slice().sort((a, b) => a.position - b.position);
   document.getElementById('membersTitle').textContent = '👥 TEAM MEMBERS (' + members.length + '/5)';
 
-  // ✅ FIX: Batch fetch all member user docs in parallel
   const userCache = {};
-  await Promise.allSettled(
-    members.map(async (m) => {
-      try {
-        const us = await getDoc(doc(db, 'users', m.uid));
-        if (us.exists()) userCache[m.uid] = us.data();
-      } catch(e) { /* ignore */ }
-    })
-  );
+  await Promise.allSettled(members.map(async (m) => {
+    try { const us = await getDoc(doc(db, 'users', m.uid)); if (us.exists()) userCache[m.uid] = us.data(); } catch(e) {}
+  }));
 
   const list = document.getElementById('membersList');
   list.innerHTML = '';
@@ -742,15 +701,9 @@ async function renderTeamView() {
     box.dataset.position = pos;
     if (!m) {
       box.className = 'member-box empty' + (pos === 5 ? ' extra-player' : '') + (isOwner ? ' clickable' : '');
-      box.innerHTML =
-        '<div class="member-position">' + pos + '</div>' +
-        '<div class="add-member">' + (isOwner ? '+' : '') + '</div>' +
-        '<div class="member-info"><div class="member-name" style="color:#444">' +
-        (isOwner ? (pos === 5 ? 'Add Extra' : 'Add Member') : (pos === 5 ? 'Extra Player' : 'Empty Slot')) +
-        '</div></div>';
+      box.innerHTML = '<div class="member-position">' + pos + '</div><div class="add-member">' + (isOwner ? '+' : '') + '</div><div class="member-info"><div class="member-name" style="color:#444">' + (isOwner ? (pos === 5 ? 'Add Extra' : 'Add Member') : (pos === 5 ? 'Extra Player' : 'Empty Slot')) + '</div></div>';
       if (isOwner) box.onclick = openSearch;
-      list.appendChild(box);
-      continue;
+      list.appendChild(box); continue;
     }
     const u = userCache[m.uid] || {};
     const memberIsOwner = m.uid === currentTeam.ownerUid;
@@ -760,33 +713,23 @@ async function renderTeamView() {
     const role = roleOf(m);
     const canEditRole = isOwner || m.uid === currentUser.uid;
     const ownerBadge = memberIsOwner ? ' <span class="member-badge">OWNER</span>' : '';
-    let roleBtnHtml;
-    if (canEditRole && !(memberIsOwner && !isOwner)) {
-      roleBtnHtml = '<div class="role-select-btn ' + (role === 'Default' ? 'default' : '') + '" onclick="openRolePopup(' + pos + ')">' + role + ownerBadge + '</div>';
-    } else {
-      roleBtnHtml = '<div class="role-select-btn disabled">' + role + ownerBadge + '</div>';
-    }
+    let roleBtnHtml = canEditRole && !(memberIsOwner && !isOwner)
+      ? '<div class="role-select-btn ' + (role === 'Default' ? 'default' : '') + '" onclick="openRolePopup(' + pos + ')">' + role + ownerBadge + '</div>'
+      : '<div class="role-select-btn disabled">' + role + ownerBadge + '</div>';
     box.className = 'member-box filled' + (pos === 5 ? ' extra-player' : '');
     box.dataset.uid = m.uid;
     box.innerHTML =
       '<div class="status-text ' + (online ? 'online' : 'offline') + '">' + (online ? 'Online' : 'Offline') + '</div>' +
       '<div class="member-position">' + pos + '</div>' +
       '<div class="member-avatar" onclick="openQuickCard(\'' + m.uid + '\')">' + photo + '</div>' +
-      '<div class="member-info">' +
-        '<div class="member-name" onclick="openQuickCard(\'' + m.uid + '\')">' + name + '</div>' +
-        '<div class="role-wrapper">' + roleBtnHtml + '</div>' +
-      '</div>' +
+      '<div class="member-info"><div class="member-name" onclick="openQuickCard(\'' + m.uid + '\')">' + name + '</div><div class="role-wrapper">' + roleBtnHtml + '</div></div>' +
       '<div class="menu-dots ' + (isOwner && !memberIsOwner ? 'show' : '') + '" onclick="openOwnerMenu(' + pos + ')">⋮</div>';
     list.appendChild(box);
   }
 
   const reqCard = document.getElementById('requestCard');
-  if (isOwner) {
-    reqCard.classList.remove('hidden');
-    renderJoinRequests(currentTeam.joinRequests || []);
-  } else {
-    reqCard.classList.add('hidden');
-  }
+  if (isOwner) { reqCard.classList.remove('hidden'); renderJoinRequests(currentTeam.joinRequests || []); }
+  else reqCard.classList.add('hidden');
 }
 
 async function renderJoinRequests(uids) {
@@ -796,7 +739,6 @@ async function renderJoinRequests(uids) {
   listEl.innerHTML = '';
   if (!uids.length) { noReq.classList.remove('hidden'); return; }
   noReq.classList.add('hidden');
-  // ✅ FIX: Batch fetch
   const userDocs = await Promise.allSettled(uids.map(uid => getDoc(doc(db, 'users', uid))));
   uids.forEach((uid, i) => {
     let u = {};
@@ -807,10 +749,7 @@ async function renderJoinRequests(uids) {
     div.innerHTML =
       '<div class="request-avatar" onclick="openQuickCard(\'' + uid + '\')">' + photo + '</div>' +
       '<div class="request-info"><div class="request-name" onclick="openQuickCard(\'' + uid + '\')">' + (u.name || 'Player') + '</div></div>' +
-      '<div class="request-actions">' +
-        '<button class="request-btn accept-btn" onclick="acceptJoinRequest(\'' + uid + '\')">ACCEPT</button>' +
-        '<button class="request-btn reject-btn" onclick="rejectJoinRequest(\'' + uid + '\')">REJECT</button>' +
-      '</div>';
+      '<div class="request-actions"><button class="request-btn accept-btn" onclick="acceptJoinRequest(\'' + uid + '\')">ACCEPT</button><button class="request-btn reject-btn" onclick="rejectJoinRequest(\'' + uid + '\')">REJECT</button></div>';
     listEl.appendChild(div);
   });
 }
@@ -823,30 +762,19 @@ window.openTeamPopup = async function(teamId) {
   content.innerHTML = '<div style="text-align:center;padding:40px;color:#00d4ff;">Loading...</div>';
   try {
     const teamSnap = await getDoc(doc(db, 'teams', teamId));
-    if (!teamSnap.exists()) {
-      content.innerHTML = '<div style="text-align:center;padding:40px;color:#ff4757;">Team not found</div>';
-      return;
-    }
+    if (!teamSnap.exists()) { content.innerHTML = '<div style="text-align:center;padding:40px;color:#ff4757;">Team not found</div>'; return; }
     const team = { id: teamSnap.id, ...teamSnap.data() };
     const memberSnap = await getDocs(query(collection(db, 'teamMembers'), where('teamId', '==', teamId)));
-    let members = [];
-    memberSnap.forEach(d => members.push({ id: d.id, ...d.data() }));
+    let members = []; memberSnap.forEach(d => members.push({ id: d.id, ...d.data() }));
     members.sort((a, b) => a.position - b.position);
-
     const memberCount = members.length;
     const remaining = MAX_MEMBERS - memberCount;
     const isRequested = (team.joinRequests || []).includes(currentUser.uid);
     const isFull = memberCount >= MAX_MEMBERS;
     const alreadyInTeam = !!myTeamId;
-
-    // ✅ Batch fetch member user docs
     const uDocs = await Promise.allSettled(members.map(m => getDoc(doc(db, 'users', m.uid))));
-
-    const coverHtml = team.teamCover
-      ? '<img src="' + team.teamCover + '" class="team-popup-cover" onerror="this.style.display=\'none\'">'
-      : '<div class="team-popup-cover"></div>';
+    const coverHtml = team.teamCover ? '<img src="' + team.teamCover + '" class="team-popup-cover" onerror="this.style.display=\'none\'">' : '<div class="team-popup-cover"></div>';
     const logoHtml = team.teamLogo ? '<img src="' + team.teamLogo + '">' : '👥';
-
     let membersHtml = '';
     members.forEach((m, i) => {
       let u = {};
@@ -856,54 +784,33 @@ window.openTeamPopup = async function(teamId) {
       membersHtml += '<div class="team-popup-member" onclick="openQuickCard(\'' + m.uid + '\')">' +
         '<div class="team-popup-member-av">' + photo + '</div>' +
         '<div><div class="team-popup-member-name">' + (u.name || 'Player') + '</div>' +
-        '<div class="team-popup-member-role">' + role + (m.uid === team.ownerUid ? ' 👑' : '') + '</div></div>' +
-        '</div>';
+        '<div class="team-popup-member-role">' + role + (m.uid === team.ownerUid ? ' 👑' : '') + '</div></div></div>';
     });
-
-    // ✅ FIX: class names fixed (no conflict with CSS)
-    let joinBtnClass = 'team-popup-join-btn';
-    let joinBtnText = '✅ JOIN TEAM';
-    let joinOnclick = 'sendJoinRequestFromPopup(\'' + teamId + '\')';
-    let joinDisabled = '';
+    let joinBtnClass = 'team-popup-join-btn', joinBtnText = '✅ JOIN TEAM', joinOnclick = 'sendJoinRequestFromPopup(\'' + teamId + '\')', joinDisabled = '';
     if (alreadyInTeam) { joinBtnClass += ' disabled-state'; joinBtnText = 'ALREADY IN TEAM'; joinDisabled = 'disabled'; }
     else if (isRequested) { joinBtnClass += ' disabled-state'; joinBtnText = '✓ REQUESTED'; joinDisabled = 'disabled'; }
     else if (isFull) { joinBtnClass += ' full-state'; joinBtnText = '❌ TEAM FULL'; joinDisabled = 'disabled'; }
-
-    content.innerHTML =
-      coverHtml +
+    content.innerHTML = coverHtml +
       '<div class="team-popup-dp-wrap"><div class="team-popup-dp">' + logoHtml + '</div></div>' +
-      '<div class="team-popup-info">' +
-        '<div class="team-popup-name">' + (team.teamName || 'Team') + '</div>' +
-        '<div class="team-popup-username">@' + (team.teamUsername || '').replace(/^@/, '') + '</div>' +
-        '<div class="team-popup-slots">👥 ' + memberCount + '/5 | ' + remaining + ' slots left</div>' +
-      '</div>' +
+      '<div class="team-popup-info"><div class="team-popup-name">' + (team.teamName || 'Team') + '</div>' +
+      '<div class="team-popup-username">@' + (team.teamUsername || '').replace(/^@/, '') + '</div>' +
+      '<div class="team-popup-slots">👥 ' + memberCount + '/5 | ' + remaining + ' slots left</div></div>' +
       '<div class="team-popup-members-title">👥 MEMBERS</div>' +
       '<div class="team-popup-members">' + (membersHtml || '<div style="text-align:center;color:#666;padding:10px;">No members yet</div>') + '</div>' +
-      '<div class="team-popup-btns">' +
-        '<button class="' + joinBtnClass + '" onclick="' + joinOnclick + '" ' + joinDisabled + '>' + joinBtnText + '</button>' +
-        '<button class="team-popup-cancel-btn" onclick="closeTeamPopupDirect()">CANCEL</button>' +
-      '</div>';
+      '<div class="team-popup-btns"><button class="' + joinBtnClass + '" onclick="' + joinOnclick + '" ' + joinDisabled + '>' + joinBtnText + '</button>' +
+      '<button class="team-popup-cancel-btn" onclick="closeTeamPopupDirect()">CANCEL</button></div>';
   } catch (e) {
     console.error('Team popup error:', e);
-    content.innerHTML = '<div style="text-align:center;padding:40px;color:#ff4757;">Error loading team<br><small style="color:#666;">' + (e.message || '') + '</small></div>';
+    content.innerHTML = '<div style="text-align:center;padding:40px;color:#ff4757;">Error loading team</div>';
   }
 }
-
-window.handlePopupOverlayClick = function(e) {
-  if (e.target === document.getElementById('teamPopupOverlay')) closeTeamPopupDirect();
-}
-window.closeTeamPopupDirect = function() {
-  document.getElementById('teamPopupOverlay').classList.remove('show');
-}
+window.handlePopupOverlayClick = function(e) { if (e.target === document.getElementById('teamPopupOverlay')) closeTeamPopupDirect(); }
+window.closeTeamPopupDirect = function() { document.getElementById('teamPopupOverlay').classList.remove('show'); }
 window.sendJoinRequestFromPopup = async function(teamId) {
   try {
     await updateDoc(doc(db, 'teams', teamId), { joinRequests: arrayUnion(currentUser.uid) });
-    showToast('Join request sent!');
-    openTeamPopup(teamId);
-  } catch (e) {
-    console.error(e);
-    showToast('Error: ' + (e.message || 'Request failed'), true);
-  }
+    showToast('Join request sent!'); openTeamPopup(teamId);
+  } catch (e) { console.error(e); showToast('Error sending request', true); }
 }
 
 /* ===== SEARCH TEAMS ===== */
@@ -917,8 +824,7 @@ window.searchTeams = async function(qstr) {
   searchDebounce = setTimeout(async () => {
     try {
       const snap = await getDocs(collection(db, 'teams'));
-      let teams = [];
-      snap.forEach(d => teams.push({ id: d.id, ...d.data() }));
+      let teams = []; snap.forEach(d => teams.push({ id: d.id, ...d.data() }));
       let filtered = term.startsWith('@')
         ? teams.filter(x => (x.teamUsername || '').replace(/^@/, '').toLowerCase().startsWith(term.substring(1)))
         : teams.filter(x => (x.teamName || '').toLowerCase().includes(term));
@@ -931,35 +837,24 @@ window.searchTeams = async function(qstr) {
         const logo = t.teamLogo ? ('<img src="' + t.teamLogo + '">') : '👥';
         const div = document.createElement('div');
         div.className = 'team-result';
-        div.innerHTML =
-          '<div class="team-result-avatar" onclick="openTeamPopup(\'' + t.id + '\')">' + logo + '</div>' +
-          '<div class="team-result-info">' +
-            '<div class="team-result-name" onclick="openTeamPopup(\'' + t.id + '\')">' + (t.teamName || 'Team') + '</div>' +
-            '<div class="team-result-username">@' + (t.teamUsername || '').replace(/^@/, '') + '</div>' +
-            '<div class="team-result-members">' + count + '/5 Members</div>' +
-          '</div>' +
+        div.innerHTML = '<div class="team-result-avatar" onclick="openTeamPopup(\'' + t.id + '\')">' + logo + '</div>' +
+          '<div class="team-result-info"><div class="team-result-name" onclick="openTeamPopup(\'' + t.id + '\')">' + (t.teamName || 'Team') + '</div>' +
+          '<div class="team-result-username">@' + (t.teamUsername || '').replace(/^@/, '') + '</div>' +
+          '<div class="team-result-members">' + count + '/5 Members</div></div>' +
           '<button class="join-btn ' + (requested ? 'requested' : '') + '" ' + ((requested || full) ? 'disabled' : '') + ' onclick="sendJoinRequest(\'' + t.id + '\', this)">' +
           (requested ? 'REQUESTED' : (full ? 'FULL' : 'JOIN')) + '</button>';
         resultsDiv.appendChild(div);
       });
-    } catch (e) {
-      console.error(e);
-      resultsDiv.innerHTML = '<div class="empty-msg">Error searching</div>';
-    }
+    } catch (e) { console.error(e); resultsDiv.innerHTML = '<div class="empty-msg">Error searching</div>'; }
   }, 400);
 }
-
 window.sendJoinRequest = async function(teamId, btn) {
   if (btn) { btn.disabled = true; btn.textContent = '...'; }
   try {
     await updateDoc(doc(db, 'teams', teamId), { joinRequests: arrayUnion(currentUser.uid) });
     if (btn) { btn.textContent = 'REQUESTED'; btn.classList.add('requested'); }
     showToast('Join request sent!');
-  } catch (e) {
-    console.error(e);
-    showToast('Error: ' + (e.message || 'Failed'), true);
-    if (btn) { btn.disabled = false; btn.textContent = 'JOIN'; }
-  }
+  } catch (e) { console.error(e); showToast('Error: ' + (e.message || 'Failed'), true); if (btn) { btn.disabled = false; btn.textContent = 'JOIN'; } }
 }
 
 /* ===== RANDOM TEAMS ===== */
@@ -972,49 +867,31 @@ window.loadRandomTeams = async function() {
   try {
     const snap = await getDocs(collection(db, 'teams'));
     let available = [];
-    snap.forEach(d => {
-      const data = d.data();
-      if (Number(data.memberCount || 0) < MAX_MEMBERS) available.push({ id: d.id, ...data });
-    });
-    // Fisher-Yates shuffle
+    snap.forEach(d => { const data = d.data(); if (Number(data.memberCount || 0) < MAX_MEMBERS) available.push({ id: d.id, ...data }); });
     for (let i = available.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [available[i], available[j]] = [available[j], available[i]];
+      const j = Math.floor(Math.random() * (i + 1)); [available[i], available[j]] = [available[j], available[i]];
     }
     const shown = available.slice(0, 6);
-    if (!shown.length) {
-      grid.innerHTML = '<div class="random-empty">Koi available team nahi mili</div>';
-    } else {
+    if (!shown.length) { grid.innerHTML = '<div class="random-empty">Koi available team nahi mili</div>'; }
+    else {
       grid.innerHTML = '';
       shown.forEach(t => {
         const count = Number(t.memberCount || 0);
         const requested = (t.joinRequests || []).includes(currentUser.uid);
-        const card = document.createElement('div');
-        card.className = 'random-card';
+        const card = document.createElement('div'); card.className = 'random-card';
         const coverHtml = t.teamCover
           ? '<img class="random-card-cover" src="' + t.teamCover + '" onerror="this.style.display=\'none\'" onclick="openTeamPopup(\'' + t.id + '\')">'
           : '<div class="random-card-cover" onclick="openTeamPopup(\'' + t.id + '\')"></div>';
         const logoHtml = t.teamLogo ? '<img src="' + t.teamLogo + '">' : '👥';
-        card.innerHTML = coverHtml +
-          '<div class="random-card-body">' +
-            '<div class="random-card-logo-row" onclick="openTeamPopup(\'' + t.id + '\')">' +
-              '<div class="random-card-logo">' + logoHtml + '</div>' +
-              '<div style="min-width:0;">' +
-                '<div class="random-card-name">' + (t.teamName || 'Team') + '</div>' +
-                '<div class="random-card-members">' + count + '/5 Members</div>' +
-              '</div>' +
-            '</div>' +
-            '<button class="random-join-btn ' + (requested ? 'requested' : '') + '" ' + (requested ? 'disabled' : '') + ' onclick="sendJoinRequest(\'' + t.id + '\', this)">' +
-            (requested ? 'REQUESTED' : 'JOIN') + '</button>' +
-          '</div>';
+        card.innerHTML = coverHtml + '<div class="random-card-body"><div class="random-card-logo-row" onclick="openTeamPopup(\'' + t.id + '\')">' +
+          '<div class="random-card-logo">' + logoHtml + '</div><div style="min-width:0;"><div class="random-card-name">' + (t.teamName || 'Team') + '</div>' +
+          '<div class="random-card-members">' + count + '/5 Members</div></div></div>' +
+          '<button class="random-join-btn ' + (requested ? 'requested' : '') + '" ' + (requested ? 'disabled' : '') + ' onclick="sendJoinRequest(\'' + t.id + '\', this)">' +
+          (requested ? 'REQUESTED' : 'JOIN') + '</button></div>';
         grid.appendChild(card);
       });
     }
-  } catch (e) {
-    console.error(e);
-    grid.innerHTML = '<div class="random-empty">Error loading teams</div>';
-  }
-  // 15 second cooldown
+  } catch (e) { console.error(e); grid.innerHTML = '<div class="random-empty">Error loading teams</div>'; }
   refreshCooldown = true;
   let sec = 15;
   const cd = document.getElementById('refreshCountdown');
@@ -1024,8 +901,7 @@ window.loadRandomTeams = async function() {
     sec--;
     if (cd) cd.textContent = sec + 's';
     if (sec <= 0) {
-      clearInterval(refreshTimer);
-      refreshCooldown = false;
+      clearInterval(refreshTimer); refreshCooldown = false;
       if (btn) btn.disabled = false;
       if (cd) cd.style.display = 'none';
     }
@@ -1039,10 +915,8 @@ async function loadInvites() {
   try {
     const userSnap = await getDoc(doc(db, 'users', currentUser.uid));
     if (!userSnap.exists()) { listEl.innerHTML = '<div class="invites-empty">No invites</div>'; return; }
-    // ✅ FIX: teamInvites missing field safe handling
     const inviteIds = userSnap.data().teamInvites || [];
     if (!inviteIds.length) { listEl.innerHTML = '<div class="invites-empty">Abhi koi team invite nahi hai</div>'; return; }
-
     listEl.innerHTML = '';
     const teamDocs = await Promise.allSettled(inviteIds.map(id => getDoc(doc(db, 'teams', id))));
     let rendered = 0;
@@ -1051,29 +925,17 @@ async function loadInvites() {
       const team = { id: teamDocs[i].value.id, ...teamDocs[i].value.data() };
       const count = Number(team.memberCount || 0);
       const logoHtml = team.teamLogo ? '<img src="' + team.teamLogo + '">' : '👥';
-      const card = document.createElement('div');
-      card.className = 'invite-card';
-      card.id = 'invite-' + teamId;
-      card.innerHTML =
-        '<div class="invite-logo" onclick="openTeamPopup(\'' + teamId + '\')">' + logoHtml + '</div>' +
-        '<div class="invite-info">' +
-          '<div class="invite-name" onclick="openTeamPopup(\'' + teamId + '\')">' + (team.teamName || 'Team') + '</div>' +
-          '<div class="invite-members">' + count + '/5 Members</div>' +
-        '</div>' +
-        '<div class="invite-actions">' +
-          '<button class="invite-accept-btn" onclick="acceptInvite(\'' + teamId + '\', this)">✓ ACCEPT</button>' +
-          '<button class="invite-reject-btn" onclick="rejectInvite(\'' + teamId + '\', this)">✕</button>' +
-        '</div>';
-      listEl.appendChild(card);
-      rendered++;
+      const card = document.createElement('div'); card.className = 'invite-card'; card.id = 'invite-' + teamId;
+      card.innerHTML = '<div class="invite-logo" onclick="openTeamPopup(\'' + teamId + '\')">' + logoHtml + '</div>' +
+        '<div class="invite-info"><div class="invite-name" onclick="openTeamPopup(\'' + teamId + '\')">' + (team.teamName || 'Team') + '</div>' +
+        '<div class="invite-members">' + count + '/5 Members</div></div>' +
+        '<div class="invite-actions"><button class="invite-accept-btn" onclick="acceptInvite(\'' + teamId + '\', this)">✓ ACCEPT</button>' +
+        '<button class="invite-reject-btn" onclick="rejectInvite(\'' + teamId + '\', this)">✕</button></div>';
+      listEl.appendChild(card); rendered++;
     });
     if (!rendered) listEl.innerHTML = '<div class="invites-empty">Koi valid invite nahi mili</div>';
-  } catch (e) {
-    console.error(e);
-    listEl.innerHTML = '<div class="invites-empty">Error loading invites</div>';
-  }
+  } catch (e) { console.error(e); listEl.innerHTML = '<div class="invites-empty">Error loading invites</div>'; }
 }
-
 window.acceptInvite = async function(teamId, btn) {
   btn.disabled = true; btn.textContent = '...';
   try {
@@ -1083,51 +945,30 @@ window.acceptInvite = async function(teamId, btn) {
     await runTransaction(db, async (tx) => {
       const [tSnap, uSnap] = await Promise.all([tx.get(teamRef), tx.get(userRef)]);
       if (!tSnap.exists()) throw new Error('Team not found');
-      const team = tSnap.data();
-      const uData = uSnap.data() || {};
-      // ✅ FIX #7: memberUids use karo (naya structure)
+      const team = tSnap.data(); const uData = uSnap.data() || {};
       const memberUids = team.memberUids || [];
       if (memberUids.length >= MAX_MEMBERS) throw new Error('Team full hai');
       if (memberUids.includes(currentUser.uid)) throw new Error('Already in team');
       if (uData.teamId) throw new Error('Pehle se kisi team mein ho');
       const positionsTaken = team.memberPositions || [];
-      let pos = 1;
-      for (let p = 1; p <= 5; p++) { if (!positionsTaken.includes(p)) { pos = p; break; } }
+      let pos = 1; for (let p = 1; p <= 5; p++) { if (!positionsTaken.includes(p)) { pos = p; break; } }
       tx.set(memberRef, { uid: currentUser.uid, teamId, role: 'Default', position: pos, joinedAt: serverTimestamp() });
       tx.update(userRef, { teamId, teamInvites: arrayRemove(teamId) });
-      tx.update(teamRef, {
-        memberUids: arrayUnion(currentUser.uid),
-        memberCount: memberUids.length + 1,
-        memberPositions: arrayUnion(pos),
-        approvedUids: arrayRemove(currentUser.uid)
-      });
+      tx.update(teamRef, { memberUids: arrayUnion(currentUser.uid), memberCount: memberUids.length + 1, memberPositions: arrayUnion(pos), approvedUids: arrayRemove(currentUser.uid) });
     });
-    const card = document.getElementById('invite-' + teamId);
-    if (card) card.remove();
+    const card = document.getElementById('invite-' + teamId); if (card) card.remove();
     showToast('Team join ho gaye! 🎉');
-  } catch (e) {
-    console.error(e);
-    showToast(e.message || 'Error joining team', true);
-    btn.disabled = false; btn.textContent = '✓ ACCEPT';
-  }
+  } catch (e) { console.error(e); showToast(e.message || 'Error joining team', true); btn.disabled = false; btn.textContent = '✓ ACCEPT'; }
 }
-
 window.rejectInvite = async function(teamId, btn) {
   btn.disabled = true;
   try {
     await updateDoc(doc(db, 'users', currentUser.uid), { teamInvites: arrayRemove(teamId) });
-    const card = document.getElementById('invite-' + teamId);
-    if (card) card.remove();
+    const card = document.getElementById('invite-' + teamId); if (card) card.remove();
     const listEl = document.getElementById('invitesList');
-    if (listEl && !listEl.querySelector('.invite-card')) {
-      listEl.innerHTML = '<div class="invites-empty">Koi invite nahi hai</div>';
-    }
+    if (listEl && !listEl.querySelector('.invite-card')) listEl.innerHTML = '<div class="invites-empty">Koi invite nahi hai</div>';
     showToast('Invite reject kar di');
-  } catch (e) {
-    console.error(e);
-    showToast('Error', true);
-    btn.disabled = false;
-  }
+  } catch (e) { console.error(e); showToast('Error', true); btn.disabled = false; }
 }
 
 /* ===== CREATE TEAM ===== */
@@ -1136,7 +977,6 @@ window.openCreatePopup = function() {
   showPopup('createPopup', 'createOverlay');
 }
 window.closeCreatePopup = function() { hidePopup('createPopup', 'createOverlay'); }
-
 window.previewImage = function(input, boxId, imgId) {
   const file = input.files[0]; if (!file) return;
   if (file.size > 2 * 1024 * 1024) { showToast('Image 2MB se chhota hona chahiye', true); return; }
@@ -1144,12 +984,10 @@ window.previewImage = function(input, boxId, imgId) {
   reader.onload = e => {
     document.getElementById(imgId).src = e.target.result;
     document.getElementById(boxId).classList.add('has-image');
-    if (imgId === 'bgPreview') createBgData = e.target.result;
-    else createDpData = e.target.result;
+    if (imgId === 'bgPreview') createBgData = e.target.result; else createDpData = e.target.result;
   };
   reader.readAsDataURL(file);
 }
-
 window.submitCreateTeam = async function() {
   const name = document.getElementById('teamName').value.trim();
   let username = document.getElementById('teamUsername').value.trim().replace(/^@/, '').toLowerCase().replace(/[^a-z0-9_]/g, '');
@@ -1162,35 +1000,21 @@ window.submitCreateTeam = async function() {
   btn.disabled = true; btn.textContent = 'CREATING...';
   try {
     const dup = await getDocs(query(collection(db, 'teams'), where('teamUsername', '==', username)));
-    if (!dup.empty) { showToast('Username already taken! Dusra try karo.', true); btn.disabled = false; btn.textContent = 'CREATE TEAM'; return; }
+    if (!dup.empty) { showToast('Username already taken!', true); btn.disabled = false; btn.textContent = 'CREATE TEAM'; return; }
     const teamRef = doc(collection(db, 'teams'));
     const userRef = doc(db, 'users', currentUser.uid);
     const memberRef = doc(db, 'teamMembers', currentUser.uid);
     await runTransaction(db, async (tx) => {
-      const uSnap = await tx.get(userRef);
-      const uData = uSnap.data() || {};
+      const uSnap = await tx.get(userRef); const uData = uSnap.data() || {};
       const bal = Number(uData.balance || 0);
       if (bal < TEAM_COST) throw new Error('Insufficient balance');
       if (uData.teamId) throw new Error('You are already in a team');
-      tx.set(teamRef, {
-        teamName: name, teamUsername: username, whatsapp: '+91' + phone,
-        teamLogo: createDpData || '', teamCover: createBgData || '',
-        ownerUid: currentUser.uid,
-        memberCount: 1, memberUids: [currentUser.uid],
-        memberPositions: [1],
-        joinRequests: [], approvedUids: [],
-        createdAt: serverTimestamp()
-      });
+      tx.set(teamRef, { teamName: name, teamUsername: username, whatsapp: '+91' + phone, teamLogo: createDpData || '', teamCover: createBgData || '', ownerUid: currentUser.uid, memberCount: 1, memberUids: [currentUser.uid], memberPositions: [1], joinRequests: [], approvedUids: [], createdAt: serverTimestamp() });
       tx.set(memberRef, { uid: currentUser.uid, teamId: teamRef.id, role: 'IGL', position: 1, joinedAt: serverTimestamp() });
       tx.update(userRef, { balance: bal - TEAM_COST, teamId: teamRef.id });
     });
-    showToast('Team created! ₹20 deducted 🎉');
-    closeCreatePopup();
-  } catch (e) {
-    console.error(e);
-    showToast(e.message || 'Error creating team', true);
-    btn.disabled = false; btn.textContent = 'CREATE TEAM';
-  }
+    showToast('Team created! ₹20 deducted 🎉'); closeCreatePopup();
+  } catch (e) { console.error(e); showToast(e.message || 'Error creating team', true); btn.disabled = false; btn.textContent = 'CREATE TEAM'; }
 }
 
 /* ===== JOIN REQUESTS ===== */
@@ -1198,24 +1022,20 @@ window.acceptJoinRequest = async function(uid) {
   try {
     await runTransaction(db, async (tx) => {
       const teamRef = doc(db, 'teams', currentTeam.id);
-      const tSnap = await tx.get(teamRef);
-      const team = tSnap.data();
+      const tSnap = await tx.get(teamRef); const team = tSnap.data();
       if (Number(team.memberCount || 0) >= MAX_MEMBERS) throw new Error('Team is full');
       if ((team.memberUids || []).includes(uid)) throw new Error('Already in team');
       tx.update(teamRef, { joinRequests: arrayRemove(uid), approvedUids: arrayUnion(uid) });
     });
-    showToast('Player approved! They can now join.');
+    showToast('Player approved!');
   } catch (e) { console.error(e); showToast(e.message || 'Error', true); }
 }
-
 window.rejectJoinRequest = async function(uid) {
-  try {
-    await updateDoc(doc(db, 'teams', currentTeam.id), { joinRequests: arrayRemove(uid) });
-    showToast('Request rejected');
-  } catch (e) { console.error(e); showToast('Error', true); }
+  try { await updateDoc(doc(db, 'teams', currentTeam.id), { joinRequests: arrayRemove(uid) }); showToast('Request rejected'); }
+  catch (e) { console.error(e); showToast('Error', true); }
 }
 
-/* ===== LEAVE / DELETE ===== */
+/* ===== LEAVE TEAM ===== */
 window.confirmLeaveTeam = function() {
   showConfirm('🚪', 'LEAVE TEAM?', 'Kya aap sure hain?<br><strong>Wapas join karne ke liye request bhejni padegi.</strong>', leaveTeam, 'warn');
 }
@@ -1226,32 +1046,102 @@ async function leaveTeam() {
     const memberRef = doc(db, 'teamMembers', currentUser.uid);
     const myPos = (currentMembers.find(m => m.uid === currentUser.uid) || {}).position;
     await runTransaction(db, async (tx) => {
-      const tSnap = await tx.get(teamRef);
-      const team = tSnap.data();
+      const tSnap = await tx.get(teamRef); const team = tSnap.data();
       tx.delete(memberRef);
       tx.update(userRef, { teamId: null });
       const upd = { memberUids: arrayRemove(currentUser.uid), memberCount: Math.max(0, Number(team.memberCount || 1) - 1) };
       if (myPos) upd.memberPositions = arrayRemove(myPos);
       tx.update(teamRef, upd);
     });
-    closeConfirmPopup();
-    showToast('Team left!');
+    closeConfirmPopup(); showToast('Team left!');
   } catch (e) { console.error(e); showToast('Error leaving team', true); }
 }
 
+/* ===================================================================
+   ✅ FIXED: DELETE TEAM — RACE CONDITION FIX
+   
+   Problem था:
+   1. currentMembers loop mein members delete hote the
+   2. Firestore snapshot reactive tha — delete hote hi snapshot fire hoti thi
+   3. Snapshot mein currentTeam = null ho jaata tha (listenToMyUser -> showNoTeamView)
+   4. Phir deleteDoc(teams/currentTeam.id) — currentTeam.id = undefined → ERROR
+   
+   Fix:
+   1. isDeletingTeam = true karo — sabhi snapshots ignore ho jaayein
+   2. teamId aur members ko LOCAL COPY mein save karo — currentTeam par depend mat karo
+   3. Saari cleanup parallel mein karo (Promise.allSettled)
+   4. teams document SABSE BAAD delete karo
+   5. Phir isDeletingTeam = false karo aur manually cleanup karo
+=================================================================== */
 window.confirmDeleteTeam = function() {
-  showConfirm('🗑️', 'DELETE TEAM?', 'Kya aap sure hain?<br><strong>Ye action undo nahi hoga!</strong>', deleteTeam, 'danger');
+  showConfirm('🗑️', 'DELETE TEAM?', 'Kya aap sure hain?<br><strong>Team permanently delete ho jayegi. Ye action undo nahi hoga!</strong>', deleteTeam, 'danger');
 }
+
 async function deleteTeam() {
-  try {
-    for (const m of currentMembers) {
-      await updateDoc(doc(db, 'users', m.uid), { teamId: null }).catch(() => {});
-      await deleteDoc(doc(db, 'teamMembers', m.uid)).catch(() => {});
-    }
-    await deleteDoc(doc(db, 'teams', currentTeam.id));
+  // ✅ Step 1: Local copies save karo — snapshot reactions se safe rahein
+  const teamIdToDelete = currentTeam ? currentTeam.id : null;
+  const membersToDelete = [...currentMembers]; // Deep copy
+
+  if (!teamIdToDelete) {
+    showToast('Team ID not found. Please refresh.', true);
     closeConfirmPopup();
-    showToast('Team deleted!');
-  } catch (e) { console.error(e); showToast('Error deleting team', true); }
+    return;
+  }
+
+  // ✅ Step 2: Snapshot reactions PAUSE karo
+  isDeletingTeam = true;
+
+  // UI se buttons hatao turant
+  closeConfirmPopup();
+  document.getElementById('navDeleteBtn').classList.add('hidden');
+  document.getElementById('navLeaveBtn').classList.add('hidden');
+
+  try {
+    // ✅ Step 3: Saare members ke user documents update karo (teamId: null)
+    // Promise.allSettled use karo — ek failure se baaki na ruke
+    if (membersToDelete.length > 0) {
+      await Promise.allSettled(
+        membersToDelete.map(m =>
+          updateDoc(doc(db, 'users', m.uid), { teamId: null })
+        )
+      );
+    }
+
+    // ✅ Step 4: Saare teamMembers documents delete karo
+    if (membersToDelete.length > 0) {
+      await Promise.allSettled(
+        membersToDelete.map(m =>
+          deleteDoc(doc(db, 'teamMembers', m.uid))
+        )
+      );
+    }
+
+    // ✅ Step 5: SABSE BAAD teams document delete karo
+    // Yeh CRITICAL hai — pehle members delete, phir team
+    await deleteDoc(doc(db, 'teams', teamIdToDelete));
+
+    // ✅ Step 6: Snapshots unsubscribe karo
+    if (teamUnsub) { teamUnsub(); teamUnsub = null; }
+    if (membersUnsub) { membersUnsub(); membersUnsub = null; }
+
+    // ✅ Step 7: Local state reset karo
+    currentTeam = null;
+    currentMembers = [];
+    myTeamId = null;
+
+    // ✅ Step 8: isDeletingTeam false karo PEHLE showNoTeamView se
+    isDeletingTeam = false;
+
+    showToast('Team successfully deleted! ✅');
+    showNoTeamView();
+
+  } catch (e) {
+    console.error('Delete team error:', e);
+    isDeletingTeam = false;
+    showToast('Error: ' + (e.message || 'Team delete failed'), true);
+    // Error hone par buttons wapas dikhao
+    document.getElementById('navDeleteBtn').classList.remove('hidden');
+  }
 }
 
 /* ===== ROLE ===== */
@@ -1262,33 +1152,22 @@ window.openRolePopup = function(position) {
   if (!(isOwner || m.uid === currentUser.uid)) { showToast('Sirf apna role change kar sakte ho', true); return; }
   if (memberIsOwner) { showToast('Owner ka role IGL hai', true); return; }
   currentEditingPosition = position;
-  const optionsDiv = document.getElementById('roleOptions');
-  optionsDiv.innerHTML = '';
+  const optionsDiv = document.getElementById('roleOptions'); optionsDiv.innerHTML = '';
   const currentRole = roleOf(m);
   ROLES.forEach(role => {
     const opt = document.createElement('div');
     opt.className = 'role-option' + (role === currentRole ? ' current' : '');
-    if (role === 'IGL') {
-      opt.classList.add('locked');
-      opt.innerHTML = 'IGL <span class="lock-icon">🔒 Owner Only</span>';
-      opt.onclick = () => showToast('IGL sirf Owner ke liye reserved hai', true);
-    } else {
-      opt.innerHTML = role;
-      opt.onclick = () => selectRole(role);
-    }
+    if (role === 'IGL') { opt.classList.add('locked'); opt.innerHTML = 'IGL <span class="lock-icon">🔒 Owner Only</span>'; opt.onclick = () => showToast('IGL sirf Owner ke liye reserved hai', true); }
+    else { opt.innerHTML = role; opt.onclick = () => selectRole(role); }
     optionsDiv.appendChild(opt);
   });
   showPopup('rolePopup', 'roleOverlay');
 }
 window.closeRolePopup = function() { hidePopup('rolePopup', 'roleOverlay'); currentEditingPosition = null; }
 async function selectRole(newRole) {
-  const m = currentMembers.find(x => x.position === currentEditingPosition);
-  if (!m) return;
-  try {
-    await updateDoc(doc(db, 'teamMembers', m.uid), { role: newRole });
-    closeRolePopup();
-    showToast('Role changed to ' + newRole);
-  } catch (e) { console.error(e); showToast('Error changing role', true); }
+  const m = currentMembers.find(x => x.position === currentEditingPosition); if (!m) return;
+  try { await updateDoc(doc(db, 'teamMembers', m.uid), { role: newRole }); closeRolePopup(); showToast('Role changed to ' + newRole); }
+  catch (e) { console.error(e); showToast('Error changing role', true); }
 }
 
 /* ===== OWNER MENU ===== */
@@ -1301,16 +1180,13 @@ window.openOwnerMenu = function(position) {
   showPopup('ownerMenuPopup', 'menuOverlay');
 }
 window.closeOwnerMenu = function() { hidePopup('ownerMenuPopup', 'menuOverlay'); currentMenuPosition = null; }
-
 window.handleExtraPlayerAction = function() {
-  const pos = currentMenuPosition;
-  closeOwnerMenu();
+  const pos = currentMenuPosition; closeOwnerMenu();
   if (pos === 5) showConfirm('🔄', 'MOVE TO MAIN TEAM?', 'Move this player from Extra to Main team?', () => moveExtra(pos, false));
   else showConfirm('🔄', 'MOVE TO EXTRA PLAYER?', 'Move this player to Extra Player slot?', () => moveExtra(pos, true));
 }
 async function moveExtra(pos, toExtra) {
-  const m = currentMembers.find(x => x.position === pos);
-  if (!m) { closeConfirmPopup(); return; }
+  const m = currentMembers.find(x => x.position === pos); if (!m) { closeConfirmPopup(); return; }
   const positionsTaken = currentMembers.map(x => x.position);
   try {
     let target;
@@ -1320,37 +1196,28 @@ async function moveExtra(pos, toExtra) {
       const teamRef = doc(db, 'teams', currentTeam.id);
       tx.update(doc(db, 'teamMembers', m.uid), { position: target });
       const tSnap = await tx.get(teamRef);
-      const taken = (tSnap.data().memberPositions || []).filter(p => p !== pos);
-      taken.push(target);
+      const taken = (tSnap.data().memberPositions || []).filter(p => p !== pos); taken.push(target);
       tx.update(teamRef, { memberPositions: taken });
     });
-    closeConfirmPopup();
-    showToast('Player moved!');
+    closeConfirmPopup(); showToast('Player moved!');
   } catch (e) { console.error(e); showToast(e.message || 'Error', true); }
 }
-
 window.transferOwnership = function() {
-  const pos = currentMenuPosition;
-  closeOwnerMenu();
+  const pos = currentMenuPosition; closeOwnerMenu();
   showConfirm('👑', 'TRANSFER OWNERSHIP?', 'Confirm? <strong>Transfer ke baad aap owner nahi rahoge.</strong>', () => doTransfer(pos));
 }
 async function doTransfer(pos) {
-  const target = currentMembers.find(m => m.position === pos);
-  if (!target) { showToast('Player not found', true); return; }
+  const target = currentMembers.find(m => m.position === pos); if (!target) { showToast('Player not found', true); return; }
   try {
     await runTransaction(db, async (tx) => {
       tx.update(doc(db, 'teams', currentTeam.id), { ownerUid: target.uid });
       tx.update(doc(db, 'teamMembers', currentUser.uid), { role: 'Default' });
     });
-    closeConfirmPopup();
-    showToast('Ownership transferred!');
+    closeConfirmPopup(); showToast('Ownership transferred!');
   } catch (e) { console.error(e); showToast(e.message || 'Error', true); }
 }
-
 window.kickPlayer = function() {
-  const pos = currentMenuPosition;
-  const m = currentMembers.find(x => x.position === pos);
-  if (!m) return;
+  const pos = currentMenuPosition; const m = currentMembers.find(x => x.position === pos); if (!m) return;
   closeOwnerMenu();
   showConfirm('🗑️', 'KICK PLAYER?', 'Are you sure?<br><strong>This cannot be undone.</strong>', () => doKick(m.uid, m.position), 'danger');
 }
@@ -1358,16 +1225,14 @@ async function doKick(uid, kpos) {
   try {
     await runTransaction(db, async (tx) => {
       const teamRef = doc(db, 'teams', currentTeam.id);
-      const tSnap = await tx.get(teamRef);
-      const team = tSnap.data();
+      const tSnap = await tx.get(teamRef); const team = tSnap.data();
       tx.delete(doc(db, 'teamMembers', uid));
       tx.update(doc(db, 'users', uid), { teamId: null });
       const upd = { memberUids: arrayRemove(uid), memberCount: Math.max(0, Number(team.memberCount || 1) - 1) };
       if (kpos) upd.memberPositions = arrayRemove(kpos);
       tx.update(teamRef, upd);
     });
-    closeConfirmPopup();
-    showToast('Player kicked!');
+    closeConfirmPopup(); showToast('Player kicked!');
   } catch (e) { console.error(e); showToast('Error', true); }
 }
 
@@ -1376,114 +1241,66 @@ window.openSearch = function() {
   if (!isOwner) { showToast('Only Owner can add members', true); return; }
   document.getElementById('searchSidebar').classList.add('show');
   document.getElementById('sidebarOverlay').classList.add('show');
-  updateFriendCounter(); updateRequestTabBadge();
-  switchSidebarTab('friend');
+  updateFriendCounter(); updateRequestTabBadge(); switchSidebarTab('friend');
 }
-window.closeSearch = function() {
-  document.getElementById('searchSidebar').classList.remove('show');
-  document.getElementById('sidebarOverlay').classList.remove('show');
-}
+window.closeSearch = function() { document.getElementById('searchSidebar').classList.remove('show'); document.getElementById('sidebarOverlay').classList.remove('show'); }
 function updateFriendCounter() { document.getElementById('friendCounter').textContent = 'Friends: ' + (myData?.friends || []).length; }
-function updateRequestTabBadge() {
-  const c = (myData?.friendRequests || []).length;
-  const b = document.getElementById('requestTabBadge');
-  b.textContent = c; b.classList.toggle('hidden', c === 0);
-}
-
+function updateRequestTabBadge() { const c = (myData?.friendRequests || []).length; const b = document.getElementById('requestTabBadge'); b.textContent = c; b.classList.toggle('hidden', c === 0); }
 window.switchSidebarTab = function(tab) {
   ['searchTab', 'friendTab', 'requestTab'].forEach(id => document.getElementById(id).classList.remove('active'));
-  const input = document.getElementById('sidebarSearchInput');
-  document.getElementById('sidebarResults').innerHTML = '';
-  if (tab === 'search') {
-    document.getElementById('searchTab').classList.add('active');
-    input.classList.remove('hidden'); input.value = '';
-  } else if (tab === 'friend') {
-    document.getElementById('friendTab').classList.add('active');
-    input.classList.add('hidden'); renderFriendList();
-  } else {
-    document.getElementById('requestTab').classList.add('active');
-    input.classList.add('hidden'); renderFriendRequests();
-  }
+  const input = document.getElementById('sidebarSearchInput'); document.getElementById('sidebarResults').innerHTML = '';
+  if (tab === 'search') { document.getElementById('searchTab').classList.add('active'); input.classList.remove('hidden'); input.value = ''; }
+  else if (tab === 'friend') { document.getElementById('friendTab').classList.add('active'); input.classList.add('hidden'); renderFriendList(); }
+  else { document.getElementById('requestTab').classList.add('active'); input.classList.add('hidden'); renderFriendRequests(); }
 }
-
 async function renderFriendList() {
-  const results = document.getElementById('sidebarResults');
-  const friends = myData?.friends || [];
+  const results = document.getElementById('sidebarResults'); const friends = myData?.friends || [];
   if (!friends.length) { results.innerHTML = '<div class="empty-msg">No friends yet.</div>'; return; }
   results.innerHTML = '<div class="empty-msg">Loading...</div>';
   const docs = await Promise.allSettled(friends.map(uid => getDoc(doc(db, 'users', uid))));
-  let html = '';
-  friends.forEach((uid, i) => {
-    let u = {};
-    if (docs[i].status === 'fulfilled' && docs[i].value.exists()) u = docs[i].value.data();
-    html += userRowHtml(uid, u, true);
-  });
+  let html = ''; friends.forEach((uid, i) => { let u = {}; if (docs[i].status === 'fulfilled' && docs[i].value.exists()) u = docs[i].value.data(); html += userRowHtml(uid, u, true); });
   results.innerHTML = html || '<div class="empty-msg">No friends</div>';
 }
-
 async function renderFriendRequests() {
-  const results = document.getElementById('sidebarResults');
-  const reqs = myData?.friendRequests || [];
+  const results = document.getElementById('sidebarResults'); const reqs = myData?.friendRequests || [];
   if (!reqs.length) { results.innerHTML = '<div class="empty-msg">No friend requests</div>'; return; }
   results.innerHTML = '<div class="empty-msg">Loading...</div>';
   const docs = await Promise.allSettled(reqs.map(uid => getDoc(doc(db, 'users', uid))));
   let html = '';
   reqs.forEach((uid, i) => {
-    let u = {};
-    if (docs[i].status === 'fulfilled' && docs[i].value.exists()) u = docs[i].value.data();
+    let u = {}; if (docs[i].status === 'fulfilled' && docs[i].value.exists()) u = docs[i].value.data();
     const photo = u.photoURL ? ('<img src="' + u.photoURL + '">') : '👤';
-    html += '<div class="user-result">' +
-      '<div class="user-avatar" onclick="openQuickCard(\'' + uid + '\')">' + photo + '</div>' +
+    html += '<div class="user-result"><div class="user-avatar" onclick="openQuickCard(\'' + uid + '\')">' + photo + '</div>' +
       '<div class="user-info"><div class="user-name" onclick="openQuickCard(\'' + uid + '\')">' + (u.name || 'Player') + '</div></div>' +
-      '<div class="user-actions">' +
-        '<button class="invite-btn-sm" onclick="acceptFriend(\'' + uid + '\')">✓</button>' +
-        '<button class="friend-request-btn" style="background:linear-gradient(135deg,#ff4757,#ff0064);border-color:#ff4757" onclick="rejectFriend(\'' + uid + '\')">✕</button>' +
-      '</div></div>';
+      '<div class="user-actions"><button class="invite-btn-sm" onclick="acceptFriend(\'' + uid + '\')">✓</button>' +
+      '<button class="friend-request-btn" style="background:linear-gradient(135deg,#ff4757,#ff0064);border-color:#ff4757" onclick="rejectFriend(\'' + uid + '\')">✕</button></div></div>';
   });
   results.innerHTML = html;
 }
-
 function userRowHtml(uid, u, isFriend) {
   const photo = u.photoURL ? ('<img src="' + u.photoURL + '">') : '👤';
   const inTeam = (currentTeam?.memberUids || []).includes(uid);
-  let actionBtn = inTeam
-    ? '<button class="joined-btn">JOINED</button>'
-    : '<button class="invite-btn-sm" onclick="inviteToTeam(\'' + uid + '\', this)">INVITE</button>';
+  let actionBtn = inTeam ? '<button class="joined-btn">JOINED</button>' : '<button class="invite-btn-sm" onclick="inviteToTeam(\'' + uid + '\', this)">INVITE</button>';
   let friendBtn = '';
-  if (!isFriend) {
-    const sent = (myData?.sentRequests || []).includes(uid);
-    friendBtn = '<button class="friend-request-btn ' + (sent ? 'sent' : '') + '" ' + (sent ? 'disabled' : '') + ' onclick="sendFriendRequest(\'' + uid + '\', this)">' + (sent ? 'SENT' : '+ ADD') + '</button>';
-  }
-  return '<div class="user-result">' +
-    '<div class="user-avatar" onclick="openQuickCard(\'' + uid + '\')">' + photo + '</div>' +
+  if (!isFriend) { const sent = (myData?.sentRequests || []).includes(uid); friendBtn = '<button class="friend-request-btn ' + (sent ? 'sent' : '') + '" ' + (sent ? 'disabled' : '') + ' onclick="sendFriendRequest(\'' + uid + '\', this)">' + (sent ? 'SENT' : '+ ADD') + '</button>'; }
+  return '<div class="user-result"><div class="user-avatar" onclick="openQuickCard(\'' + uid + '\')">' + photo + '</div>' +
     '<div class="user-info"><div class="user-name" onclick="openQuickCard(\'' + uid + '\')">' + (u.name || 'Player') + '</div></div>' +
     '<div class="user-actions">' + friendBtn + actionBtn + '</div></div>';
 }
-
 window.searchUsers = async function(val) {
-  const results = document.getElementById('sidebarResults');
-  const term = val.trim().toLowerCase();
-  results.innerHTML = '';
-  if (!term) return;
+  const results = document.getElementById('sidebarResults'); const term = val.trim().toLowerCase();
+  results.innerHTML = ''; if (!term) return;
   results.innerHTML = '<div class="empty-msg">Searching...</div>';
   try {
-    const snap = await getDocs(collection(db, 'users'));
-    let users = [];
-    snap.forEach(d => {
-      if (d.id !== currentUser.uid) {
-        const x = d.data();
-        if ((x.name || '').toLowerCase().startsWith(term)) users.push({ uid: d.id, ...x });
-      }
-    });
+    const snap = await getDocs(collection(db, 'users')); let users = [];
+    snap.forEach(d => { if (d.id !== currentUser.uid) { const x = d.data(); if ((x.name || '').toLowerCase().startsWith(term)) users.push({ uid: d.id, ...x }); } });
     results.innerHTML = '';
     if (!users.length) { results.innerHTML = '<div class="empty-msg">No users found</div>'; return; }
-    const friends = myData?.friends || [];
-    let html = '';
+    const friends = myData?.friends || []; let html = '';
     users.slice(0, 10).forEach(u => { html += userRowHtml(u.uid, u, friends.includes(u.uid)); });
     results.innerHTML = html;
   } catch (e) { console.error(e); results.innerHTML = '<div class="empty-msg">Error</div>'; }
 }
-
 window.sendFriendRequest = async function(uid, btn) {
   if (btn) { btn.disabled = true; btn.textContent = '...'; }
   try {
@@ -1519,51 +1336,32 @@ window.inviteToTeam = async function(uid, btn) {
 
 /* ===== QUICK CARD ===== */
 window.openQuickCard = async function(uid) {
-  const card = document.getElementById('quickCard');
-  const content = document.getElementById('quickContent');
-  card.classList.add('show');
-  document.getElementById('quickOverlay').classList.add('show');
+  const card = document.getElementById('quickCard'); const content = document.getElementById('quickContent');
+  card.classList.add('show'); document.getElementById('quickOverlay').classList.add('show');
   content.innerHTML = '<div style="text-align:center;padding:20px;color:#00d4ff;">Loading...</div>';
   try {
-    const snap = await getDoc(doc(db, 'users', uid));
-    if (!snap.exists()) { content.innerHTML = '<div style="text-align:center;padding:20px;color:#ff4757;">User not found</div>'; return; }
-    const u = snap.data();
-    const lvl = LEVEL_TYPES[u.level || 1] || LEVEL_TYPES[1];
-    const lbTitle = u.equippedLeaderboardTitle;
-    const likedBy = u.likedBy || [];
-    const isLiked = likedBy.includes(currentUser.uid);
-    const isOwn = currentUser.uid === uid;
-    content.innerHTML =
-      '<div class="quick-avatar">' + (u.photoURL ? ('<img src="' + u.photoURL + '">') : '👤') + '</div>' +
+    const snap = await getDoc(doc(db, 'users', uid)); if (!snap.exists()) { content.innerHTML = '<div style="text-align:center;padding:20px;color:#ff4757;">User not found</div>'; return; }
+    const u = snap.data(); const lvl = LEVEL_TYPES[u.level || 1] || LEVEL_TYPES[1]; const lbTitle = u.equippedLeaderboardTitle;
+    const likedBy = u.likedBy || []; const isLiked = likedBy.includes(currentUser.uid); const isOwn = currentUser.uid === uid;
+    content.innerHTML = '<div class="quick-avatar">' + (u.photoURL ? ('<img src="' + u.photoURL + '">') : '👤') + '</div>' +
       '<div class="quick-name">' + (u.name || 'Player') + '</div>' +
       (u.college ? ('<div class="quick-college">🎓 ' + u.college + '</div>') : '') +
-      '<div class="quick-badges">' +
-        '<div class="quick-badge level"><span>' + lvl.icon + '</span><span>' + lvl.name + '</span></div>' +
-        (lbTitle ? ('<div class="quick-badge title"><span>' + (lbTitle.icon || '') + '</span><span>' + lbTitle.name + '</span></div>') : '') +
-      '</div>' +
-      '<div class="quick-stats">' +
-        '<div class="quick-stat"><div class="quick-stat-icon">💀</div><div class="quick-stat-value">' + (u.kills || 0).toLocaleString('en-IN') + '</div><div class="quick-stat-label">KILLS</div></div>' +
-        '<div class="quick-stat"><div class="quick-stat-icon">⚔️</div><div class="quick-stat-value">' + (u.matches || 0).toLocaleString('en-IN') + '</div><div class="quick-stat-label">MATCHES</div></div>' +
-        '<div class="quick-stat"><div class="quick-stat-icon">🏆</div><div class="quick-stat-value">' + (u.wins || 0).toLocaleString('en-IN') + '</div><div class="quick-stat-label">WINS</div></div>' +
-        '<div class="quick-stat"><div class="quick-stat-icon">💎</div><div class="quick-stat-value">' + (u.diamonds || 0).toLocaleString('en-IN') + '</div><div class="quick-stat-label">DIAMONDS</div></div>' +
-      '</div>' +
-      '<div class="quick-btns">' +
-        '<button class="quick-btn like ' + (isLiked ? 'liked' : '') + '" onclick="toggleLikeQuick(\'' + uid + '\')" ' + (isOwn ? 'disabled' : '') + '>' +
-        (isOwn ? 'YOUR PROFILE' : (isLiked ? '✓ LIKED' : '❤️ LIKE')) + '</button>' +
-        '<button class="quick-btn visit" onclick="window.location.href=\'view-profile.html?uid=' + uid + '\'">👤 VISIT</button>' +
-      '</div>';
+      '<div class="quick-badges"><div class="quick-badge level"><span>' + lvl.icon + '</span><span>' + lvl.name + '</span></div>' +
+      (lbTitle ? ('<div class="quick-badge title"><span>' + (lbTitle.icon || '') + '</span><span>' + lbTitle.name + '</span></div>') : '') + '</div>' +
+      '<div class="quick-stats"><div class="quick-stat"><div class="quick-stat-icon">💀</div><div class="quick-stat-value">' + (u.kills || 0).toLocaleString('en-IN') + '</div><div class="quick-stat-label">KILLS</div></div>' +
+      '<div class="quick-stat"><div class="quick-stat-icon">⚔️</div><div class="quick-stat-value">' + (u.matches || 0).toLocaleString('en-IN') + '</div><div class="quick-stat-label">MATCHES</div></div>' +
+      '<div class="quick-stat"><div class="quick-stat-icon">🏆</div><div class="quick-stat-value">' + (u.wins || 0).toLocaleString('en-IN') + '</div><div class="quick-stat-label">WINS</div></div>' +
+      '<div class="quick-stat"><div class="quick-stat-icon">💎</div><div class="quick-stat-value">' + (u.diamonds || 0).toLocaleString('en-IN') + '</div><div class="quick-stat-label">DIAMONDS</div></div></div>' +
+      '<div class="quick-btns"><button class="quick-btn like ' + (isLiked ? 'liked' : '') + '" onclick="toggleLikeQuick(\'' + uid + '\')" ' + (isOwn ? 'disabled' : '') + '>' +
+      (isOwn ? 'YOUR PROFILE' : (isLiked ? '✓ LIKED' : '❤️ LIKE')) + '</button>' +
+      '<button class="quick-btn visit" onclick="window.location.href=\'view-profile.html?uid=' + uid + '\'">👤 VISIT</button></div>';
   } catch (e) { console.error(e); content.innerHTML = '<div style="text-align:center;padding:20px;color:#ff4757;">Error loading</div>'; }
 }
-window.closeQuickCard = function() {
-  document.getElementById('quickCard').classList.remove('show');
-  document.getElementById('quickOverlay').classList.remove('show');
-}
+window.closeQuickCard = function() { document.getElementById('quickCard').classList.remove('show'); document.getElementById('quickOverlay').classList.remove('show'); }
 window.toggleLikeQuick = async function(uid) {
   if (currentUser.uid === uid) return;
   try {
-    const ref = doc(db, 'users', uid);
-    const snap = await getDoc(ref);
-    const likedBy = snap.data().likedBy || [];
+    const ref = doc(db, 'users', uid); const snap = await getDoc(ref); const likedBy = snap.data().likedBy || [];
     if (likedBy.includes(currentUser.uid)) await updateDoc(ref, { likedBy: arrayRemove(currentUser.uid) });
     else await updateDoc(ref, { likedBy: arrayUnion(currentUser.uid) });
     openQuickCard(uid);
@@ -1575,12 +1373,10 @@ function showConfirm(icon, title, message, action, variant = 'warn') {
   document.getElementById('confirmIcon').textContent = icon;
   document.getElementById('confirmTitle').textContent = title;
   document.getElementById('confirmMessage').innerHTML = message;
-  const popup = document.getElementById('confirmPopup');
-  popup.className = 'popup ' + variant;
+  const popup = document.getElementById('confirmPopup'); popup.className = 'popup ' + variant;
   const btn = document.getElementById('confirmActionBtn');
   btn.className = 'popup-btn confirm-btn ' + (variant === 'danger' ? 'danger' : variant === 'warn' ? 'warn' : '');
-  pendingConfirmAction = action;
-  showPopup('confirmPopup', 'confirmOverlay');
+  pendingConfirmAction = action; showPopup('confirmPopup', 'confirmOverlay');
 }
 window.closeConfirmPopup = function() { hidePopup('confirmPopup', 'confirmOverlay'); pendingConfirmAction = null; }
 window.executeConfirmedAction = function() { if (pendingConfirmAction) pendingConfirmAction(); }
@@ -1591,10 +1387,8 @@ function hidePopup(p, o) { document.getElementById(p).classList.remove('show'); 
 let toastTimer = null;
 window.showToast = function(message, isError = false) {
   const t = document.getElementById('toast');
-  t.textContent = message;
-  t.className = 'toast' + (isError ? ' error' : '');
-  t.classList.add('show');
-  clearTimeout(toastTimer);
+  t.textContent = message; t.className = 'toast' + (isError ? ' error' : '');
+  t.classList.add('show'); clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
 }
 </script>
