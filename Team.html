@@ -90,8 +90,8 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
 .team-popup-overlay.show .team-popup { transform:scale(1); }
 .team-popup-close { position:absolute; top:10px; right:10px; width:28px; height:28px; border-radius:50%; background:rgba(255,71,87,0.2); border:2px solid #ff4757; color:#ff4757; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:900; z-index:5; }
 .team-popup-cover { width:100%; height:120px; object-fit:cover; display:block; border-radius:17px 17px 0 0; background:linear-gradient(135deg,#00d4ff,#ff0080); }
-.team-popup-dp-wrap { display:flex; justify-content:center; margin-top:-35px; margin-bottom:8px; position:relative; z-index:2; }
-.team-popup-dp { width:70px; height:70px; border-radius:50%; border:4px solid #161b22; overflow:hidden; background:#0d1117; display:flex; align-items:center; justify-content:center; font-size:2rem; box-shadow:0 0 30px rgba(0,212,255,0.6); }
+.team-popup-dp-wrap { display:flex; justify-content:center; margin-top:-52px; margin-bottom:8px; position:relative; z-index:2; }
+.team-popup-dp { width:105px; height:105px; border-radius:50%; border:4px solid #161b22; overflow:hidden; background:#0d1117; display:flex; align-items:center; justify-content:center; font-size:2rem; box-shadow:0 0 30px rgba(0,212,255,0.6); }
 .team-popup-dp img { width:100%; height:100%; object-fit:cover; }
 .team-popup-info { text-align:center; padding:0 20px 12px; }
 .team-popup-name { font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:900; color:#fff; margin-bottom:3px; }
@@ -338,7 +338,7 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
     </div>
   </div>
   <div class="request-card hidden" id="requestCard">
-    <div class="request-title">📥 TEAM REQUESTS <span class="request-badge" id="requestCount">0</span></div>
+    <div class="request-title">📥 PLAYER REQUESTS <span class="request-badge" id="requestCount">0</span></div>
     <div id="requestList"></div>
     <div class="no-requests hidden" id="noRequests">No pending requests</div>
   </div>
@@ -466,7 +466,7 @@ const db = getFirestore(app);
 const TEAM_COST = 20;
 const MAX_MEMBERS = 5;
 const ROLES = ['IGL','Rusher','Sniper','Assaulter','Supporter','Primary Rusher','Default'];
-const UNIQUE_ROLES = ['IGL', 'Sniper', 'Rusher']; // Only these can be held by one member each
+const UNIQUE_ROLES = ['IGL', 'Sniper', 'Rusher'];
 const LEVEL_TYPES = {1:{name:'COLLEGE',icon:'🎓'},2:{name:'UNIVERSITY',icon:'🏛️'},3:{name:'ZONAL',icon:'⭐'},4:{name:'DISTRICT',icon:'🏅'},5:{name:'STATE',icon:'👑'}};
 
 let currentUser = null;
@@ -749,7 +749,6 @@ async function renderTeamView() {
     const canEditRole = isOwner || m.uid === currentUser.uid;
     const ownerBadge = memberIsOwner ? ' <span class="member-badge">OWNER</span>' : '';
     
-    // ✅ FIX: Show green badge if role is selected (not Default)
     const roleDisplay = role !== 'Default' ? role : role;
     const roleButtonClass = role === 'Default' ? 'default' : '';
     
@@ -821,11 +820,12 @@ window.openTeamPopup = async function(teamId) {
       let u = {};
       if (uDocs[i].status === 'fulfilled' && uDocs[i].value.exists()) u = uDocs[i].value.data();
       const photo = u.photoURL ? '<img src="' + u.photoURL + '">' : '👤';
-      const role = (m.uid === team.ownerUid) ? 'IGL' : (m.role || 'Default');
+      const role = m.role || 'Default';
+      const displayRole = role + (m.uid === team.ownerUid ? ' 👑' : '');
       membersHtml += '<div class="team-popup-member" onclick="openQuickCard(\'' + m.uid + '\')">' +
         '<div class="team-popup-member-av">' + photo + '</div>' +
         '<div><div class="team-popup-member-name">' + (u.name || 'Player') + '</div>' +
-        '<div class="team-popup-member-role">' + role + (m.uid === team.ownerUid ? ' 👑' : '') + '</div></div></div>';
+        '<div class="team-popup-member-role">' + displayRole + '</div></div></div>';
     });
     let joinBtnClass = 'team-popup-join-btn', joinBtnText = '✅ JOIN TEAM', joinOnclick = 'sendJoinRequestFromPopup(\'' + teamId + '\')', joinDisabled = '';
     if (alreadyInTeam) { joinBtnClass += ' disabled-state'; joinBtnText = 'ALREADY IN TEAM'; joinDisabled = 'disabled'; }
@@ -1061,16 +1061,37 @@ window.submitCreateTeam = async function() {
 /* ===== JOIN REQUESTS ===== */
 window.acceptJoinRequest = async function(uid) {
   try {
-    await runTransaction(db, async (tx) => {
-      const teamRef = doc(db, 'teams', currentTeam.id);
-      const tSnap = await tx.get(teamRef); const team = tSnap.data();
-      if (Number(team.memberCount || 0) >= MAX_MEMBERS) throw new Error('Team is full');
-      if ((team.memberUids || []).includes(uid)) throw new Error('Already in team');
-      tx.update(teamRef, { joinRequests: arrayRemove(uid), approvedUids: arrayUnion(uid) });
+    const teamRef = doc(db,'teams',currentTeam.id);
+    const userRef = doc(db,'users',uid);
+    const [tSnap,uSnap] = await Promise.all([getDoc(teamRef),getDoc(userRef)]);
+    if (!tSnap.exists()) throw new Error('Team not found');
+    if (!uSnap.exists()) throw new Error('User not found');
+    const team = tSnap.data();
+    if ((team.memberCount||0)>=MAX_MEMBERS) throw new Error('Team is full');
+    if ((team.memberUids||[]).includes(uid)) throw new Error('Already in team');
+    const user = uSnap.data();
+    if (user.teamId) throw new Error('Player in another team');
+    const occupied = team.memberPositions||[];
+    let pos=1; for(;pos<=MAX_MEMBERS;pos++){ if(!occupied.includes(pos)) break; }
+    await runTransaction(db, async tx => {
+      tx.set(doc(db,'teamMembers',uid), {
+        uid, teamId: currentTeam.id,
+        role:'Default', position:pos, joinedAt:serverTimestamp()
+      });
+      tx.update(userRef, { teamId: currentTeam.id });
+      tx.update(teamRef, {
+        memberUids: arrayUnion(uid),
+        memberCount: (team.memberCount||0)+1,
+        memberPositions: arrayUnion(pos),
+        joinRequests: arrayRemove(uid)
+      });
     });
-    showToast('Player approved!');
-  } catch (e) { console.error(e); showToast(e.message || 'Error', true); }
-}
+    showToast('Player added to team!');
+  } catch(e) {
+    console.error('Accept request error:', e);
+    showToast(e.message||'Error', true);
+  }
+};
 window.rejectJoinRequest = async function(uid) {
   try { await updateDoc(doc(db, 'teams', currentTeam.id), { joinRequests: arrayRemove(uid) }); showToast('Request rejected'); }
   catch (e) { console.error(e); showToast('Error', true); }
@@ -1228,7 +1249,6 @@ window.openRolePopup = function(position) {
   optionsDiv.innerHTML = '';
   const currentRole = m.role || 'Default';
   
-  // Get all roles currently assigned
   const assignedRoles = {};
   currentMembers.forEach(member => {
     const role = member.role || 'Default';
@@ -1241,7 +1261,6 @@ window.openRolePopup = function(position) {
     const opt = document.createElement('div');
     opt.className = 'role-option';
     
-    // Check if role is unique and already taken by someone else
     const isUnique = UNIQUE_ROLES.includes(role);
     const isTakenBySomeoneElse = isUnique && assignedRoles[role] && role !== currentRole;
     
@@ -1313,7 +1332,6 @@ async function moveExtra(pos, toExtra) {
       } 
     }
     
-    // ✅ FIX: All reads BEFORE all writes
     const teamSnap = await getDoc(doc(db, 'teams', currentTeam.id));
     if (!teamSnap.exists()) throw new Error('Team not found');
     
@@ -1321,7 +1339,6 @@ async function moveExtra(pos, toExtra) {
     const taken = (tData.memberPositions || []).filter(p => p !== pos);
     taken.push(target);
     
-    // NOW do the writes
     await updateDoc(doc(db, 'teamMembers', m.uid), { position: target });
     await updateDoc(doc(db, 'teams', currentTeam.id), { memberPositions: taken });
     
@@ -1342,11 +1359,9 @@ async function doTransfer(pos) {
   if (!target) { showToast('Player not found', true); return; }
   
   try {
-    // ✅ FIX: All reads BEFORE all writes
     const teamSnap = await getDoc(doc(db, 'teams', currentTeam.id));
     if (!teamSnap.exists()) throw new Error('Team not found');
     
-    // NOW do the writes
     await updateDoc(doc(db, 'teams', currentTeam.id), { ownerUid: target.uid });
     await updateDoc(doc(db, 'teamMembers', currentUser.uid), { role: 'Default' });
     
@@ -1359,7 +1374,6 @@ async function doTransfer(pos) {
 }
 
 /* ===== KICK PLAYER ===== */
-// ✅ CRITICAL FIX: Transaction error - all reads before writes
 window.kickPlayer = function() {
   const pos = currentMenuPosition; 
   const m = currentMembers.find(x => x.position === pos); 
@@ -1369,19 +1383,16 @@ window.kickPlayer = function() {
 }
 async function doKick(uid, kpos) {
   try {
-    // ✅ FIX: All reads FIRST
     const teamSnap = await getDoc(doc(db, 'teams', currentTeam.id));
     if (!teamSnap.exists()) throw new Error('Team not found');
     const team = teamSnap.data();
     
-    // Prepare update data
     const upd = { 
       memberUids: arrayRemove(uid), 
       memberCount: Math.max(0, Number(team.memberCount || 1) - 1) 
     };
     if (kpos) upd.memberPositions = arrayRemove(kpos);
     
-    // ✅ NOW do all the writes
     await deleteDoc(doc(db, 'teamMembers', uid));
     await updateDoc(doc(db, 'users', uid), { teamId: null });
     await updateDoc(doc(db, 'teams', currentTeam.id), upd);
