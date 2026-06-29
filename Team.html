@@ -146,6 +146,27 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
 .menu-dots.show { display:flex; }
 .menu-dots:active { background:rgba(0,212,255,0.2); }
 .add-member { width:100%; text-align:center; color:#00d4ff; font-size:1.3rem; }
+/* ✅ NEW: Team image edit buttons */
+.cover-edit-btn {
+  position:absolute; bottom:8px; right:8px;
+  width:32px; height:32px; border-radius:50%;
+  background:rgba(0,0,0,0.7); border:2px solid #00d4ff;
+  color:#00d4ff; font-size:0.9rem;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  z-index:25; transition:0.2s;
+  box-shadow:0 0 10px rgba(0,212,255,0.5);
+}
+.cover-edit-btn:active { transform:scale(0.9); background:rgba(0,212,255,0.3); }
+.dp-edit-btn {
+  position:absolute; bottom:-2px; right:-2px;
+  width:26px; height:26px; border-radius:50%;
+  background:rgba(0,0,0,0.8); border:2px solid #00ff88;
+  color:#00ff88; font-size:0.65rem;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  z-index:30; transition:0.2s;
+  box-shadow:0 0 8px rgba(0,255,136,0.5);
+}
+.dp-edit-btn:active { transform:scale(0.9); }
 .request-card { background:rgba(22,27,34,0.9); border:2px solid #ff6b00; border-radius:16px; margin-bottom:20px; padding:15px 20px; box-shadow:0 0 30px rgba(255,107,0,0.3); }
 .request-title { font-family:'Orbitron',sans-serif; font-size:1rem; font-weight:900; color:#ff6b00; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
 .request-badge { background:#ff4757; color:#fff; font-size:0.65rem; padding:2px 6px; border-radius:10px; font-weight:900; }
@@ -319,8 +340,16 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
 <!-- TEAM VIEW -->
 <div class="container hidden" id="teamView">
   <div class="team-profile">
-    <div class="team-cover" id="teamCover"></div>
-    <div class="team-dp" id="teamDp">👥</div>
+    <div class="team-cover" id="teamCover">
+      <!-- ✅ NEW: Owner ke liye Cover Edit Icon -->
+      <div class="cover-edit-btn hidden" id="coverEditBtn" onclick="document.getElementById('coverInput').click()" title="Change Cover">✏️</div>
+      <input type="file" id="coverInput" accept="image/*" style="display:none" onchange="uploadTeamImage(this,'cover')">
+    </div>
+    <div class="team-dp" id="teamDp">👥
+      <!-- ✅ NEW: Owner ke liye Logo Edit Icon -->
+      <div class="dp-edit-btn hidden" id="dpEditBtn" onclick="document.getElementById('logoInput').click()" title="Change Logo">✏️</div>
+      <input type="file" id="logoInput" accept="image/*" style="display:none" onchange="uploadTeamImage(this,'logo')">
+    </div>
     <div class="team-profile-info">
       <div class="team-profile-name" id="teamNameDisplay">Team</div>
       <div class="team-profile-username" id="teamUsernameDisplay">@team</div>
@@ -667,7 +696,9 @@ function showNoTeamView() {
   loadInvites();
 }
 
-function roleOf(m) { return (m.uid === currentTeam.ownerUid) ? 'IGL' : (m.role || 'Default'); }
+// ✅ FIX: roleOf ab Firestore mein jo role stored hai woh return karta hai
+// Owner badge alag se show hota hai — role independent hai
+function roleOf(m) { return m.role || 'Default'; }
 
 async function renderTeamView() {
   hideLoading();
@@ -680,7 +711,28 @@ async function renderTeamView() {
   document.getElementById('teamUsernameDisplay').textContent = '@' + (currentTeam.teamUsername || '').replace(/^@/, '');
   if (currentTeam.teamCover) document.getElementById('teamCover').style.backgroundImage = "url('" + currentTeam.teamCover + "')";
   const dp = document.getElementById('teamDp');
-  dp.innerHTML = currentTeam.teamLogo ? ('<img src="' + currentTeam.teamLogo + '">') : '👥';
+  dp.innerHTML = currentTeam.teamLogo ? ('<img src="' + currentTeam.teamLogo + '" style="width:100%;height:100%;object-fit:cover;">') : '👥';
+
+  // ✅ NEW: Owner ke liye edit buttons show karo, members ke liye hide
+  const coverBtn = document.getElementById('coverEditBtn');
+  const dpBtn = document.getElementById('dpEditBtn');
+  if (isOwner) {
+    if (coverBtn) coverBtn.classList.remove('hidden');
+    // dp ke andar button re-add karo (innerHTML overwrite hoti hai)
+    if (!dp.querySelector('.dp-edit-btn')) {
+      const editBtn = document.createElement('div');
+      editBtn.className = 'dp-edit-btn';
+      editBtn.id = 'dpEditBtn';
+      editBtn.title = 'Change Logo';
+      editBtn.textContent = '✏️';
+      editBtn.onclick = () => document.getElementById('logoInput').click();
+      dp.appendChild(editBtn);
+    }
+  } else {
+    if (coverBtn) coverBtn.classList.add('hidden');
+    const existingDpBtn = dp.querySelector('.dp-edit-btn');
+    if (existingDpBtn) existingDpBtn.remove();
+  }
 
   const members = currentMembers.slice().sort((a, b) => a.position - b.position);
   document.getElementById('membersTitle').textContent = '👥 TEAM MEMBERS (' + members.length + '/5)';
@@ -1040,21 +1092,41 @@ window.confirmLeaveTeam = function() {
   showConfirm('🚪', 'LEAVE TEAM?', 'Kya aap sure hain?<br><strong>Wapas join karne ke liye request bhejni padegi.</strong>', leaveTeam, 'warn');
 }
 async function leaveTeam() {
+  // ✅ FIX: Transaction ke bajaay sequential writes use karo
+  // Root cause: Transaction mein teamMembers delete + teams update + users update
+  // teeno alag Rules se govern hote hain — conflict hoti thi.
+  // Ab: pehle member doc delete, phir user update, phir team update — saari calls allowed hain.
+  const teamId = currentTeam.id;
+  const myPos = (currentMembers.find(m => m.uid === currentUser.uid) || {}).position;
+  const memberRef = doc(db, 'teamMembers', currentUser.uid);
+  const userRef = doc(db, 'users', currentUser.uid);
+  const teamRef = doc(db, 'teams', teamId);
+
   try {
-    const teamRef = doc(db, 'teams', currentTeam.id);
-    const userRef = doc(db, 'users', currentUser.uid);
-    const memberRef = doc(db, 'teamMembers', currentUser.uid);
-    const myPos = (currentMembers.find(m => m.uid === currentUser.uid) || {}).position;
-    await runTransaction(db, async (tx) => {
-      const tSnap = await tx.get(teamRef); const team = tSnap.data();
-      tx.delete(memberRef);
-      tx.update(userRef, { teamId: null });
-      const upd = { memberUids: arrayRemove(currentUser.uid), memberCount: Math.max(0, Number(team.memberCount || 1) - 1) };
+    // Step 1: Apna teamMembers doc delete karo (Rule: memberId == request.auth.uid ✅)
+    await deleteDoc(memberRef);
+
+    // Step 2: Apna user doc update karo (Rule: isOwner(userId) + teamId in changedKeys ✅)
+    await updateDoc(userRef, { teamId: null });
+
+    // Step 3: Team doc update karo (Rule: memberUids/memberCount/memberPositions change ✅)
+    const tSnap = await getDoc(teamRef);
+    if (tSnap.exists()) {
+      const team = tSnap.data();
+      const upd = {
+        memberUids: arrayRemove(currentUser.uid),
+        memberCount: Math.max(0, Number(team.memberCount || 1) - 1)
+      };
       if (myPos) upd.memberPositions = arrayRemove(myPos);
-      tx.update(teamRef, upd);
-    });
-    closeConfirmPopup(); showToast('Team left!');
-  } catch (e) { console.error(e); showToast('Error leaving team', true); }
+      await updateDoc(teamRef, upd);
+    }
+
+    closeConfirmPopup();
+    showToast('Team left! 👋');
+  } catch (e) {
+    console.error('Leave team error:', e.code, e.message);
+    showToast('Error leaving team: ' + (e.message || e.code), true);
+  }
 }
 
 /* ===================================================================
@@ -1144,21 +1216,70 @@ async function deleteTeam() {
   }
 }
 
-/* ===== ROLE ===== */
+/* ===== TEAM IMAGE EDIT (Owner Only) — Base64 method ===== */
+window.uploadTeamImage = async function(input, type) {
+  if (!isOwner) { showToast('Sirf Owner image change kar sakta hai', true); return; }
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { showToast('Image 2MB se chhoti honi chahiye', true); input.value = ''; return; }
+
+  showToast('Uploading...');
+  try {
+    // Base64 convert — same method jo profile.html mein use hoti hai
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.src = e.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxSize = type === 'cover' ? 800 : 400;
+          let w = img.width, h = img.height;
+          if (w > h) { if (w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize; } }
+          else { if (h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize; } }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', 0.75));
+        };
+        img.onerror = reject;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    // Firestore update — teams collection
+    const updateData = type === 'cover'
+      ? { teamCover: base64 }
+      : { teamLogo: base64 };
+
+    await updateDoc(doc(db, 'teams', currentTeam.id), updateData);
+    showToast(type === 'cover' ? 'Cover updated! ✅' : 'Logo updated! ✅');
+    input.value = ''; // Reset input
+  } catch (e) {
+    console.error('Image upload error:', e);
+    showToast('Image upload failed: ' + (e.message || e.code), true);
+    input.value = '';
+  }
+}
+
+
 window.openRolePopup = function(position) {
   const m = currentMembers.find(x => x.position === position);
   if (!m) return;
-  const memberIsOwner = m.uid === currentTeam.ownerUid;
-  if (!(isOwner || m.uid === currentUser.uid)) { showToast('Sirf apna role change kar sakte ho', true); return; }
-  if (memberIsOwner) { showToast('Owner ka role IGL hai', true); return; }
+  // ✅ FIX: Owner apna role change kar sakta hai — sirf permission check karo
+  if (!(isOwner || m.uid === currentUser.uid)) {
+    showToast('Sirf apna role change kar sakte ho', true); return;
+  }
+  // ✅ REMOVED: Owner ko IGL block karna hata diya
   currentEditingPosition = position;
   const optionsDiv = document.getElementById('roleOptions'); optionsDiv.innerHTML = '';
-  const currentRole = roleOf(m);
+  const currentRole = m.role || 'Default';
+  // ✅ FIX: IGL sabke liye available hai — Owner badge alag cheez hai
   ROLES.forEach(role => {
     const opt = document.createElement('div');
     opt.className = 'role-option' + (role === currentRole ? ' current' : '');
-    if (role === 'IGL') { opt.classList.add('locked'); opt.innerHTML = 'IGL <span class="lock-icon">🔒 Owner Only</span>'; opt.onclick = () => showToast('IGL sirf Owner ke liye reserved hai', true); }
-    else { opt.innerHTML = role; opt.onclick = () => selectRole(role); }
+    opt.innerHTML = role;
+    opt.onclick = () => selectRole(role);
     optionsDiv.appendChild(opt);
   });
   showPopup('rolePopup', 'roleOverlay');
