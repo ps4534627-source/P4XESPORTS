@@ -1,653 +1,1554 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Team - FFM-P4X NEXUS</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap');
-    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-    body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-height:100vh; padding-bottom:80px; }
-    #loadingScreen { position:fixed; inset:0; background:#0d1117; z-index:5000; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; }
-    .loader-logo { font-family:'Orbitron',sans-serif; font-size:1.8rem; font-weight:900; color:#00d4ff; text-shadow:0 0 25px rgba(0,212,255,0.8); letter-spacing:2px; animation:pulseLogo 1.4s ease-in-out infinite; }
-    @keyframes pulseLogo { 0%,100%{opacity:.6;transform:scale(1)} 50%{opacity:1;transform:scale(1.06)} }
-    .loader-ring { width:60px; height:60px; border:5px solid rgba(0,212,255,0.2); border-top-color:#00d4ff; border-radius:50%; animation:spin 0.9s linear infinite; }
-    @keyframes spin { to{transform:rotate(360deg);} }
-    .loader-text { font-size:0.9rem; color:#888; font-weight:700; letter-spacing:1px; }
-
-    .navbar { position:fixed; top:0; left:0; right:0; z-index:1000; background:rgba(22,27,34,0.98); backdrop-filter:blur(10px); border-bottom:2px solid #00d4ff; padding:8px 12px; display:flex; justify-content:space-between; align-items:center; height:60px; }
-    .nav-left { display:flex; align-items:center; gap:12px; }
-    .back-btn { background:linear-gradient(135deg,#00d4ff,#0099ff); border:2px solid #00d4ff; padding:6px 14px; border-radius:8px; color:#fff; font-weight:900; font-size:0.8rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
-    .back-btn:active { transform:scale(0.95); }
-    .nav-title { font-family:'Orbitron',sans-serif; font-size:1.3rem; font-weight:900; color:#00d4ff; letter-spacing:1px; }
-    .nav-right { display:flex; align-items:center; gap:10px; }
-    .create-team-btn { background:linear-gradient(135deg,#00ff88,#00cc66); border:2px solid #00ff88; padding:6px 12px; border-radius:8px; color:#000; font-weight:900; font-size:0.75rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
-    .leave-btn { background:linear-gradient(135deg,#ff6b00,#ff4757); border:2px solid #ff6b00; padding:6px 12px; border-radius:8px; color:#fff; font-weight:900; font-size:0.75rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
-    .delete-btn { background:linear-gradient(135deg,#ff4757,#ff0064); border:2px solid #ff4757; padding:6px 12px; border-radius:8px; color:#fff; font-weight:900; font-size:0.75rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
-    .create-team-btn:active,.leave-btn:active,.delete-btn:active { transform:scale(0.95); }
-
-    .profile-section { position:relative; cursor:pointer; }
-    .profile-btn { width:36px; height:36px; border-radius:8px; background:linear-gradient(135deg,#00d4ff,#ff0080); border:2px solid #00d4ff; display:flex; align-items:center; justify-content:center; font-size:1.2rem; overflow:hidden; }
-    .profile-btn img { width:100%; height:100%; object-fit:cover; }
-    .dropdown { position:absolute; top:50px; right:0; background:#161b22; border:2px solid #00d4ff; border-radius:12px; min-width:200px; box-shadow:0 0 50px rgba(0,212,255,0.5); opacity:0; visibility:hidden; transform:translateY(-10px); transition:0.3s; z-index:1001; }
-    .dropdown.show { opacity:1; visibility:visible; transform:translateY(0); }
-    .dropdown-item { padding:12px 18px; border-bottom:1px solid rgba(0,212,255,0.2); display:flex; align-items:center; gap:10px; transition:0.2s; font-weight:700; font-size:0.9rem; cursor:pointer; }
-    .dropdown-item:last-child { border-bottom:none; }
-    .dropdown-item:active { background:rgba(0,212,255,0.1); }
-    .dropdown-item.logout { color:#ff4757; }
-
-    .container { max-width:900px; margin:0 auto; padding:75px 15px 20px 15px; }
-    .hidden { display:none !important; }
-
-    .search-section { background:rgba(22,27,34,0.9); border:2px solid #00d4ff; border-radius:16px; padding:20px; margin-bottom:20px; }
-    .search-title { font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:900; color:#00d4ff; margin-bottom:12px; text-align:center; }
-    .search-input { width:100%; padding:12px; background:#0d1117; border:2px solid rgba(0,212,255,0.3); border-radius:8px; color:#fff; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:0.9rem; outline:none; margin-bottom:15px; }
-    .search-input:focus { border-color:#00d4ff; }
-    .search-hint { font-size:0.7rem; color:#666; text-align:center; margin-bottom:15px; }
-    .search-hint span { color:#00d4ff; font-weight:900; }
-
-    .team-result { background:#0d1117; border:1px solid rgba(0,212,255,0.3); border-radius:8px; padding:10px; margin-bottom:8px; display:flex; align-items:center; gap:10px; }
-    .team-result-avatar { width:45px; height:45px; border-radius:8px; border:2px solid #00d4ff; overflow:hidden; flex-shrink:0; background:#161b22; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
-    .team-result-avatar img { width:100%; height:100%; object-fit:cover; }
-    .team-result-info { flex:1; min-width:0; }
-    .team-result-name { font-size:0.95rem; font-weight:900; color:#fff; cursor:pointer; }
-    .team-result-username { font-size:0.75rem; color:#888; }
-    .team-result-members { font-size:0.7rem; color:#00ff88; font-weight:700; }
-    .join-btn { padding:6px 14px; background:linear-gradient(135deg,#00ff88,#00cc66); border:2px solid #00ff88; border-radius:6px; color:#000; font-weight:900; font-size:0.7rem; cursor:pointer; font-family:'Orbitron',sans-serif; flex-shrink:0; }
-    .join-btn.requested { background:rgba(136,136,136,0.1); border-color:#666; color:#888; cursor:default; }
-    .empty-msg { text-align:center; color:#666; padding:20px; }
-
-    .random-section { background:rgba(22,27,34,0.9); border:2px solid rgba(0,212,255,0.4); border-radius:16px; padding:20px; margin-bottom:20px; }
-    .random-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; }
-    .random-title { font-family:'Orbitron',sans-serif; font-size:1rem; font-weight:900; color:#00d4ff; }
-    .refresh-btn { display:flex; align-items:center; gap:6px; padding:8px 14px; background:rgba(0,212,255,0.15); border:2px solid #00d4ff; border-radius:8px; color:#00d4ff; font-family:'Orbitron',sans-serif; font-weight:900; font-size:0.7rem; cursor:pointer; transition:0.3s; white-space:nowrap; }
-    .refresh-btn:disabled { border-color:#333; color:#555; cursor:not-allowed; background:rgba(0,0,0,0.3); }
-    .refresh-btn:active:not(:disabled) { transform:scale(0.95); }
-    .random-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
-    @media(min-width:600px){ .random-grid { grid-template-columns:repeat(3,1fr); } }
-    .random-card { background:#0d1117; border:2px solid rgba(0,212,255,0.25); border-radius:12px; overflow:hidden; transition:0.2s; }
-    .random-card:active { transform:scale(0.97); }
-    .random-card-cover { width:100%; height:70px; object-fit:cover; cursor:pointer; display:block; background:linear-gradient(135deg,#00d4ff,#ff0080); }
-    .random-card-body { padding:10px; }
-    .random-card-logo-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; cursor:pointer; }
-    .random-card-logo { width:36px; height:36px; border-radius:8px; border:2px solid #00d4ff; overflow:hidden; flex-shrink:0; background:#161b22; display:flex; align-items:center; justify-content:center; font-size:1rem; }
-    .random-card-logo img { width:100%; height:100%; object-fit:cover; }
-    .random-card-name { font-family:'Orbitron',sans-serif; font-size:0.75rem; font-weight:900; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .random-card-members { font-size:0.65rem; color:#00ff88; font-weight:700; }
-    .random-join-btn { width:100%; padding:7px; background:linear-gradient(135deg,#00ff88,#00cc66); border:none; border-radius:6px; color:#000; font-weight:900; font-size:0.7rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
-    .random-join-btn.requested { background:rgba(136,136,136,0.1); border:2px solid #666; color:#888; cursor:default; }
-    .random-empty { text-align:center; color:#666; padding:20px; font-size:0.85rem; grid-column:1/-1; }
-
-    .invites-section { background:rgba(22,27,34,0.9); border:2px solid rgba(255,107,0,0.5); border-radius:16px; padding:20px; margin-bottom:20px; }
-    .invites-title { font-family:'Orbitron',sans-serif; font-size:1rem; font-weight:900; color:#ff6b00; margin-bottom:15px; }
-    .invite-card { background:#0d1117; border:2px solid rgba(255,107,0,0.3); border-radius:10px; padding:12px; margin-bottom:10px; display:flex; align-items:center; gap:10px; }
-    .invite-logo { width:45px; height:45px; border-radius:8px; border:2px solid #ff6b00; overflow:hidden; flex-shrink:0; background:#161b22; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
-    .invite-logo img { width:100%; height:100%; object-fit:cover; }
-    .invite-info { flex:1; min-width:0; }
-    .invite-name { font-size:0.9rem; font-weight:900; color:#fff; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .invite-members { font-size:0.7rem; color:#888; }
-    .invite-actions { display:flex; gap:6px; flex-shrink:0; }
-    .invite-accept-btn { padding:7px 10px; background:linear-gradient(135deg,#00ff88,#00cc66); border:2px solid #00ff88; border-radius:6px; color:#000; font-weight:900; font-size:0.65rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
-    .invite-reject-btn { padding:7px 10px; background:rgba(255,71,87,0.15); border:2px solid #ff4757; border-radius:6px; color:#ff4757; font-weight:900; font-size:0.65rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
-    .invite-accept-btn:active,.invite-reject-btn:active { transform:scale(0.95); }
-    .invites-empty { text-align:center; color:#666; padding:15px; font-size:0.85rem; }
-
-    .team-popup-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:3000; display:flex; align-items:center; justify-content:center; padding:15px; opacity:0; visibility:hidden; transition:0.3s; }
-    .team-popup-overlay.show { opacity:1; visibility:visible; }
-    .team-popup { background:#161b22; border:3px solid #00d4ff; border-radius:20px; width:100%; max-width:420px; max-height:88vh; overflow-y:auto; box-shadow:0 0 80px rgba(0,212,255,0.5); transform:scale(0.9); transition:0.3s; position:relative; }
-    .team-popup-overlay.show .team-popup { transform:scale(1); }
-    .team-popup-close { position:absolute; top:10px; right:10px; width:28px; height:28px; border-radius:50%; background:rgba(255,71,87,0.2); border:2px solid #ff4757; color:#ff4757; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:900; z-index:5; }
-    .team-popup-cover { width:100%; height:120px; object-fit:cover; display:block; border-radius:17px 17px 0 0; background:linear-gradient(135deg,#00d4ff,#ff0080); }
-    .team-popup-dp-wrap { display:flex; justify-content:center; margin-top:-35px; margin-bottom:8px; position:relative; z-index:2; }
-    /* ISSUE 3: enlarged DP by 50% */
-    .team-popup-dp {
-      width:105px;
-      height:105px;
-      border-radius:50%;
-      border:4px solid #161b22;
-      overflow:hidden;
-      background:#0d1117;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:2rem;
-      box-shadow:0 0 30px rgba(0,212,255,0.6);
-    }
-    .team-popup-dp img { width:100%; height:100%; object-fit:cover; }
-    .team-popup-info { text-align:center; padding:0 20px 12px; }
-    .team-popup-name { font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:900; color:#fff; margin-bottom:3px; }
-    .team-popup-username { font-size:0.8rem; color:#888; margin-bottom:8px; }
-    .team-popup-slots { display:inline-flex; align-items:center; gap:6px; background:rgba(0,255,136,0.1); border:1px solid #00ff88; border-radius:20px; padding:4px 12px; font-size:0.75rem; font-weight:900; color:#00ff88; }
-    .team-popup-members-title { font-family:'Orbitron',sans-serif; font-size:0.85rem; font-weight:900; color:#00d4ff; margin-bottom:10px; padding:0 15px; }
-    .team-popup-members { padding:0 12px 12px; display:flex; flex-direction:column; gap:8px; }
-    .team-popup-member { background:#0d1117; border:1px solid rgba(0,212,255,0.3); border-radius:8px; padding:10px; display:flex; align-items:center; gap:10px; cursor:pointer; transition:0.2s; }
-    .team-popup-member:active { border-color:#00d4ff; background:rgba(0,212,255,0.05); }
-    .team-popup-member-av { width:36px; height:36px; border-radius:8px; border:2px solid #00d4ff; overflow:hidden; flex-shrink:0; background:linear-gradient(135deg,#00d4ff,#ff0080); display:flex; align-items:center; justify-content:center; font-size:1rem; }
-    .team-popup-member-av img { width:100%; height:100%; object-fit:cover; }
-    .team-popup-member-name { font-size:0.85rem; font-weight:900; color:#fff; }
-    /* ISSUE 4: show actual role + crown for owner */
-    .team-popup-member-role { font-size:0.65rem; color:#00ff88; font-weight:700; }
-    .team-popup-btns { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 12px 15px; }
-    .team-popup-join-btn { padding:12px; background:linear-gradient(135deg,#00ff88,#00cc66); border:none; border-radius:10px; color:#000; font-weight:900; font-size:0.85rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
-    .team-popup-join-btn.disabled-state { background:rgba(136,136,136,0.15); border:2px solid #555; color:#888; cursor:default; }
-    .team-popup-join-btn.full-state { background:rgba(255,71,87,0.15); border:2px solid #ff4757; color:#ff4757; cursor:default; }
-    .team-popup-cancel-btn { padding:12px; background:transparent; border:2px solid rgba(255,255,255,0.2); border-radius:10px; color:#888; font-weight:900; font-size:0.85rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
-
-    /* … rest of CSS unchanged … */
-
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team - FFM-P4X NEXUS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap');
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-height:100vh; padding-bottom:80px; }
+#loadingScreen { position:fixed; inset:0; background:#0d1117; z-index:5000; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; }
+.loader-logo { font-family:'Orbitron',sans-serif; font-size:1.8rem; font-weight:900; color:#00d4ff; text-shadow:0 0 25px rgba(0,212,255,0.8); letter-spacing:2px; animation:pulseLogo 1.4s ease-in-out infinite; }
+@keyframes pulseLogo { 0%,100%{opacity:.6;transform:scale(1)} 50%{opacity:1;transform:scale(1.06)} }
+.loader-ring { width:60px; height:60px; border:5px solid rgba(0,212,255,0.2); border-top-color:#00d4ff; border-radius:50%; animation:spin 0.9s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg);} }
+.loader-text { font-size:0.9rem; color:#888; font-weight:700; letter-spacing:1px; }
+.navbar { position:fixed; top:0; left:0; right:0; z-index:1000; background:rgba(22,27,34,0.98); backdrop-filter:blur(10px); border-bottom:2px solid #00d4ff; padding:8px 12px; display:flex; justify-content:space-between; align-items:center; height:60px; }
+.nav-left { display:flex; align-items:center; gap:12px; }
+.back-btn { background:linear-gradient(135deg,#00d4ff,#0099ff); border:2px solid #00d4ff; padding:6px 14px; border-radius:8px; color:#fff; font-weight:900; font-size:0.8rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
+.back-btn:active { transform:scale(0.95); }
+.nav-title { font-family:'Orbitron',sans-serif; font-size:1.3rem; font-weight:900; color:#00d4ff; letter-spacing:1px; }
+.nav-right { display:flex; align-items:center; gap:10px; }
+.create-team-btn { background:linear-gradient(135deg,#00ff88,#00cc66); border:2px solid #00ff88; padding:6px 12px; border-radius:8px; color:#000; font-weight:900; font-size:0.75rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
+.leave-btn { background:linear-gradient(135deg,#ff6b00,#ff4757); border:2px solid #ff6b00; padding:6px 12px; border-radius:8px; color:#fff; font-weight:900; font-size:0.75rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
+.delete-btn { background:linear-gradient(135deg,#ff4757,#ff0064); border:2px solid #ff4757; padding:6px 12px; border-radius:8px; color:#fff; font-weight:900; font-size:0.75rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
+.create-team-btn:active,.leave-btn:active,.delete-btn:active { transform:scale(0.95); }
+.profile-section { position:relative; cursor:pointer; }
+.profile-btn { width:36px; height:36px; border-radius:8px; background:linear-gradient(135deg,#00d4ff,#ff0080); border:2px solid #00d4ff; display:flex; align-items:center; justify-content:center; font-size:1.2rem; overflow:hidden; }
+.profile-btn img { width:100%; height:100%; object-fit:cover; }
+.dropdown { position:absolute; top:50px; right:0; background:#161b22; border:2px solid #00d4ff; border-radius:12px; min-width:200px; box-shadow:0 0 50px rgba(0,212,255,0.5); opacity:0; visibility:hidden; transform:translateY(-10px); transition:0.3s; z-index:1001; }
+.dropdown.show { opacity:1; visibility:visible; transform:translateY(0); }
+.dropdown-item { padding:12px 18px; border-bottom:1px solid rgba(0,212,255,0.2); display:flex; align-items:center; gap:10px; transition:0.2s; font-weight:700; font-size:0.9rem; cursor:pointer; }
+.dropdown-item:last-child { border-bottom:none; }
+.dropdown-item:active { background:rgba(0,212,255,0.1); }
+.dropdown-item.logout { color:#ff4757; }
+.container { max-width:900px; margin:0 auto; padding:75px 15px 20px 15px; }
+.hidden { display:none !important; }
+.search-section { background:rgba(22,27,34,0.9); border:2px solid #00d4ff; border-radius:16px; padding:20px; margin-bottom:20px; }
+.search-title { font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:900; color:#00d4ff; margin-bottom:12px; text-align:center; }
+.search-input { width:100%; padding:12px; background:#0d1117; border:2px solid rgba(0,212,255,0.3); border-radius:8px; color:#fff; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:0.9rem; outline:none; margin-bottom:15px; }
+.search-input:focus { border-color:#00d4ff; }
+.search-hint { font-size:0.7rem; color:#666; text-align:center; margin-bottom:15px; }
+.search-hint span { color:#00d4ff; font-weight:900; }
+.team-result { background:#0d1117; border:1px solid rgba(0,212,255,0.3); border-radius:8px; padding:10px; margin-bottom:8px; display:flex; align-items:center; gap:10px; }
+.team-result-avatar { width:45px; height:45px; border-radius:8px; border:2px solid #00d4ff; overflow:hidden; flex-shrink:0; background:#161b22; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
+.team-result-avatar img { width:100%; height:100%; object-fit:cover; }
+.team-result-info { flex:1; min-width:0; }
+.team-result-name { font-size:0.95rem; font-weight:900; color:#fff; cursor:pointer; }
+.team-result-username { font-size:0.75rem; color:#888; }
+.team-result-members { font-size:0.7rem; color:#00ff88; font-weight:700; }
+.join-btn { padding:6px 14px; background:linear-gradient(135deg,#00ff88,#00cc66); border:2px solid #00ff88; border-radius:6px; color:#000; font-weight:900; font-size:0.7rem; cursor:pointer; font-family:'Orbitron',sans-serif; flex-shrink:0; }
+.join-btn.requested { background:rgba(136,136,136,0.1); border-color:#666; color:#888; cursor:default; }
+.empty-msg { text-align:center; color:#666; padding:20px; }
+.random-section { background:rgba(22,27,34,0.9); border:2px solid rgba(0,212,255,0.4); border-radius:16px; padding:20px; margin-bottom:20px; }
+.random-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; }
+.random-title { font-family:'Orbitron',sans-serif; font-size:1rem; font-weight:900; color:#00d4ff; }
+.refresh-btn { display:flex; align-items:center; gap:6px; padding:8px 14px; background:rgba(0,212,255,0.15); border:2px solid #00d4ff; border-radius:8px; color:#00d4ff; font-family:'Orbitron',sans-serif; font-weight:900; font-size:0.7rem; cursor:pointer; transition:0.3s; white-space:nowrap; }
+.refresh-btn:disabled { border-color:#333; color:#555; cursor:not-allowed; background:rgba(0,0,0,0.3); }
+.refresh-btn:active:not(:disabled) { transform:scale(0.95); }
+.random-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+@media(min-width:600px){ .random-grid { grid-template-columns:repeat(3,1fr); } }
+.random-card { background:#0d1117; border:2px solid rgba(0,212,255,0.25); border-radius:12px; overflow:hidden; transition:0.2s; }
+.random-card:active { transform:scale(0.97); }
+.random-card-cover { width:100%; height:70px; object-fit:cover; cursor:pointer; display:block; background:linear-gradient(135deg,#00d4ff,#ff0080); }
+.random-card-body { padding:10px; }
+.random-card-logo-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; cursor:pointer; }
+.random-card-logo { width:36px; height:36px; border-radius:8px; border:2px solid #00d4ff; overflow:hidden; flex-shrink:0; background:#161b22; display:flex; align-items:center; justify-content:center; font-size:1rem; }
+.random-card-logo img { width:100%; height:100%; object-fit:cover; }
+.random-card-name { font-family:'Orbitron',sans-serif; font-size:0.75rem; font-weight:900; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.random-card-members { font-size:0.65rem; color:#00ff88; font-weight:700; }
+.random-join-btn { width:100%; padding:7px; background:linear-gradient(135deg,#00ff88,#00cc66); border:none; border-radius:6px; color:#000; font-weight:900; font-size:0.7rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
+.random-join-btn.requested { background:rgba(136,136,136,0.1); border:2px solid #666; color:#888; cursor:default; }
+.random-empty { text-align:center; color:#666; padding:20px; font-size:0.85rem; grid-column:1/-1; }
+.invites-section { background:rgba(22,27,34,0.9); border:2px solid rgba(255,107,0,0.5); border-radius:16px; padding:20px; margin-bottom:20px; }
+.invites-title { font-family:'Orbitron',sans-serif; font-size:1rem; font-weight:900; color:#ff6b00; margin-bottom:15px; }
+.invite-card { background:#0d1117; border:2px solid rgba(255,107,0,0.3); border-radius:10px; padding:12px; margin-bottom:10px; display:flex; align-items:center; gap:10px; }
+.invite-logo { width:45px; height:45px; border-radius:8px; border:2px solid #ff6b00; overflow:hidden; flex-shrink:0; background:#161b22; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
+.invite-logo img { width:100%; height:100%; object-fit:cover; }
+.invite-info { flex:1; min-width:0; }
+.invite-name { font-size:0.9rem; font-weight:900; color:#fff; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.invite-members { font-size:0.7rem; color:#888; }
+.invite-actions { display:flex; gap:6px; flex-shrink:0; }
+.invite-accept-btn { padding:7px 10px; background:linear-gradient(135deg,#00ff88,#00cc66); border:2px solid #00ff88; border-radius:6px; color:#000; font-weight:900; font-size:0.65rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
+.invite-reject-btn { padding:7px 10px; background:rgba(255,71,87,0.15); border:2px solid #ff4757; border-radius:6px; color:#ff4757; font-weight:900; font-size:0.65rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
+.invite-accept-btn:active,.invite-reject-btn:active { transform:scale(0.95); }
+.invites-empty { text-align:center; color:#666; padding:15px; font-size:0.85rem; }
+.team-popup-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:3000; display:flex; align-items:center; justify-content:center; padding:15px; opacity:0; visibility:hidden; transition:0.3s; }
+.team-popup-overlay.show { opacity:1; visibility:visible; }
+.team-popup { background:#161b22; border:3px solid #00d4ff; border-radius:20px; width:100%; max-width:420px; max-height:88vh; overflow-y:auto; box-shadow:0 0 80px rgba(0,212,255,0.5); transform:scale(0.9); transition:0.3s; position:relative; }
+.team-popup-overlay.show .team-popup { transform:scale(1); }
+.team-popup-close { position:absolute; top:10px; right:10px; width:28px; height:28px; border-radius:50%; background:rgba(255,71,87,0.2); border:2px solid #ff4757; color:#ff4757; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:900; z-index:5; }
+.team-popup-cover { width:100%; height:120px; object-fit:cover; display:block; border-radius:17px 17px 0 0; background:linear-gradient(135deg,#00d4ff,#ff0080); }
+.team-popup-dp-wrap { display:flex; justify-content:center; margin-top:-35px; margin-bottom:8px; position:relative; z-index:2; }
+.team-popup-dp { width:70px; height:70px; border-radius:50%; border:4px solid #161b22; overflow:hidden; background:#0d1117; display:flex; align-items:center; justify-content:center; font-size:2rem; box-shadow:0 0 30px rgba(0,212,255,0.6); }
+.team-popup-dp img { width:100%; height:100%; object-fit:cover; }
+.team-popup-info { text-align:center; padding:0 20px 12px; }
+.team-popup-name { font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:900; color:#fff; margin-bottom:3px; }
+.team-popup-username { font-size:0.8rem; color:#888; margin-bottom:8px; }
+.team-popup-slots { display:inline-flex; align-items:center; gap:6px; background:rgba(0,255,136,0.1); border:1px solid #00ff88; border-radius:20px; padding:4px 12px; font-size:0.75rem; font-weight:900; color:#00ff88; }
+.team-popup-members-title { font-family:'Orbitron',sans-serif; font-size:0.85rem; font-weight:900; color:#00d4ff; margin-bottom:10px; padding:0 15px; }
+.team-popup-members { padding:0 12px 12px; display:flex; flex-direction:column; gap:8px; }
+.team-popup-member { background:#0d1117; border:1px solid rgba(0,212,255,0.3); border-radius:8px; padding:10px; display:flex; align-items:center; gap:10px; cursor:pointer; transition:0.2s; }
+.team-popup-member:active { border-color:#00d4ff; background:rgba(0,212,255,0.05); }
+.team-popup-member-av { width:36px; height:36px; border-radius:8px; border:2px solid #00d4ff; overflow:hidden; flex-shrink:0; background:linear-gradient(135deg,#00d4ff,#ff0080); display:flex; align-items:center; justify-content:center; font-size:1rem; }
+.team-popup-member-av img { width:100%; height:100%; object-fit:cover; }
+.team-popup-member-name { font-size:0.85rem; font-weight:900; color:#fff; }
+.team-popup-member-role { font-size:0.65rem; color:#00ff88; font-weight:700; }
+.team-popup-btns { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 12px 15px; }
+.team-popup-join-btn { padding:12px; background:linear-gradient(135deg,#00ff88,#00cc66); border:none; border-radius:10px; color:#000; font-weight:900; font-size:0.85rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
+.team-popup-join-btn.disabled-state { background:rgba(136,136,136,0.15); border:2px solid #555; color:#888; cursor:default; }
+.team-popup-join-btn.full-state { background:rgba(255,71,87,0.15); border:2px solid #ff4757; color:#ff4757; cursor:default; }
+.team-popup-cancel-btn { padding:12px; background:transparent; border:2px solid rgba(255,255,255,0.2); border-radius:10px; color:#888; font-weight:900; font-size:0.85rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
+.team-profile { background:rgba(22,27,34,0.9); border:2px solid #00d4ff; border-radius:16px; margin-bottom:20px; position:relative; overflow:hidden; }
+.team-cover { height:135px; position:relative; background-size:cover; background-position:center; background-color:#161b22; }
+.team-dp { position:absolute; top:20%; left:50%; transform:translate(-50%,-50%); width:135px; height:135px; border-radius:50%; border:4px solid #161b22; background:#0d1117; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 0 40px rgba(0,212,255,0.8); z-index:20; font-size:2.5rem; }
+.team-dp img { width:100%; height:100%; object-fit:cover; }
+.team-profile-info { padding:75px 20px 15px 20px; text-align:center; position:relative; z-index:5; background:rgba(22,27,34,0.9); }
+.team-profile-name { font-size:1.5rem; font-weight:900; color:#fff; margin-bottom:6px; }
+.team-profile-username { font-size:0.9rem; color:#888; font-weight:700; margin-bottom:15px; }
+.members-section { background:rgba(13,17,23,0.8); padding:15px 20px 20px; border-top:1px solid rgba(0,212,255,0.2); }
+.members-title { font-family:'Orbitron',sans-serif; font-size:1rem; font-weight:900; color:#00ff88; margin-bottom:12px; }
+.member-box { background:#0d1117; border:2px solid rgba(0,212,255,0.3); border-radius:8px; padding:4px 8px; margin-bottom:6px; display:flex; align-items:center; gap:8px; position:relative; width:100%; min-height:38px; }
+.member-box.filled { border-color:#00ff88; }
+.member-box.empty { border-style:dashed; border-color:rgba(255,255,255,0.2); }
+.member-box.empty.clickable { cursor:pointer; }
+.member-box.empty.clickable:active { border-color:#00d4ff; background:rgba(0,212,255,0.05); }
+.member-box.extra-player { border-color:#ff6b00; }
+.status-text { font-size:0.55rem; font-weight:900; padding:1px 5px; border-radius:3px; flex-shrink:0; white-space:nowrap; }
+.status-text.online { background:rgba(0,255,136,0.15); color:#00ff88; border:1px solid #00ff88; }
+.status-text.offline { background:rgba(255,71,87,0.15); color:#ff4757; border:1px solid #ff4757; }
+.member-position { font-family:'Orbitron',sans-serif; font-size:0.9rem; font-weight:900; color:#00d4ff; width:22px; text-align:center; flex-shrink:0; }
+.member-box.extra-player .member-position { color:#ff6b00; }
+.member-avatar { width:28px; height:28px; border-radius:6px; border:2px solid #00d4ff; background:linear-gradient(135deg,#00d4ff,#ff0080); display:flex; align-items:center; justify-content:center; font-size:0.8rem; overflow:hidden; flex-shrink:0; cursor:pointer; }
+.member-box.extra-player .member-avatar { border-color:#ff6b00; }
+.member-avatar img { width:100%; height:100%; object-fit:cover; }
+.member-info { flex:1; display:flex; align-items:center; justify-content:space-between; gap:8px; min-width:0; }
+.member-name { font-size:0.8rem; font-weight:900; color:#fff; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.member-name:active { color:#00d4ff; }
+.role-wrapper { flex:1; display:flex; justify-content:center; align-items:center; }
+.role-select-btn { font-size:0.6rem; color:#00ff88; font-weight:700; cursor:pointer; background:rgba(0,255,136,0.1); border:1px solid #00ff88; padding:2px 8px; border-radius:4px; white-space:nowrap; }
+.role-select-btn.disabled { color:#666; border-color:#666; background:rgba(136,136,136,0.1); cursor:not-allowed; }
+.role-select-btn.default { color:#888; border-color:#888; background:rgba(136,136,136,0.1); }
+.role-select-btn:active:not(.disabled) { background:rgba(0,255,136,0.2); }
+.member-badge { font-size:0.5rem; background:#ff6b00; color:#000; padding:1px 4px; border-radius:3px; font-weight:900; }
+.menu-dots { width:24px; height:24px; border-radius:6px; background:rgba(0,212,255,0.1); border:1px solid rgba(0,212,255,0.3); color:#00d4ff; font-size:1rem; cursor:pointer; display:none; align-items:center; justify-content:center; flex-shrink:0; }
+.menu-dots.show { display:flex; }
+.menu-dots:active { background:rgba(0,212,255,0.2); }
+.add-member { width:100%; text-align:center; color:#00d4ff; font-size:1.3rem; }
+.cover-edit-btn { position:absolute; bottom:8px; right:8px; width:32px; height:32px; border-radius:50%; background:rgba(0,0,0,0.7); border:2px solid #00d4ff; color:#00d4ff; font-size:0.9rem; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:25; transition:0.2s; box-shadow:0 0 10px rgba(0,212,255,0.5); }
+.cover-edit-btn:active { transform:scale(0.9); background:rgba(0,212,255,0.3); }
+.dp-edit-btn { position:absolute; bottom:-8px; right:-8px; width:32px; height:32px; border-radius:50%; background:rgba(0,0,0,0.9); border:2px solid #00ff88; color:#00ff88; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:35; transition:0.2s; box-shadow:0 0 12px rgba(0,255,136,0.7); }
+.dp-edit-btn:active { transform:scale(0.9); }
+.request-card { background:rgba(22,27,34,0.9); border:2px solid #ff6b00; border-radius:16px; margin-bottom:20px; padding:15px 20px; box-shadow:0 0 30px rgba(255,107,0,0.3); }
+.request-title { font-family:'Orbitron',sans-serif; font-size:1rem; font-weight:900; color:#ff6b00; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+.request-badge { background:#ff4757; color:#fff; font-size:0.65rem; padding:2px 6px; border-radius:10px; font-weight:900; }
+.request-item { background:#0d1117; border:2px solid rgba(255,107,0,0.3); border-radius:8px; padding:8px; margin-bottom:8px; display:flex; align-items:center; gap:10px; }
+.request-avatar { width:40px; height:40px; border-radius:8px; border:2px solid #ff6b00; overflow:hidden; cursor:pointer; flex-shrink:0; background:#161b22; display:flex; align-items:center; justify-content:center; font-size:1.2rem; }
+.request-avatar img { width:100%; height:100%; object-fit:cover; }
+.request-info { flex:1; min-width:0; }
+.request-name { font-size:0.9rem; font-weight:900; color:#fff; cursor:pointer; }
+.request-actions { display:flex; gap:6px; }
+.request-btn { padding:6px 14px; border-radius:6px; font-weight:900; font-size:0.7rem; cursor:pointer; font-family:'Orbitron',sans-serif; border:2px solid; }
+.accept-btn { background:linear-gradient(135deg,#00ff88,#00cc66); border-color:#00ff88; color:#000; }
+.reject-btn { background:linear-gradient(135deg,#ff4757,#ff0064); border-color:#ff4757; color:#fff; }
+.request-btn:active { transform:scale(0.95); }
+.no-requests { text-align:center; color:#666; font-size:0.85rem; padding:20px 0; }
+.popup { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0.9); background:#161b22; border:2px solid #00d4ff; border-radius:14px; padding:18px; z-index:2000; display:none; box-shadow:0 0 50px rgba(0,212,255,0.5); max-width:90%; width:400px; max-height:90vh; overflow-y:auto; opacity:0; transition:0.25s; }
+.popup.show { display:block; transform:translate(-50%,-50%) scale(1); opacity:1; }
+.popup.green { border-color:#00ff88; box-shadow:0 0 50px rgba(0,255,136,0.5); }
+.popup.danger { border-color:#ff4757; box-shadow:0 0 50px rgba(255,71,87,0.6); }
+.popup.warn { border-color:#ff6b00; box-shadow:0 0 50px rgba(255,107,0,0.6); }
+.popup-title { font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:900; color:#00d4ff; margin-bottom:14px; text-align:center; }
+.popup.green .popup-title { color:#00ff88; }
+.popup.danger .popup-title { color:#ff4757; }
+.popup.warn .popup-title { color:#ff6b00; }
+.popup-icon { font-size:3rem; text-align:center; margin-bottom:10px; }
+.popup-message { font-size:0.85rem; color:#ccc; text-align:center; margin-bottom:18px; line-height:1.5; }
+.popup-message strong { color:#ff4757; }
+.popup-buttons { display:flex; gap:10px; margin-top:16px; }
+.popup-btn { flex:1; padding:11px; border-radius:8px; font-weight:900; font-size:0.85rem; cursor:pointer; font-family:'Orbitron',sans-serif; transition:0.2s; }
+.popup-btn:active { transform:scale(0.95); }
+.cancel-btn { background:#0d1117; border:2px solid #666; color:#888; }
+.confirm-btn { background:linear-gradient(135deg,#00ff88,#00cc66); border:2px solid #00ff88; color:#000; }
+.confirm-btn.danger { background:linear-gradient(135deg,#ff4757,#ff0064); border-color:#ff4757; color:#fff; }
+.confirm-btn.warn { background:linear-gradient(135deg,#ff6b00,#ff4757); border-color:#ff6b00; color:#fff; }
+.close-popup { position:absolute; top:10px; right:10px; width:26px; height:26px; border-radius:50%; background:rgba(255,71,87,0.2); border:2px solid #ff4757; color:#ff4757; font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:900; }
+.upload-section { margin-bottom:15px; }
+.upload-label { font-size:0.85rem; font-weight:700; color:#00d4ff; margin-bottom:8px; display:block; }
+.upload-box { width:100%; height:110px; background:#0d1117; border:2px dashed rgba(0,212,255,0.3); border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; position:relative; overflow:hidden; }
+.upload-box img { width:100%; height:100%; object-fit:cover; display:none; }
+.upload-box.has-image img { display:block; }
+.upload-box.has-image .upload-text { display:none; }
+.upload-text { text-align:center; color:#666; }
+.upload-text .icon { font-size:2rem; margin-bottom:5px; }
+.dp-upload { width:100px; height:100px; border-radius:50%; margin:0 auto; }
+.input-group { margin-bottom:12px; }
+.input-label { font-size:0.8rem; font-weight:700; color:#00d4ff; margin-bottom:5px; display:block; }
+.popup-input { width:100%; padding:10px; background:#0d1117; border:2px solid rgba(0,212,255,0.3); border-radius:8px; color:#fff; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:0.9rem; outline:none; }
+.popup-input:focus { border-color:#00d4ff; }
+.wallet-info { background:rgba(0,255,136,0.1); border:1px solid #00ff88; border-radius:8px; padding:10px; margin:15px 0; text-align:center; }
+.wallet-balance { font-size:0.85rem; color:#888; margin-bottom:5px; }
+.wallet-amount { font-size:1.3rem; font-weight:900; color:#00ff88; }
+.cost-info { font-size:0.75rem; color:#ff6b00; font-weight:700; margin-top:5px; }
+.role-option,.menu-option { background:#0d1117; border:1px solid rgba(0,212,255,0.3); border-radius:6px; padding:8px 12px; margin-bottom:6px; color:#fff; font-weight:700; font-size:0.85rem; cursor:pointer; display:flex; justify-content:space-between; align-items:center; }
+.menu-option { justify-content:flex-start; gap:8px; }
+.role-option:active,.menu-option:active { background:rgba(0,212,255,0.1); border-color:#00d4ff; }
+.role-option.locked { opacity:0.4; cursor:not-allowed; color:#ff4757; }
+.role-option.current { border-color:#00ff88; background:rgba(0,255,136,0.1); }
+.menu-option.danger { border-color:#ff4757; color:#ff4757; }
+.menu-option.danger:active { background:rgba(255,71,87,0.1); }
+.lock-icon { font-size:0.7rem; }
+.quick-card { position:fixed; top:70px; left:15px; width:280px; background:#161b22; border:3px solid #00d4ff; border-radius:16px; padding:15px; box-shadow:0 0 50px rgba(0,212,255,0.6); z-index:2500; transform:translateX(-330px); transition:0.3s; max-height:calc(100vh - 100px); overflow-y:auto; }
+.quick-card.show { transform:translateX(0); }
+.quick-close { position:absolute; top:8px; right:8px; width:24px; height:24px; border-radius:50%; background:rgba(255,71,87,0.2); border:2px solid #ff4757; color:#ff4757; font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:900; }
+.quick-avatar { width:70px; height:70px; border-radius:12px; border:3px solid #00d4ff; overflow:hidden; background:linear-gradient(135deg,#00d4ff,#ff0080); display:flex; align-items:center; justify-content:center; font-size:1.8rem; margin:0 auto 10px; box-shadow:0 0 30px rgba(0,212,255,0.5); }
+.quick-avatar img { width:100%; height:100%; object-fit:cover; }
+.quick-name { font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:900; color:#00d4ff; text-align:center; margin-bottom:6px; word-break:break-word; }
+.quick-college { font-size:0.7rem; color:#00ff88; font-weight:700; text-align:center; margin-bottom:8px; }
+.quick-badges { display:flex; gap:5px; justify-content:center; flex-wrap:wrap; margin-bottom:10px; }
+.quick-badge { display:inline-flex; align-items:center; gap:3px; padding:3px 8px; border-radius:10px; font-family:'Orbitron',sans-serif; font-weight:900; font-size:0.6rem; }
+.quick-badge.level { background:linear-gradient(135deg,#ff0080,#ff6b00); border:1px solid #ff6b00; color:#fff; }
+.quick-badge.title { background:rgba(0,212,255,0.3); border:1px solid #00d4ff; color:#00d4ff; }
+.quick-stats { display:grid; grid-template-columns:repeat(2,1fr); gap:6px; margin-bottom:12px; }
+.quick-stat { background:#0d1117; border:1px solid rgba(0,212,255,0.3); border-radius:8px; padding:6px 4px; text-align:center; }
+.quick-stat-icon { font-size:0.9rem; margin-bottom:2px; }
+.quick-stat-value { font-family:'Orbitron',sans-serif; font-size:0.8rem; font-weight:900; color:#00d4ff; }
+.quick-stat-label { font-size:0.5rem; color:#888; text-transform:uppercase; font-weight:700; }
+.quick-btns { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.quick-btn { padding:10px; border:none; border-radius:8px; font-family:'Orbitron',sans-serif; font-weight:900; font-size:0.75rem; cursor:pointer; text-transform:uppercase; }
+.quick-btn.like { background:linear-gradient(135deg,#ff0064,#ff0080); border:2px solid #ff0064; color:#fff; }
+.quick-btn.like.liked { background:#00ff88; border-color:#00ff88; color:#000; }
+.quick-btn.visit { background:linear-gradient(135deg,#00d4ff,#0099ff); border:2px solid #00d4ff; color:#fff; }
+.quick-btn:active { transform:scale(0.95); }
+.quick-btn:disabled { opacity:0.5; cursor:not-allowed; }
+.search-sidebar { position:fixed; top:60px; right:-350px; width:320px; height:calc(100vh - 60px); background:#161b22; border-left:3px solid #00d4ff; z-index:1500; transition:0.3s; padding:15px; overflow-y:auto; }
+.search-sidebar.show { right:0; }
+.sidebar-title { font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:900; color:#00d4ff; margin-bottom:8px; text-align:center; }
+.friend-counter { background:rgba(0,255,136,0.1); border:1px solid #00ff88; border-radius:8px; padding:8px; margin-bottom:12px; text-align:center; font-size:0.85rem; font-weight:900; color:#00ff88; }
+.tab-buttons { display:flex; gap:6px; margin-bottom:12px; }
+.tab-btn { flex:1; padding:8px 4px; background:#0d1117; border:2px solid rgba(0,212,255,0.3); border-radius:8px; color:#888; font-weight:900; font-size:0.7rem; cursor:pointer; font-family:'Orbitron',sans-serif; position:relative; }
+.tab-btn.active { background:linear-gradient(135deg,#00d4ff,#0099ff); border-color:#00d4ff; color:#fff; }
+.tab-btn:active { transform:scale(0.95); }
+.tab-badge { position:absolute; top:-6px; right:-6px; background:#ff4757; color:#fff; font-size:0.6rem; padding:2px 5px; border-radius:10px; font-weight:900; }
+.sidebar-search-input { width:100%; padding:10px; background:#0d1117; border:2px solid rgba(0,212,255,0.3); border-radius:8px; color:#fff; font-family:'Rajdhani',sans-serif; font-weight:700; margin-bottom:12px; outline:none; }
+.sidebar-search-input:focus { border-color:#00d4ff; }
+.user-result { background:#0d1117; border:1px solid rgba(0,212,255,0.3); border-radius:8px; padding:10px; margin-bottom:8px; display:flex; align-items:center; gap:10px; }
+.user-avatar { width:40px; height:40px; border-radius:8px; border:2px solid #00d4ff; background:linear-gradient(135deg,#00d4ff,#ff0080); display:flex; align-items:center; justify-content:center; font-size:1.2rem; cursor:pointer; overflow:hidden; flex-shrink:0; }
+.user-avatar img { width:100%; height:100%; object-fit:cover; }
+.user-info { flex:1; min-width:0; }
+.user-name { font-size:0.9rem; font-weight:900; color:#fff; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.user-actions { display:flex; gap:6px; flex-shrink:0; }
+.friend-request-btn { padding:6px 10px; background:linear-gradient(135deg,#00d4ff,#0099ff); border:2px solid #00d4ff; border-radius:6px; color:#fff; font-size:0.7rem; font-weight:900; cursor:pointer; font-family:'Orbitron',sans-serif; }
+.friend-request-btn.sent { background:rgba(136,136,136,0.1); border-color:#666; color:#888; cursor:default; }
+.invite-btn-sm { padding:6px 14px; background:linear-gradient(135deg,#00ff88,#00cc66); border:2px solid #00ff88; border-radius:6px; color:#000; font-weight:900; font-size:0.7rem; cursor:pointer; font-family:'Orbitron',sans-serif; }
+.invite-btn-sm.sent { background:rgba(0,255,136,0.15); color:#00ff88; cursor:default; }
+.invite-btn-sm:active,.friend-request-btn:active { transform:scale(0.95); }
+.joined-btn { padding:6px 14px; background:rgba(136,136,136,0.1); border:2px solid #666; border-radius:6px; color:#666; font-weight:900; font-size:0.7rem; cursor:not-allowed; font-family:'Orbitron',sans-serif; }
+.close-sidebar { position:absolute; top:10px; right:10px; width:28px; height:28px; border-radius:50%; background:rgba(255,71,87,0.2); border:2px solid #ff4757; color:#ff4757; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:900; }
+.toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(100px); background:linear-gradient(135deg,#00ff88,#00cc66); border:2px solid #00ff88; border-radius:12px; padding:12px 20px; color:#000; font-weight:900; font-size:0.9rem; z-index:9999; opacity:0; transition:0.3s; max-width:90%; text-align:center; pointer-events:none; }
+.toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+.toast.error { background:linear-gradient(135deg,#ff4757,#ff0064); border-color:#ff4757; color:#fff; }
+.overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1499; display:none; }
+.overlay.show { display:block; }
+.overlay.top { z-index:1999; }
+.overlay.quick { z-index:2400; }
+</style>
 </head>
 <body>
 
-  <div id="loadingScreen">
-    <div class="loader-logo">P4X TEAM</div>
-    <div class="loader-ring"></div>
-    <div class="loader-text" id="loaderText">Checking your team...</div>
-  </div>
+<div id="loadingScreen">
+  <div class="loader-logo">P4X TEAM</div>
+  <div class="loader-ring"></div>
+  <div class="loader-text" id="loaderText">Checking your team...</div>
+</div>
 
-  <div class="navbar hidden" id="navbar">
-    <div class="nav-left">
-      <button class="back-btn" onclick="history.back()">← BACK</button>
-      <div class="nav-title">TEAM</div>
-    </div>
-    <div class="nav-right">
-      <button class="create-team-btn hidden" id="navCreateBtn" onclick="openCreatePopup()">+ CREATE TEAM</button>
-      <button class="leave-btn hidden" id="navLeaveBtn" onclick="confirmLeaveTeam()">🚪 LEAVE</button>
-      <button class="delete-btn hidden" id="navDeleteBtn" onclick="confirmDeleteTeam()">🗑️ DELETE</button>
-      <div class="profile-section">
-        <div class="profile-btn" id="profileBtn" onclick="toggleProfileDropdown()">
-          <span id="navProfileIcon">👤</span>
-        </div>
-        <div class="dropdown" id="profileDropdown">
-          <div class="dropdown-item" onclick="window.location.href='profile.html'">👤 My Profile</div>
-          <div class="dropdown-item" onclick="window.location.href='history.html'">📜 Match History</div>
-          <div class="dropdown-item" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</div>
-          <div class="dropdown-item" onclick="window.location.href='wallet.html'">💰 Wallet</div>
-          <div class="dropdown-item logout" onclick="doLogout()">🚪 Logout</div>
-        </div>
+<div class="navbar hidden" id="navbar">
+  <div class="nav-left">
+    <button class="back-btn" onclick="history.back()">← BACK</button>
+    <div class="nav-title">TEAM</div>
+  </div>
+  <div class="nav-right">
+    <button class="create-team-btn hidden" id="navCreateBtn" onclick="openCreatePopup()">+ CREATE TEAM</button>
+    <button class="leave-btn hidden" id="navLeaveBtn" onclick="confirmLeaveTeam()">🚪 LEAVE</button>
+    <button class="delete-btn hidden" id="navDeleteBtn" onclick="confirmDeleteTeam()">🗑️ DELETE</button>
+    <div class="profile-section">
+      <div class="profile-btn" id="profileBtn" onclick="toggleProfileDropdown()">
+        <span id="navProfileIcon">👤</span>
+      </div>
+      <div class="dropdown" id="profileDropdown">
+        <div class="dropdown-item" onclick="window.location.href='profile.html'">👤 My Profile</div>
+        <div class="dropdown-item" onclick="window.location.href='history.html'">📜 Match History</div>
+        <div class="dropdown-item" onclick="window.location.href='leaderboard.html'">🏆 Leaderboard</div>
+        <div class="dropdown-item" onclick="window.location.href='wallet.html'">💰 Wallet</div>
+        <div class="dropdown-item logout" onclick="doLogout()">🚪 Logout</div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- GUEST VIEW -->
-  <div class="container hidden" id="noTeamView">
-    <!-- … unchanged guest/search/random/invites view … -->
+<!-- GUEST VIEW -->
+<div class="container hidden" id="noTeamView">
+  <div class="search-section">
+    <div class="search-title">🔍 SEARCH TEAMS</div>
+    <input type="text" class="search-input" id="teamSearchInput" placeholder="Search team name or @username..." oninput="searchTeams(this.value)">
+    <div class="search-hint">Use <span>@username</span> to search by username or type name directly</div>
+    <div id="teamSearchResults"></div>
   </div>
-
-  <!-- TEAM VIEW -->
-  <div class="container hidden" id="teamView">
-    <div class="team-profile">
-      <div class="team-cover" id="teamCover">
-        <div class="cover-edit-btn hidden" id="coverEditBtn" onclick="document.getElementById('coverInput').click()" title="Change Cover">✏️</div>
-        <input type="file" id="coverInput" accept="image/*" style="display:none" onchange="uploadTeamImage(this,'cover')">
-      </div>
-      <div class="team-dp" id="teamDp">👥</div>
-      <div class="team-profile-info">
-        <div class="team-profile-name" id="teamNameDisplay">Team</div>
-        <div class="team-profile-username" id="teamUsernameDisplay">@team</div>
-      </div>
-      <div class="members-section">
-        <div class="members-title" id="membersTitle">👥 TEAM MEMBERS (0/5)</div>
-        <div id="membersList"></div>
-      </div>
+  <div class="random-section">
+    <div class="random-header">
+      <div class="random-title">🎲 DISCOVER TEAMS</div>
+      <button class="refresh-btn" id="refreshBtn" onclick="loadRandomTeams()">🔄 REFRESH <span id="refreshCountdown" style="display:none;margin-left:4px;color:#ff6b00;font-weight:900;"></span></button>
     </div>
-
-    <!-- ISSUE 1: Renamed header -->
-    <div class="request-card hidden" id="requestCard">
-      <div class="request-title">📥 PLAYER REQUESTS <span class="request-badge" id="requestCount">0</span></div>
-      <div id="requestList"></div>
-      <div class="no-requests hidden" id="noRequests">No pending requests</div>
+    <div id="randomTeamsGrid" class="random-grid">
+      <div class="random-empty">Loading...</div>
     </div>
   </div>
+  <div class="invites-section">
+    <div class="invites-title">📨 TEAM INVITES</div>
+    <div id="invitesList"><div class="invites-empty">Loading invites...</div></div>
+  </div>
+</div>
 
-  <!-- POPUPS, QUICK CARD, CREATE POPUP … unchanged -->
+<!-- TEAM VIEW -->
+<div class="container hidden" id="teamView">
+  <div class="team-profile">
+    <div class="team-cover" id="teamCover">
+      <div class="cover-edit-btn hidden" id="coverEditBtn" onclick="document.getElementById('coverInput').click()" title="Change Cover">✏️</div>
+      <input type="file" id="coverInput" accept="image/*" style="display:none" onchange="uploadTeamImage(this,'cover')">
+    </div>
+    <div class="team-dp" id="teamDp">👥</div>
+    <div class="team-profile-info">
+      <div class="team-profile-name" id="teamNameDisplay">Team</div>
+      <div class="team-profile-username" id="teamUsernameDisplay">@team</div>
+    </div>
+    <div class="members-section">
+      <div class="members-title" id="membersTitle">👥 TEAM MEMBERS (0/5)</div>
+      <div id="membersList"></div>
+    </div>
+  </div>
+  <div class="request-card hidden" id="requestCard">
+    <div class="request-title">📥 TEAM REQUESTS <span class="request-badge" id="requestCount">0</span></div>
+    <div id="requestList"></div>
+    <div class="no-requests hidden" id="noRequests">No pending requests</div>
+  </div>
+</div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc,
-      onSnapshot, collection, query, where, getDocs,
-      arrayUnion, arrayRemove, runTransaction, serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<!-- TEAM DETAIL POPUP -->
+<div class="team-popup-overlay" id="teamPopupOverlay" onclick="handlePopupOverlayClick(event)">
+  <div class="team-popup" id="teamPopup">
+    <div class="team-popup-close" onclick="closeTeamPopupDirect()">×</div>
+    <div id="teamPopupContent"><div style="text-align:center;padding:40px;color:#00d4ff;">Loading...</div></div>
+  </div>
+</div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDGLVLgX33dA3caK7wScbgN4BgE2NCjZx8",
-      authDomain: "ffm-p4xesportscommunity.firebaseapp.com",
-      projectId: "ffm-p4xesportscommunity",
-      storageBucket: "ffm-p4xesportscommunity.firebasestorage.app",
-      messagingSenderId: "796835743313",
-      appId: "1:796835743313:web:e4356f63c3d1d51b605a70"
-    };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const TEAM_COST = 20;
-    const MAX_MEMBERS = 5;
-    const ROLES = ['IGL','Rusher','Sniper','Assaulter','Supporter','Primary Rusher','Default'];
-    const LEVEL_TYPES = {
-      1:{name:'COLLEGE',icon:'🎓'},
-      2:{name:'UNIVERSITY',icon:'🏛️'},
-      3:{name:'ZONAL',icon:'⭐'},
-      4:{name:'DISTRICT',icon:'🏅'},
-      5:{name:'STATE',icon:'👑'}
-    };
+<!-- QUICK CARD -->
+<div class="overlay quick" id="quickOverlay" onclick="closeQuickCard()"></div>
+<div class="quick-card" id="quickCard">
+  <div class="quick-close" onclick="closeQuickCard()">×</div>
+  <div id="quickContent">Loading...</div>
+</div>
 
-    let currentUser = null;
-    let myData = null;
-    let myTeamId = null;
-    let teamUnsub = null;
-    let userUnsub = null;
-    let membersUnsub = null;
-    let currentTeam = null;
-    let currentMembers = [];
-    let isOwner = false;
-    let pendingConfirmAction = null;
-    let createBgData = null, createDpData = null;
-    let currentEditingPosition = null;
-    let currentMenuPosition = null;
-    let refreshCooldown = false;
-    let refreshTimer = null;
-    let loadingHidden = false;
-    let isDeletingTeam = false;
+<!-- CREATE TEAM POPUP -->
+<div class="overlay top" id="createOverlay" onclick="closeCreatePopup()"></div>
+<div class="popup green" id="createPopup">
+  <div class="close-popup" onclick="closeCreatePopup()">×</div>
+  <div class="popup-title">⚡ CREATE YOUR TEAM</div>
+  <div class="upload-section">
+    <label class="upload-label">Background Cover</label>
+    <div class="upload-box" id="bgUpload" onclick="document.getElementById('bgInput').click()">
+      <input type="file" id="bgInput" accept="image/*" style="display:none" onchange="previewImage(this,'bgUpload','bgPreview')">
+      <img id="bgPreview"><div class="upload-text"><div class="icon">🖼️</div><div>Click to upload</div></div>
+    </div>
+  </div>
+  <div class="upload-section">
+    <label class="upload-label">Team Logo / DP</label>
+    <div class="upload-box dp-upload" id="dpUpload" onclick="document.getElementById('dpInput').click()">
+      <input type="file" id="dpInput" accept="image/*" style="display:none" onchange="previewImage(this,'dpUpload','dpPreview')">
+      <img id="dpPreview"><div class="upload-text"><div class="icon">👤</div><div>Upload</div></div>
+    </div>
+  </div>
+  <div class="input-group"><label class="input-label">Team Name *</label><input type="text" class="popup-input" id="teamName" placeholder="Enter team name" maxlength="30"></div>
+  <div class="input-group"><label class="input-label">Team Username *</label><input type="text" class="popup-input" id="teamUsername" placeholder="team_username" maxlength="20"></div>
+  <div class="input-group">
+    <label class="input-label">WhatsApp Number *</label>
+    <div style="display:flex;gap:8px;">
+      <div style="width:70px;background:#0d1117;border:2px solid rgba(0,212,255,.3);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#00d4ff;font-weight:900;">+91</div>
+      <input type="tel" class="popup-input" id="whatsappNumber" placeholder="9876543210" maxlength="10" style="flex:1;">
+    </div>
+  </div>
+  <div class="wallet-info">
+    <div class="wallet-balance">Your Wallet Balance</div>
+    <div class="wallet-amount" id="createWalletBalance">₹ 0.00</div>
+    <div class="cost-info">Team Creation Cost: ₹ 20.00</div>
+  </div>
+  <div class="popup-buttons">
+    <button class="popup-btn cancel-btn" onclick="closeCreatePopup()">CANCEL</button>
+    <button class="popup-btn confirm-btn" id="createTeamSubmit" onclick="submitCreateTeam()">CREATE TEAM</button>
+  </div>
+</div>
 
-    /* ===== SAFE HIDE LOADING ===== */
-    function hideLoading() {
-      if (loadingHidden) return;
-      loadingHidden = true;
-      const ls = document.getElementById('loadingScreen');
-      if (ls) ls.style.display = 'none';
-      const nb = document.getElementById('navbar');
-      if (nb) nb.classList.remove('hidden');
+<!-- ROLE POPUP -->
+<div class="overlay top" id="roleOverlay" onclick="closeRolePopup()"></div>
+<div class="popup" id="rolePopup">
+  <div class="close-popup" onclick="closeRolePopup()">×</div>
+  <div class="popup-title">SELECT ROLE</div>
+  <div id="roleOptions"></div>
+</div>
+
+<!-- OWNER MENU POPUP -->
+<div class="overlay top" id="menuOverlay" onclick="closeOwnerMenu()"></div>
+<div class="popup" id="ownerMenuPopup">
+  <div class="close-popup" onclick="closeOwnerMenu()">×</div>
+  <div class="popup-title">PLAYER OPTIONS</div>
+  <div class="menu-option" onclick="transferOwnership()">👑 Transfer Ownership</div>
+  <div class="menu-option" id="extraPlayerOption" onclick="handleExtraPlayerAction()">🔄 Move to Extra Player</div>
+  <div class="menu-option danger" onclick="kickPlayer()">🗑️ Kick Player</div>
+</div>
+
+<!-- CONFIRM POPUP -->
+<div class="overlay top" id="confirmOverlay" onclick="closeConfirmPopup()"></div>
+<div class="popup warn" id="confirmPopup">
+  <div class="close-popup" onclick="closeConfirmPopup()">×</div>
+  <div class="popup-icon" id="confirmIcon">⚠️</div>
+  <div class="popup-title" id="confirmTitle">CONFIRM ACTION</div>
+  <div class="popup-message" id="confirmMessage">Are you sure?</div>
+  <div class="popup-buttons">
+    <button class="popup-btn cancel-btn" onclick="closeConfirmPopup()">CANCEL</button>
+    <button class="popup-btn confirm-btn warn" id="confirmActionBtn" onclick="executeConfirmedAction()">CONFIRM</button>
+  </div>
+</div>
+
+<!-- INVITE SIDEBAR -->
+<div class="overlay" id="sidebarOverlay" onclick="closeSearch()"></div>
+<div class="search-sidebar" id="searchSidebar">
+  <div class="close-sidebar" onclick="closeSearch()">×</div>
+  <div class="sidebar-title">🔍 INVITE PLAYER</div>
+  <div class="friend-counter" id="friendCounter">Friends: 0</div>
+  <div class="tab-buttons">
+    <button class="tab-btn" id="searchTab" onclick="switchSidebarTab('search')">SEARCH</button>
+    <button class="tab-btn active" id="friendTab" onclick="switchSidebarTab('friend')">FRIEND</button>
+    <button class="tab-btn" id="requestTab" onclick="switchSidebarTab('requests')">REQUESTS <span class="tab-badge hidden" id="requestTabBadge">0</span></button>
+  </div>
+  <input type="text" class="sidebar-search-input hidden" id="sidebarSearchInput" placeholder="Search username..." oninput="searchUsers(this.value)">
+  <div id="sidebarResults"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, arrayUnion, arrayRemove, runTransaction, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDGLVLgX33dA3caK7wScbgN4BgE2NCjZx8",
+  authDomain: "ffm-p4xesportscommunity.firebaseapp.com",
+  projectId: "ffm-p4xesportscommunity",
+  storageBucket: "ffm-p4xesportscommunity.firebasestorage.app",
+  messagingSenderId: "796835743313",
+  appId: "1:796835743313:web:e4356f63c3d1d51b605a70"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const TEAM_COST = 20;
+const MAX_MEMBERS = 5;
+const ROLES = ['IGL','Rusher','Sniper','Assaulter','Supporter','Primary Rusher','Default'];
+const UNIQUE_ROLES = ['IGL', 'Sniper', 'Rusher']; // Only these can be held by one member each
+const LEVEL_TYPES = {1:{name:'COLLEGE',icon:'🎓'},2:{name:'UNIVERSITY',icon:'🏛️'},3:{name:'ZONAL',icon:'⭐'},4:{name:'DISTRICT',icon:'🏅'},5:{name:'STATE',icon:'👑'}};
+
+let currentUser = null;
+let myData = null;
+let myTeamId = null;
+let teamUnsub = null;
+let userUnsub = null;
+let membersUnsub = null;
+let currentTeam = null;
+let currentMembers = [];
+let isOwner = false;
+let pendingConfirmAction = null;
+let createBgData = null, createDpData = null;
+let currentEditingPosition = null;
+let currentMenuPosition = null;
+let refreshCooldown = false;
+let refreshTimer = null;
+let loadingHidden = false;
+let isDeletingTeam = false;
+
+/* ===== SAFE HIDE LOADING ===== */
+function hideLoading() {
+  if (loadingHidden) return;
+  loadingHidden = true;
+  const ls = document.getElementById('loadingScreen');
+  if (ls) ls.style.display = 'none';
+  const nb = document.getElementById('navbar');
+  if (nb) nb.classList.remove('hidden');
+}
+
+/* ===== PROFILE DROPDOWN ===== */
+window.toggleProfileDropdown = function() {
+  document.getElementById('profileDropdown').classList.toggle('show');
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.profile-section')) {
+    const dd = document.getElementById('profileDropdown');
+    if (dd) dd.classList.remove('show');
+  }
+});
+window.doLogout = async function() {
+  if (confirm('Logout karna chahte ho?')) {
+    if (userUnsub) userUnsub();
+    if (teamUnsub) teamUnsub();
+    if (membersUnsub) membersUnsub();
+    await signOut(auth);
+    window.location.href = 'index.html';
+  }
+}
+
+/* ===== SAFETY TIMEOUT ===== */
+const safetyTimeout = setTimeout(() => {
+  if (!loadingHidden) {
+    console.warn('Safety timeout — forcing loading hide');
+    showNoTeamView();
+  }
+}, 10000);
+
+/* ===== AUTH ===== */
+onAuthStateChanged(auth, async (user) => {
+  clearTimeout(safetyTimeout);
+  if (!user) { window.location.href = 'index.html'; return; }
+  currentUser = user;
+  try {
+    const userRef = doc(db, 'users', currentUser.uid);
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      await setDoc(userRef, {
+        name: currentUser.displayName || 'Player',
+        email: currentUser.email || '',
+        photoURL: currentUser.photoURL || '',
+        balance: 0, diamonds: 0, wallet: 0,
+        kills: 0, wins: 0, matches: 0, rank: 0, p4x_coins: 0,
+        teamId: null,
+        friends: [], friendRequests: [], sentRequests: [],
+        teamInvites: [], likedBy: [],
+        online: true, createdAt: serverTimestamp()
+      });
+    } else {
+      const data = userSnap.data();
+      const missing = {};
+      if (!Array.isArray(data.teamInvites)) missing.teamInvites = [];
+      if (!Array.isArray(data.friends)) missing.friends = [];
+      if (!Array.isArray(data.friendRequests)) missing.friendRequests = [];
+      if (!Array.isArray(data.sentRequests)) missing.sentRequests = [];
+      if (!Array.isArray(data.likedBy)) missing.likedBy = [];
+      if (Object.keys(missing).length > 0) updateDoc(userRef, missing).catch(() => {});
     }
+    listenToMyUser();
+  } catch (e) {
+    console.error('Auth setup error:', e);
+    hideLoading();
+    showToast('Connection error. Please refresh.', true);
+  }
+});
 
-    /* ===== PROFILE DROPDOWN ===== */
-    window.toggleProfileDropdown = function() {
-      document.getElementById('profileDropdown').classList.toggle('show');
-    };
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.profile-section')) {
-        const dd = document.getElementById('profileDropdown');
-        if (dd) dd.classList.remove('show');
+/* ===== LISTEN TO USER ===== */
+function listenToMyUser() {
+  if (userUnsub) userUnsub();
+  userUnsub = onSnapshot(
+    doc(db, 'users', currentUser.uid),
+    (snap) => {
+      if (isDeletingTeam) return;
+      if (!snap.exists()) {
+        myData = { teamId: null }; myTeamId = null; showNoTeamView(); return;
       }
-    });
-    window.doLogout = async function() {
-      if (confirm('Logout karna chahte ho?')) {
-        if (userUnsub) userUnsub();
-        if (teamUnsub) teamUnsub();
-        if (membersUnsub) membersUnsub();
-        await signOut(auth);
-        window.location.href = 'index.html';
+      myData = snap.data();
+      if (myData.photoURL) {
+        const icon = document.getElementById('navProfileIcon');
+        if (icon) icon.innerHTML = '<img src="' + myData.photoURL + '" alt="" style="width:100%;height:100%;object-fit:cover;">';
       }
-    };
-
-    /* ===== SAFETY TIMEOUT ===== */
-    const safetyTimeout = setTimeout(() => {
-      if (!loadingHidden) {
-        console.warn('Safety timeout — forcing loading hide');
-        showNoTeamView();
-      }
-    }, 10000);
-
-    /* ===== AUTH ===== */
-    onAuthStateChanged(auth, async (user) => {
-      clearTimeout(safetyTimeout);
-      if (!user) { window.location.href = 'index.html'; return; }
-      currentUser = user;
-      try {
-        const userRef = doc(db, 'users', currentUser.uid);
-        const userSnap = await getDoc(userRef);
-        if (!userSnap.exists()) {
-          await setDoc(userRef, {
-            name: currentUser.displayName || 'Player',
-            email: currentUser.email || '',
-            photoURL: currentUser.photoURL || '',
-            balance: 0, diamonds: 0, wallet: 0,
-            kills: 0, wins: 0, matches: 0, rank: 0, p4x_coins: 0,
-            teamId: null,
-            friends: [], friendRequests: [], sentRequests: [],
-            teamInvites: [], likedBy: [],
-            online: true, createdAt: serverTimestamp()
-          });
+      const newTeamId = myData.teamId || null;
+      if (newTeamId !== myTeamId) {
+        myTeamId = newTeamId;
+        if (myTeamId) {
+          listenToTeam(myTeamId);
         } else {
-          const data = userSnap.data();
-          const missing = {};
-          if (!Array.isArray(data.teamInvites)) missing.teamInvites = [];
-          if (!Array.isArray(data.friends)) missing.friends = [];
-          if (!Array.isArray(data.friendRequests)) missing.friendRequests = [];
-          if (!Array.isArray(data.sentRequests)) missing.sentRequests = [];
-          if (!Array.isArray(data.likedBy)) missing.likedBy = [];
-          if (Object.keys(missing).length > 0) updateDoc(userRef, missing).catch(() => {});
-        }
-        listenToMyUser();
-      } catch (e) {
-        console.error('Auth setup error:', e);
-        hideLoading();
-        showToast('Connection error. Please refresh.', true);
-      }
-    });
-
-    /* ===== LISTEN TO USER ===== */
-    function listenToMyUser() {
-      if (userUnsub) userUnsub();
-      userUnsub = onSnapshot(
-        doc(db, 'users', currentUser.uid),
-        (snap) => {
-          if (isDeletingTeam) return;
-          if (!snap.exists()) {
-            myData = { teamId: null }; myTeamId = null; showNoTeamView(); return;
-          }
-          myData = snap.data();
-          if (myData.photoURL) {
-            const icon = document.getElementById('navProfileIcon');
-            if (icon) icon.innerHTML = '<img src="' + myData.photoURL + '" alt="" style="width:100%;height:100%;object-fit:cover;">';
-          }
-          const newTeamId = myData.teamId || null;
-          if (newTeamId !== myTeamId) {
-            myTeamId = newTeamId;
-            if (myTeamId) {
-              listenToTeam(myTeamId);
-            } else {
-              if (teamUnsub) { teamUnsub(); teamUnsub = null; }
-              if (membersUnsub) { membersUnsub(); membersUnsub = null; }
-              currentTeam = null; currentMembers = [];
-              showNoTeamView();
-            }
-          } else if (!myTeamId) {
-            showNoTeamView();
-          } else {
-            hideLoading();
-          }
-        },
-        (error) => {
-          console.error('User snapshot error:', error.code);
-          hideLoading();
-          if (error.code === 'permission-denied') showToast('Permission denied. Check Firebase Rules.', true);
-          else showToast('Profile load error.', true);
-        }
-      );
-    }
-
-    /* ===== LISTEN TO TEAM ===== */
-    function listenToTeam(teamId) {
-      if (teamUnsub) teamUnsub();
-      teamUnsub = onSnapshot(
-        doc(db, 'teams', teamId),
-        (snap) => {
-          if (isDeletingTeam) return;
-          if (!snap.exists()) {
-            myTeamId = null;
-            updateDoc(doc(db, 'users', currentUser.uid), { teamId: null }).catch(() => {});
-            if (membersUnsub) { membersUnsub(); membersUnsub = null; }
-            showNoTeamView(); return;
-          }
-          currentTeam = { id: snap.id, ...snap.data() };
-          isOwner = currentTeam.ownerUid === currentUser.uid;
-          listenToMembers(teamId);
-        },
-        (error) => {
-          console.error('Team snapshot error:', error.code);
-          if (isDeletingTeam) return;
-          hideLoading();
-          updateDoc(doc(db, 'users', currentUser.uid), { teamId: null }).catch(() => {});
+          if (teamUnsub) { teamUnsub(); teamUnsub = null; }
+          if (membersUnsub) { membersUnsub(); membersUnsub = null; }
+          currentTeam = null; currentMembers = [];
           showNoTeamView();
         }
-      );
-    }
-
-    /* ===== LISTEN TO MEMBERS ===== */
-    function listenToMembers(teamId) {
-      if (membersUnsub) membersUnsub();
-      const qy = query(collection(db, 'teamMembers'), where('teamId', '==', teamId));
-      membersUnsub = onSnapshot(
-        qy,
-        (snap) => {
-          if (isDeletingTeam) return;
-          currentMembers = [];
-          snap.forEach(d => currentMembers.push({ id: d.id, ...d.data() }));
-          renderTeamView();
-        },
-        (error) => {
-          console.error('Members snapshot error:', error.code);
-          if (isDeletingTeam) return;
-          hideLoading();
-          currentMembers = [];
-          renderTeamView();
-        }
-      );
-    }
-
-    /* ===== VIEW FUNCTIONS ===== */
-    function showNoTeamView() {
-      hideLoading();
-      document.getElementById('teamView').classList.add('hidden');
-      document.getElementById('noTeamView').classList.remove('hidden');
-      document.getElementById('navCreateBtn').classList.remove('hidden');
-      document.getElementById('navLeaveBtn').classList.add('hidden');
-      document.getElementById('navDeleteBtn').classList.add('hidden');
-      const si = document.getElementById('teamSearchInput');
-      if (si) si.value = '';
-      document.getElementById('teamSearchResults').innerHTML = '';
-      loadRandomTeams();
-      loadInvites();
-    }
-
-    window.toggleProfileDropdown = function() {
-      document.getElementById('profileDropdown').classList.remove('show');
-    };
-
-    /* ===== RENDER TEAM VIEW ===== */
-    async function renderTeamView() {
-      hideLoading();
-      document.getElementById('noTeamView').classList.add('hidden');
-      document.getElementById('teamView').classList.remove('hidden');
-      document.getElementById('navCreateBtn').classList.add('hidden');
-      document.getElementById('navLeaveBtn').classList.toggle('hidden', isOwner);
-      document.getElementById('navDeleteBtn').classList.toggle('hidden', !isOwner);
-      document.getElementById('teamNameDisplay').textContent = currentTeam.teamName || 'Team';
-      document.getElementById('teamUsernameDisplay').textContent = '@' + (currentTeam.teamUsername || '').replace(/^@/, '');
-
-      if (currentTeam.teamCover) {
-        document.getElementById('teamCover').style.backgroundImage = "url('" + currentTeam.teamCover + "')";
-      }
-      const dp = document.getElementById('teamDp');
-      dp.innerHTML = currentTeam.teamLogo
-        ? '<img src="' + currentTeam.teamLogo + '" style="width:100%;height:100%;object-fit:cover;">'
-        : '👥';
-
-      // add DP edit for owner
-      if (isOwner) {
-        if (!dp.querySelector('.dp-edit-btn')) {
-          const editBtn = document.createElement('div');
-          editBtn.className = 'dp-edit-btn';
-          editBtn.title = 'Change Logo';
-          editBtn.textContent = '✏️';
-          editBtn.onclick = () => document.getElementById('logoInput').click();
-          dp.appendChild(editBtn);
-        }
+      } else if (!myTeamId) {
+        showNoTeamView();
       } else {
-        const existing = dp.querySelector('.dp-edit-btn');
-        if (existing) existing.remove();
+        hideLoading();
       }
-      // ensure input exists
-      if (!document.getElementById('logoInput')) {
-        const inp = document.createElement('input');
-        inp.type = 'file';
-        inp.id = 'logoInput';
-        inp.accept = 'image/*';
-        inp.style.display = 'none';
-        inp.onchange = function() { uploadTeamImage(this,'logo'); };
-        document.body.appendChild(inp);
+    },
+    (error) => {
+      console.error('User snapshot error:', error.code);
+      hideLoading();
+      if (error.code === 'permission-denied') showToast('Permission denied. Check Firebase Rules.', true);
+      else showToast('Profile load error.', true);
+    }
+  );
+}
+
+/* ===== LISTEN TO TEAM ===== */
+function listenToTeam(teamId) {
+  if (teamUnsub) teamUnsub();
+  teamUnsub = onSnapshot(
+    doc(db, 'teams', teamId),
+    (snap) => {
+      if (isDeletingTeam) return;
+      if (!snap.exists()) {
+        myTeamId = null;
+        updateDoc(doc(db, 'users', currentUser.uid), { teamId: null }).catch(() => {});
+        if (membersUnsub) { membersUnsub(); membersUnsub = null; }
+        showNoTeamView(); return;
       }
+      currentTeam = { id: snap.id, ...snap.data() };
+      isOwner = currentTeam.ownerUid === currentUser.uid;
+      listenToMembers(teamId);
+    },
+    (error) => {
+      console.error('Team snapshot error:', error.code);
+      if (isDeletingTeam) return;
+      hideLoading();
+      updateDoc(doc(db, 'users', currentUser.uid), { teamId: null }).catch(() => {});
+      showNoTeamView();
+    }
+  );
+}
 
-      const coverBtn = document.getElementById('coverEditBtn');
-      if (isOwner) coverBtn.classList.remove('hidden');
-      else coverBtn.classList.add('hidden');
+/* ===== LISTEN TO MEMBERS ===== */
+function listenToMembers(teamId) {
+  if (membersUnsub) membersUnsub();
+  const qy = query(collection(db, 'teamMembers'), where('teamId', '==', teamId));
+  membersUnsub = onSnapshot(
+    qy,
+    (snap) => {
+      if (isDeletingTeam) return;
+      currentMembers = [];
+      snap.forEach(d => currentMembers.push({ id: d.id, ...d.data() }));
+      renderTeamView();
+    },
+    (error) => {
+      console.error('Members snapshot error:', error.code);
+      if (isDeletingTeam) return;
+      hideLoading();
+      currentMembers = [];
+      renderTeamView();
+    }
+  );
+}
 
-      const members = currentMembers.slice().sort((a,b)=>a.position-b.position);
-      document.getElementById('membersTitle').textContent = '👥 TEAM MEMBERS (' + members.length + '/5)';
+/* ===== VIEW FUNCTIONS ===== */
+function showNoTeamView() {
+  hideLoading();
+  document.getElementById('teamView').classList.add('hidden');
+  document.getElementById('noTeamView').classList.remove('hidden');
+  document.getElementById('navCreateBtn').classList.remove('hidden');
+  document.getElementById('navLeaveBtn').classList.add('hidden');
+  document.getElementById('navDeleteBtn').classList.add('hidden');
+  const si = document.getElementById('teamSearchInput');
+  if (si) si.value = '';
+  document.getElementById('teamSearchResults').innerHTML = '';
+  loadRandomTeams();
+  loadInvites();
+}
 
-      // fetch user data
-      const userCache = {};
-      await Promise.allSettled(
-        members.map(async m => {
-          try {
-            const us = await getDoc(doc(db,'users',m.uid));
-            if (us.exists()) userCache[m.uid] = us.data();
-          } catch{}
-        })
-      );
+function roleOf(m) { return m.role || 'Default'; }
 
-      const list = document.getElementById('membersList');
-      list.innerHTML = '';
-      const byPos = {};
-      members.forEach(m=>byPos[m.position]=m);
+async function renderTeamView() {
+  hideLoading();
+  document.getElementById('noTeamView').classList.add('hidden');
+  document.getElementById('teamView').classList.remove('hidden');
+  document.getElementById('navCreateBtn').classList.add('hidden');
+  document.getElementById('navLeaveBtn').classList.toggle('hidden', isOwner);
+  document.getElementById('navDeleteBtn').classList.toggle('hidden', !isOwner);
+  document.getElementById('teamNameDisplay').textContent = currentTeam.teamName || 'Team';
+  document.getElementById('teamUsernameDisplay').textContent = '@' + (currentTeam.teamUsername || '').replace(/^@/, '');
+  if (currentTeam.teamCover) document.getElementById('teamCover').style.backgroundImage = "url('" + currentTeam.teamCover + "')";
+  const dp = document.getElementById('teamDp');
+  dp.innerHTML = currentTeam.teamLogo ? ('<img src="' + currentTeam.teamLogo + '" style="width:100%;height:100%;object-fit:cover;">') : '👥';
 
-      for (let pos=1;pos<=5;pos++) {
-        const m = byPos[pos];
-        const box = document.createElement('div');
-        box.dataset.position = pos;
-        if (!m) {
-          box.className = 'member-box empty' + (pos===5?' extra-player':'') + (isOwner?' clickable':'');
-          box.innerHTML = '<div class="member-position">'+pos+'</div><div class="add-member">'+(isOwner?'+':'')+'</div><div class="member-info"><div class="member-name" style="color:#444">'+(isOwner?(pos===5?'Add Extra':'Add Member'):(pos===5?'Extra Player':'Empty Slot'))+'</div></div>';
-          if (isOwner) box.onclick = openSearch;
-          list.appendChild(box);
-          continue;
-        }
-        const u = userCache[m.uid]||{};
-        const memberIsOwner = m.uid===currentTeam.ownerUid;
-        const online = !!u.online;
-        const photo = u.photoURL?'<img src="'+u.photoURL+'">':'👤';
-        const name = u.name||'Player';
+  // Add DP Edit Button for Owner
+  if (isOwner) {
+    const existingEditBtn = dp.querySelector('.dp-edit-btn');
+    if (!existingEditBtn) {
+      const editBtn = document.createElement('div');
+      editBtn.className = 'dp-edit-btn';
+      editBtn.title = 'Change Logo';
+      editBtn.textContent = '✏️';
+      editBtn.onclick = () => document.getElementById('logoInput').click();
+      dp.appendChild(editBtn);
+    }
+  } else {
+    const existingEditBtn = dp.querySelector('.dp-edit-btn');
+    if (existingEditBtn) existingEditBtn.remove();
+  }
 
-        // Role badge styling for selected
-        const role = m.role||'Default';
-        const ownerBadge = memberIsOwner?' <span class="member-badge">OWNER</span>':'';
+  // Add hidden file input for logo
+  if (!document.getElementById('logoInput')) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.id = 'logoInput';
+    input.accept = 'image/*';
+    input.style.display = 'none';
+    input.onchange = function() { uploadTeamImage(this, 'logo'); };
+    document.body.appendChild(input);
+  }
 
-        const canEdit = isOwner||m.uid===currentUser.uid;
-        const btnClass = role==='Default'?'default':'';
-        const roleBtn = canEdit && !(memberIsOwner && !isOwner)
-          ? '<div class="role-select-btn '+btnClass+'" onclick="openRolePopup('+pos+')">'+role+ownerBadge+'</div>'
-          : '<div class="role-select-btn disabled">'+role+ownerBadge+'</div>';
+  const coverBtn = document.getElementById('coverEditBtn');
+  if (isOwner) {
+    if (coverBtn) coverBtn.classList.remove('hidden');
+  } else {
+    if (coverBtn) coverBtn.classList.add('hidden');
+  }
 
-        box.className = 'member-box filled'+(pos===5?' extra-player':'');
-        box.dataset.uid = m.uid;
-        box.innerHTML =
-          '<div class="status-text '+(online?'online':'offline')+'">'+(online?'Online':'Offline')+'</div>'+
-          '<div class="member-position">'+pos+'</div>'+
-          '<div class="member-avatar" onclick="openQuickCard(\''+m.uid+'\')">'+photo+'</div>'+
-          '<div class="member-info"><div class="member-name" onclick="openQuickCard(\''+m.uid+'\')">'+name+'</div><div class="role-wrapper">'+roleBtn+'</div></div>'+
-          '<div class="menu-dots '+(isOwner&&!memberIsOwner?'show':'')+'" onclick="openOwnerMenu('+pos+')">⋮</div>';
-        list.appendChild(box);
-      }
+  const members = currentMembers.slice().sort((a, b) => a.position - b.position);
+  document.getElementById('membersTitle').textContent = '👥 TEAM MEMBERS (' + members.length + '/5)';
 
-      const reqCard = document.getElementById('requestCard');
-      if (isOwner) {
-        reqCard.classList.remove('hidden');
-        renderJoinRequests(currentTeam.joinRequests||[]);
-      } else reqCard.classList.add('hidden');
+  const userCache = {};
+  await Promise.allSettled(members.map(async (m) => {
+    try { const us = await getDoc(doc(db, 'users', m.uid)); if (us.exists()) userCache[m.uid] = us.data(); } catch(e) {}
+  }));
+
+  const list = document.getElementById('membersList');
+  list.innerHTML = '';
+  const memberByPos = {};
+  members.forEach(m => memberByPos[m.position] = m);
+
+  for (let pos = 1; pos <= 5; pos++) {
+    const m = memberByPos[pos];
+    const box = document.createElement('div');
+    box.dataset.position = pos;
+    if (!m) {
+      box.className = 'member-box empty' + (pos === 5 ? ' extra-player' : '') + (isOwner ? ' clickable' : '');
+      box.innerHTML = '<div class="member-position">' + pos + '</div><div class="add-member">' + (isOwner ? '+' : '') + '</div><div class="member-info"><div class="member-name" style="color:#444">' + (isOwner ? (pos === 5 ? 'Add Extra' : 'Add Member') : (pos === 5 ? 'Extra Player' : 'Empty Slot')) + '</div></div>';
+      if (isOwner) box.onclick = openSearch;
+      list.appendChild(box); continue;
+    }
+    const u = userCache[m.uid] || {};
+    const memberIsOwner = m.uid === currentTeam.ownerUid;
+    const online = !!u.online;
+    const photo = u.photoURL ? ('<img src="' + u.photoURL + '">') : '👤';
+    const name = u.name || 'Player';
+    const role = roleOf(m);
+    const canEditRole = isOwner || m.uid === currentUser.uid;
+    const ownerBadge = memberIsOwner ? ' <span class="member-badge">OWNER</span>' : '';
+    
+    // ✅ FIX: Show green badge if role is selected (not Default)
+    const roleDisplay = role !== 'Default' ? role : role;
+    const roleButtonClass = role === 'Default' ? 'default' : '';
+    
+    let roleBtnHtml = canEditRole && !(memberIsOwner && !isOwner)
+      ? '<div class="role-select-btn ' + roleButtonClass + '" onclick="openRolePopup(' + pos + ')">' + roleDisplay + ownerBadge + '</div>'
+      : '<div class="role-select-btn disabled">' + roleDisplay + ownerBadge + '</div>';
+    
+    box.className = 'member-box filled' + (pos === 5 ? ' extra-player' : '');
+    box.dataset.uid = m.uid;
+    box.innerHTML =
+      '<div class="status-text ' + (online ? 'online' : 'offline') + '">' + (online ? 'Online' : 'Offline') + '</div>' +
+      '<div class="member-position">' + pos + '</div>' +
+      '<div class="member-avatar" onclick="openQuickCard(\'' + m.uid + '\')">' + photo + '</div>' +
+      '<div class="member-info"><div class="member-name" onclick="openQuickCard(\'' + m.uid + '\')">' + name + '</div><div class="role-wrapper">' + roleBtnHtml + '</div></div>' +
+      '<div class="menu-dots ' + (isOwner && !memberIsOwner ? 'show' : '') + '" onclick="openOwnerMenu(' + pos + ')">⋮</div>';
+    list.appendChild(box);
+  }
+
+  const reqCard = document.getElementById('requestCard');
+  if (isOwner) { reqCard.classList.remove('hidden'); renderJoinRequests(currentTeam.joinRequests || []); }
+  else reqCard.classList.add('hidden');
+}
+
+async function renderJoinRequests(uids) {
+  const listEl = document.getElementById('requestList');
+  const noReq = document.getElementById('noRequests');
+  document.getElementById('requestCount').textContent = uids.length;
+  listEl.innerHTML = '';
+  if (!uids.length) { noReq.classList.remove('hidden'); return; }
+  noReq.classList.add('hidden');
+  const userDocs = await Promise.allSettled(uids.map(uid => getDoc(doc(db, 'users', uid))));
+  uids.forEach((uid, i) => {
+    let u = {};
+    if (userDocs[i].status === 'fulfilled' && userDocs[i].value.exists()) u = userDocs[i].value.data();
+    const photo = u.photoURL ? ('<img src="' + u.photoURL + '">') : '👤';
+    const div = document.createElement('div');
+    div.className = 'request-item';
+    div.innerHTML =
+      '<div class="request-avatar" onclick="openQuickCard(\'' + uid + '\')">' + photo + '</div>' +
+      '<div class="request-info"><div class="request-name" onclick="openQuickCard(\'' + uid + '\')">' + (u.name || 'Player') + '</div></div>' +
+      '<div class="request-actions"><button class="request-btn accept-btn" onclick="acceptJoinRequest(\'' + uid + '\')">ACCEPT</button><button class="request-btn reject-btn" onclick="rejectJoinRequest(\'' + uid + '\')">REJECT</button></div>';
+    listEl.appendChild(div);
+  });
+}
+
+/* ===== TEAM DETAIL POPUP ===== */
+window.openTeamPopup = async function(teamId) {
+  const overlay = document.getElementById('teamPopupOverlay');
+  const content = document.getElementById('teamPopupContent');
+  overlay.classList.add('show');
+  content.innerHTML = '<div style="text-align:center;padding:40px;color:#00d4ff;">Loading...</div>';
+  try {
+    const teamSnap = await getDoc(doc(db, 'teams', teamId));
+    if (!teamSnap.exists()) { content.innerHTML = '<div style="text-align:center;padding:40px;color:#ff4757;">Team not found</div>'; return; }
+    const team = { id: teamSnap.id, ...teamSnap.data() };
+    const memberSnap = await getDocs(query(collection(db, 'teamMembers'), where('teamId', '==', teamId)));
+    let members = []; memberSnap.forEach(d => members.push({ id: d.id, ...d.data() }));
+    members.sort((a, b) => a.position - b.position);
+    const memberCount = members.length;
+    const remaining = MAX_MEMBERS - memberCount;
+    const isRequested = (team.joinRequests || []).includes(currentUser.uid);
+    const isFull = memberCount >= MAX_MEMBERS;
+    const alreadyInTeam = !!myTeamId;
+    const uDocs = await Promise.allSettled(members.map(m => getDoc(doc(db, 'users', m.uid))));
+    const coverHtml = team.teamCover ? '<img src="' + team.teamCover + '" class="team-popup-cover" onerror="this.style.display=\'none\'">' : '<div class="team-popup-cover"></div>';
+    const logoHtml = team.teamLogo ? '<img src="' + team.teamLogo + '">' : '👥';
+    let membersHtml = '';
+    members.forEach((m, i) => {
+      let u = {};
+      if (uDocs[i].status === 'fulfilled' && uDocs[i].value.exists()) u = uDocs[i].value.data();
+      const photo = u.photoURL ? '<img src="' + u.photoURL + '">' : '👤';
+      const role = (m.uid === team.ownerUid) ? 'IGL' : (m.role || 'Default');
+      membersHtml += '<div class="team-popup-member" onclick="openQuickCard(\'' + m.uid + '\')">' +
+        '<div class="team-popup-member-av">' + photo + '</div>' +
+        '<div><div class="team-popup-member-name">' + (u.name || 'Player') + '</div>' +
+        '<div class="team-popup-member-role">' + role + (m.uid === team.ownerUid ? ' 👑' : '') + '</div></div></div>';
+    });
+    let joinBtnClass = 'team-popup-join-btn', joinBtnText = '✅ JOIN TEAM', joinOnclick = 'sendJoinRequestFromPopup(\'' + teamId + '\')', joinDisabled = '';
+    if (alreadyInTeam) { joinBtnClass += ' disabled-state'; joinBtnText = 'ALREADY IN TEAM'; joinDisabled = 'disabled'; }
+    else if (isRequested) { joinBtnClass += ' disabled-state'; joinBtnText = '✓ REQUESTED'; joinDisabled = 'disabled'; }
+    else if (isFull) { joinBtnClass += ' full-state'; joinBtnText = '❌ TEAM FULL'; joinDisabled = 'disabled'; }
+    content.innerHTML = coverHtml +
+      '<div class="team-popup-dp-wrap"><div class="team-popup-dp">' + logoHtml + '</div></div>' +
+      '<div class="team-popup-info"><div class="team-popup-name">' + (team.teamName || 'Team') + '</div>' +
+      '<div class="team-popup-username">@' + (team.teamUsername || '').replace(/^@/, '') + '</div>' +
+      '<div class="team-popup-slots">👥 ' + memberCount + '/5 | ' + remaining + ' slots left</div></div>' +
+      '<div class="team-popup-members-title">👥 MEMBERS</div>' +
+      '<div class="team-popup-members">' + (membersHtml || '<div style="text-align:center;color:#666;padding:10px;">No members yet</div>') + '</div>' +
+      '<div class="team-popup-btns"><button class="' + joinBtnClass + '" onclick="' + joinOnclick + '" ' + joinDisabled + '>' + joinBtnText + '</button>' +
+      '<button class="team-popup-cancel-btn" onclick="closeTeamPopupDirect()">CANCEL</button></div>';
+  } catch (e) {
+    console.error('Team popup error:', e);
+    content.innerHTML = '<div style="text-align:center;padding:40px;color:#ff4757;">Error loading team</div>';
+  }
+}
+window.handlePopupOverlayClick = function(e) { if (e.target === document.getElementById('teamPopupOverlay')) closeTeamPopupDirect(); }
+window.closeTeamPopupDirect = function() { document.getElementById('teamPopupOverlay').classList.remove('show'); }
+window.sendJoinRequestFromPopup = async function(teamId) {
+  try {
+    await updateDoc(doc(db, 'teams', teamId), { joinRequests: arrayUnion(currentUser.uid) });
+    showToast('Join request sent!'); openTeamPopup(teamId);
+  } catch (e) { console.error(e); showToast('Error sending request', true); }
+}
+
+/* ===== SEARCH TEAMS ===== */
+let searchDebounce = null;
+window.searchTeams = async function(qstr) {
+  clearTimeout(searchDebounce);
+  const resultsDiv = document.getElementById('teamSearchResults');
+  const term = qstr.trim().toLowerCase();
+  if (!term) { resultsDiv.innerHTML = ''; return; }
+  resultsDiv.innerHTML = '<div class="empty-msg">Searching...</div>';
+  searchDebounce = setTimeout(async () => {
+    try {
+      const snap = await getDocs(collection(db, 'teams'));
+      let teams = []; snap.forEach(d => teams.push({ id: d.id, ...d.data() }));
+      let filtered = term.startsWith('@')
+        ? teams.filter(x => (x.teamUsername || '').replace(/^@/, '').toLowerCase().startsWith(term.substring(1)))
+        : teams.filter(x => (x.teamName || '').toLowerCase().includes(term));
+      resultsDiv.innerHTML = '';
+      if (!filtered.length) { resultsDiv.innerHTML = '<div class="empty-msg">No teams found</div>'; return; }
+      filtered.slice(0, 10).forEach(t => {
+        const count = Number(t.memberCount || 0);
+        const requested = (t.joinRequests || []).includes(currentUser.uid);
+        const full = count >= MAX_MEMBERS;
+        const logo = t.teamLogo ? ('<img src="' + t.teamLogo + '">') : '👥';
+        const div = document.createElement('div');
+        div.className = 'team-result';
+        div.innerHTML = '<div class="team-result-avatar" onclick="openTeamPopup(\'' + t.id + '\')">' + logo + '</div>' +
+          '<div class="team-result-info"><div class="team-result-name" onclick="openTeamPopup(\'' + t.id + '\')">' + (t.teamName || 'Team') + '</div>' +
+          '<div class="team-result-username">@' + (t.teamUsername || '').replace(/^@/, '') + '</div>' +
+          '<div class="team-result-members">' + count + '/5 Members</div></div>' +
+          '<button class="join-btn ' + (requested ? 'requested' : '') + '" ' + ((requested || full) ? 'disabled' : '') + ' onclick="sendJoinRequest(\'' + t.id + '\', this)">' +
+          (requested ? 'REQUESTED' : (full ? 'FULL' : 'JOIN')) + '</button>';
+        resultsDiv.appendChild(div);
+      });
+    } catch (e) { console.error(e); resultsDiv.innerHTML = '<div class="empty-msg">Error searching</div>'; }
+  }, 400);
+}
+window.sendJoinRequest = async function(teamId, btn) {
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
+  try {
+    await updateDoc(doc(db, 'teams', teamId), { joinRequests: arrayUnion(currentUser.uid) });
+    if (btn) { btn.textContent = 'REQUESTED'; btn.classList.add('requested'); }
+    showToast('Join request sent!');
+  } catch (e) { console.error(e); showToast('Error: ' + (e.message || 'Failed'), true); if (btn) { btn.disabled = false; btn.textContent = 'JOIN'; } }
+}
+
+/* ===== RANDOM TEAMS ===== */
+window.loadRandomTeams = async function() {
+  if (refreshCooldown) return;
+  const btn = document.getElementById('refreshBtn');
+  const grid = document.getElementById('randomTeamsGrid');
+  if (btn) btn.disabled = true;
+  grid.innerHTML = '<div class="random-empty">Loading teams...</div>';
+  try {
+    const snap = await getDocs(collection(db, 'teams'));
+    let available = [];
+    snap.forEach(d => { const data = d.data(); if (Number(data.memberCount || 0) < MAX_MEMBERS) available.push({ id: d.id, ...data }); });
+    for (let i = available.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1)); [available[i], available[j]] = [available[j], available[i]];
+    }
+    const shown = available.slice(0, 6);
+    if (!shown.length) { grid.innerHTML = '<div class="random-empty">Koi available team nahi mili</div>'; }
+    else {
+      grid.innerHTML = '';
+      shown.forEach(t => {
+        const count = Number(t.memberCount || 0);
+        const requested = (t.joinRequests || []).includes(currentUser.uid);
+        const card = document.createElement('div'); card.className = 'random-card';
+        const coverHtml = t.teamCover
+          ? '<img class="random-card-cover" src="' + t.teamCover + '" onerror="this.style.display=\'none\'" onclick="openTeamPopup(\'' + t.id + '\')">'
+          : '<div class="random-card-cover" onclick="openTeamPopup(\'' + t.id + '\')"></div>';
+        const logoHtml = t.teamLogo ? '<img src="' + t.teamLogo + '">' : '👥';
+        card.innerHTML = coverHtml + '<div class="random-card-body"><div class="random-card-logo-row" onclick="openTeamPopup(\'' + t.id + '\')">' +
+          '<div class="random-card-logo">' + logoHtml + '</div><div style="min-width:0;"><div class="random-card-name">' + (t.teamName || 'Team') + '</div>' +
+          '<div class="random-card-members">' + count + '/5 Members</div></div></div>' +
+          '<button class="random-join-btn ' + (requested ? 'requested' : '') + '" ' + (requested ? 'disabled' : '') + ' onclick="sendJoinRequest(\'' + t.id + '\', this)">' +
+          (requested ? 'REQUESTED' : 'JOIN') + '</button></div>';
+        grid.appendChild(card);
+      });
+    }
+  } catch (e) { console.error(e); grid.innerHTML = '<div class="random-empty">Error loading teams</div>'; }
+  refreshCooldown = true;
+  let sec = 15;
+  const cd = document.getElementById('refreshCountdown');
+  if (cd) { cd.style.display = 'inline'; cd.textContent = sec + 's'; }
+  clearInterval(refreshTimer);
+  refreshTimer = setInterval(() => {
+    sec--;
+    if (cd) cd.textContent = sec + 's';
+    if (sec <= 0) {
+      clearInterval(refreshTimer); refreshCooldown = false;
+      if (btn) btn.disabled = false;
+      if (cd) cd.style.display = 'none';
+    }
+  }, 1000);
+}
+
+/* ===== TEAM INVITES ===== */
+async function loadInvites() {
+  const listEl = document.getElementById('invitesList');
+  listEl.innerHTML = '<div class="invites-empty">Loading...</div>';
+  try {
+    const userSnap = await getDoc(doc(db, 'users', currentUser.uid));
+    if (!userSnap.exists()) { listEl.innerHTML = '<div class="invites-empty">No invites</div>'; return; }
+    const inviteIds = userSnap.data().teamInvites || [];
+    if (!inviteIds.length) { listEl.innerHTML = '<div class="invites-empty">Abhi koi team invite nahi hai</div>'; return; }
+    listEl.innerHTML = '';
+    const teamDocs = await Promise.allSettled(inviteIds.map(id => getDoc(doc(db, 'teams', id))));
+    let rendered = 0;
+    inviteIds.forEach((teamId, i) => {
+      if (teamDocs[i].status !== 'fulfilled' || !teamDocs[i].value.exists()) return;
+      const team = { id: teamDocs[i].value.id, ...teamDocs[i].value.data() };
+      const count = Number(team.memberCount || 0);
+      const logoHtml = team.teamLogo ? '<img src="' + team.teamLogo + '">' : '👥';
+      const card = document.createElement('div'); card.className = 'invite-card'; card.id = 'invite-' + teamId;
+      card.innerHTML = '<div class="invite-logo" onclick="openTeamPopup(\'' + teamId + '\')">' + logoHtml + '</div>' +
+        '<div class="invite-info"><div class="invite-name" onclick="openTeamPopup(\'' + teamId + '\')">' + (team.teamName || 'Team') + '</div>' +
+        '<div class="invite-members">' + count + '/5 Members</div></div>' +
+        '<div class="invite-actions"><button class="invite-accept-btn" onclick="acceptInvite(\'' + teamId + '\', this)">✓ ACCEPT</button>' +
+        '<button class="invite-reject-btn" onclick="rejectInvite(\'' + teamId + '\', this)">✕</button></div>';
+      listEl.appendChild(card); rendered++;
+    });
+    if (!rendered) listEl.innerHTML = '<div class="invites-empty">Koi valid invite nahi mili</div>';
+  } catch (e) { console.error(e); listEl.innerHTML = '<div class="invites-empty">Error loading invites</div>'; }
+}
+window.acceptInvite = async function(teamId, btn) {
+  btn.disabled = true; btn.textContent = '...';
+  try {
+    const userRef = doc(db, 'users', currentUser.uid);
+    const memberRef = doc(db, 'teamMembers', currentUser.uid);
+    const teamRef = doc(db, 'teams', teamId);
+    await runTransaction(db, async (tx) => {
+      const [tSnap, uSnap] = await Promise.all([tx.get(teamRef), tx.get(userRef)]);
+      if (!tSnap.exists()) throw new Error('Team not found');
+      const team = tSnap.data(); const uData = uSnap.data() || {};
+      const memberUids = team.memberUids || [];
+      if (memberUids.length >= MAX_MEMBERS) throw new Error('Team full hai');
+      if (memberUids.includes(currentUser.uid)) throw new Error('Already in team');
+      if (uData.teamId) throw new Error('Pehle se kisi team mein ho');
+      const positionsTaken = team.memberPositions || [];
+      let pos = 1; for (let p = 1; p <= 5; p++) { if (!positionsTaken.includes(p)) { pos = p; break; } }
+      tx.set(memberRef, { uid: currentUser.uid, teamId, role: 'Default', position: pos, joinedAt: serverTimestamp() });
+      tx.update(userRef, { teamId, teamInvites: arrayRemove(teamId) });
+      tx.update(teamRef, { memberUids: arrayUnion(currentUser.uid), memberCount: memberUids.length + 1, memberPositions: arrayUnion(pos), approvedUids: arrayRemove(currentUser.uid) });
+    });
+    const card = document.getElementById('invite-' + teamId); if (card) card.remove();
+    showToast('Team join ho gaye! 🎉');
+  } catch (e) { console.error(e); showToast(e.message || 'Error joining team', true); btn.disabled = false; btn.textContent = '✓ ACCEPT'; }
+}
+window.rejectInvite = async function(teamId, btn) {
+  btn.disabled = true;
+  try {
+    await updateDoc(doc(db, 'users', currentUser.uid), { teamInvites: arrayRemove(teamId) });
+    const card = document.getElementById('invite-' + teamId); if (card) card.remove();
+    const listEl = document.getElementById('invitesList');
+    if (listEl && !listEl.querySelector('.invite-card')) listEl.innerHTML = '<div class="invites-empty">Koi invite nahi hai</div>';
+    showToast('Invite reject kar di');
+  } catch (e) { console.error(e); showToast('Error', true); btn.disabled = false; }
+}
+
+/* ===== CREATE TEAM ===== */
+window.openCreatePopup = function() {
+  document.getElementById('createWalletBalance').textContent = '₹ ' + Number(myData?.balance || 0).toFixed(2);
+  showPopup('createPopup', 'createOverlay');
+}
+window.closeCreatePopup = function() { hidePopup('createPopup', 'createOverlay'); }
+window.previewImage = function(input, boxId, imgId) {
+  const file = input.files[0]; if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { showToast('Image 2MB se chhota hona chahiye', true); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById(imgId).src = e.target.result;
+    document.getElementById(boxId).classList.add('has-image');
+    if (imgId === 'bgPreview') createBgData = e.target.result; else createDpData = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+window.submitCreateTeam = async function() {
+  const name = document.getElementById('teamName').value.trim();
+  let username = document.getElementById('teamUsername').value.trim().replace(/^@/, '').toLowerCase().replace(/[^a-z0-9_]/g, '');
+  const phone = document.getElementById('whatsappNumber').value.trim();
+  if (!name || name.length < 3) { showToast('Team name kam se kam 3 characters ka hona chahiye', true); return; }
+  if (!username || username.length < 3) { showToast('Username kam se kam 3 characters ka hona chahiye', true); return; }
+  if (phone.length !== 10 || isNaN(phone)) { showToast('Valid 10 digit WhatsApp number daalo', true); return; }
+  if (Number(myData?.balance || 0) < TEAM_COST) { showToast('Insufficient balance! ₹20 chahiye.', true); return; }
+  const btn = document.getElementById('createTeamSubmit');
+  btn.disabled = true; btn.textContent = 'CREATING...';
+  try {
+    const dup = await getDocs(query(collection(db, 'teams'), where('teamUsername', '==', username)));
+    if (!dup.empty) { showToast('Username already taken!', true); btn.disabled = false; btn.textContent = 'CREATE TEAM'; return; }
+    const teamRef = doc(collection(db, 'teams'));
+    const userRef = doc(db, 'users', currentUser.uid);
+    const memberRef = doc(db, 'teamMembers', currentUser.uid);
+    await runTransaction(db, async (tx) => {
+      const uSnap = await tx.get(userRef); const uData = uSnap.data() || {};
+      const bal = Number(uData.balance || 0);
+      if (bal < TEAM_COST) throw new Error('Insufficient balance');
+      if (uData.teamId) throw new Error('You are already in a team');
+      tx.set(teamRef, { teamName: name, teamUsername: username, whatsapp: '+91' + phone, teamLogo: createDpData || '', teamCover: createBgData || '', ownerUid: currentUser.uid, memberCount: 1, memberUids: [currentUser.uid], memberPositions: [1], joinRequests: [], approvedUids: [], createdAt: serverTimestamp() });
+      tx.set(memberRef, { uid: currentUser.uid, teamId: teamRef.id, role: 'IGL', position: 1, joinedAt: serverTimestamp() });
+      tx.update(userRef, { balance: bal - TEAM_COST, teamId: teamRef.id });
+    });
+    showToast('Team created! ₹20 deducted 🎉'); closeCreatePopup();
+  } catch (e) { console.error(e); showToast(e.message || 'Error creating team', true); btn.disabled = false; btn.textContent = 'CREATE TEAM'; }
+}
+
+/* ===== JOIN REQUESTS ===== */
+window.acceptJoinRequest = async function(uid) {
+  try {
+    await runTransaction(db, async (tx) => {
+      const teamRef = doc(db, 'teams', currentTeam.id);
+      const tSnap = await tx.get(teamRef); const team = tSnap.data();
+      if (Number(team.memberCount || 0) >= MAX_MEMBERS) throw new Error('Team is full');
+      if ((team.memberUids || []).includes(uid)) throw new Error('Already in team');
+      tx.update(teamRef, { joinRequests: arrayRemove(uid), approvedUids: arrayUnion(uid) });
+    });
+    showToast('Player approved!');
+  } catch (e) { console.error(e); showToast(e.message || 'Error', true); }
+}
+window.rejectJoinRequest = async function(uid) {
+  try { await updateDoc(doc(db, 'teams', currentTeam.id), { joinRequests: arrayRemove(uid) }); showToast('Request rejected'); }
+  catch (e) { console.error(e); showToast('Error', true); }
+}
+
+/* ===== LEAVE TEAM ===== */
+window.confirmLeaveTeam = function() {
+  showConfirm('🚪', 'LEAVE TEAM?', 'Kya aap sure hain?<br><strong>Wapas join karne ke liye request bhejni padegi.</strong>', leaveTeam, 'warn');
+}
+async function leaveTeam() {
+  const teamId = currentTeam.id;
+  const myPos = (currentMembers.find(m => m.uid === currentUser.uid) || {}).position;
+  const memberRef = doc(db, 'teamMembers', currentUser.uid);
+  const userRef = doc(db, 'users', currentUser.uid);
+  const teamRef = doc(db, 'teams', teamId);
+
+  try {
+    await deleteDoc(memberRef);
+    await updateDoc(userRef, { teamId: null });
+
+    const tSnap = await getDoc(teamRef);
+    if (tSnap.exists()) {
+      const team = tSnap.data();
+      const upd = {
+        memberUids: arrayRemove(currentUser.uid),
+        memberCount: Math.max(0, Number(team.memberCount || 1) - 1)
+      };
+      if (myPos) upd.memberPositions = arrayRemove(myPos);
+      await updateDoc(teamRef, upd);
     }
 
-    /* ===== ISSUE 2: Fixed acceptJoinRequest ===== */
-    window.acceptJoinRequest = async function(uid) {
-      try {
-        const teamRef = doc(db,'teams',currentTeam.id);
-        const userRef = doc(db,'users',uid);
-        const [tSnap,uSnap] = await Promise.all([getDoc(teamRef), getDoc(userRef)]);
-        if (!tSnap.exists()) throw new Error('Team not found');
-        if (!uSnap.exists()) throw new Error('User not found');
-        const team = tSnap.data();
-        if ((team.memberCount||0)>=MAX_MEMBERS) throw new Error('Team is full');
-        if ((team.memberUids||[]).includes(uid)) throw new Error('Already in team');
-        const user = uSnap.data();
-        if (user.teamId) throw new Error('Player already in another team');
-        const occupied = team.memberPositions||[];
-        let pos=1; for(;pos<=MAX_MEMBERS;pos++){ if(!occupied.includes(pos))break; }
-        await runTransaction(db,async tx=>{
-          tx.set(doc(db,'teamMembers',uid),{uid,teamId:currentTeam.id,role:'Default',position:pos,joinedAt:serverTimestamp()});
-          tx.update(userRef,{teamId:currentTeam.id});
-          tx.update(teamRef,{
-            memberUids:arrayUnion(uid),
-            memberCount:(team.memberCount||0)+1,
-            memberPositions:arrayUnion(pos),
-            joinRequests:arrayRemove(uid)
-          });
-        });
-        showToast('Player added to team!');
-      }catch(e){
-        console.error('Accept request error:',e);
-        showToast(e.message||'Error accepting request',true);
-      }
-    };
+    closeConfirmPopup();
+    showToast('Team left! 👋');
+  } catch (e) {
+    console.error('Leave team error:', e.code, e.message);
+    showToast('Error leaving team: ' + (e.message || e.code), true);
+  }
+}
 
-    /* ===== ISSUE 4: Fixed popup role display ===== */
-    window.openTeamPopup = async function(teamId) {
-      const overlay = document.getElementById('teamPopupOverlay');
-      const content = document.getElementById('teamPopupContent');
-      overlay.classList.add('show');
-      content.innerHTML = '<div style="text-align:center;padding:40px;color:#00d4ff;">Loading...</div>';
-      try {
-        const teamSnap = await getDoc(doc(db,'teams',teamId));
-        if (!teamSnap.exists()) {
-          content.innerHTML = '<div style="text-align:center;padding:40px;color:#ff4757;">Team not found</div>';
-          return;
-        }
-        const team = {id:teamSnap.id,...teamSnap.data()};
-        const memberSnap = await getDocs(query(collection(db,'teamMembers'),where('teamId','==',teamId)));
-        let members=[]; memberSnap.forEach(d=>members.push({id:d.id,...d.data()}));
-        members.sort((a,b)=>a.position-b.position);
-        const memberCount = members.length;
-        const remaining = MAX_MEMBERS - memberCount;
-        const isRequested = (team.joinRequests||[]).includes(currentUser.uid);
-        const isFull = memberCount>=MAX_MEMBERS;
-        const alreadyInTeam = !!myTeamId;
-        const uDocs = await Promise.allSettled(members.map(m=>getDoc(doc(db,'users',m.uid))));
-        const coverHtml = team.teamCover
-          ? '<img src="'+team.teamCover+'" class="team-popup-cover" onerror="this.style.display=\\\'none\\\'">'
-          : '<div class="team-popup-cover"></div>';
-        const logoHtml = team.teamLogo?'<img src="'+team.teamLogo+'">':'👥';
-        let membersHtml = '';
-        members.forEach((m,i)=>{
-          let u={};
-          if (uDocs[i].status==='fulfilled'&&uDocs[i].value.exists()) u=uDocs[i].value.data();
-          const photo = u.photoURL?'<img src="'+u.photoURL+'">':'👤';
-          const role = m.role||'Default';
-          const displayRole = role + (m.uid===team.ownerUid?' 👑':'');
-          membersHtml += '<div class="team-popup-member" onclick="openQuickCard(\\''+m.uid+'\\')">'+
-            '<div class="team-popup-member-av">'+photo+'</div>'+
-            '<div><div class="team-popup-member-name">'+(u.name||'Player')+'</div>'+
-            '<div class="team-popup-member-role">'+displayRole+'</div></div></div>';
-        });
-        let joinBtnClass='team-popup-join-btn',joinBtnText='✅ JOIN TEAM',joinOnclick='sendJoinRequestFromPopup(\\''+teamId+'\\')',joinDisabled='';
-        if (alreadyInTeam) { joinBtnClass+=' disabled-state'; joinBtnText='ALREADY IN TEAM'; joinDisabled='disabled'; }
-        else if (isRequested) { joinBtnClass+=' disabled-state'; joinBtnText='✓ REQUESTED'; joinDisabled='disabled'; }
-        else if (isFull) { joinBtnClass+=' full-state'; joinBtnText='❌ TEAM FULL'; joinDisabled='disabled'; }
-        content.innerHTML = 
-          coverHtml +
-          '<div class="team-popup-dp-wrap"><div class="team-popup-dp">'+logoHtml+'</div></div>'+
-          '<div class="team-popup-info"><div class="team-popup-name">'+(team.teamName||'Team')+'</div>'+
-          '<div class="team-popup-username">@'+(team.teamUsername||'').replace(/^@/,'')+'</div>'+
-          '<div class="team-popup-slots">👥 '+memberCount+'/5 | '+remaining+' slots left</div></div>'+
-          '<div class="team-popup-members-title">👥 MEMBERS</div>'+
-          '<div class="team-popup-members">'+(membersHtml||'<div style="text-align:center;color:#666;padding:10px;">No members yet</div>')+'</div>'+
-          '<div class="team-popup-btns"><button class="'+joinBtnClass+'" onclick="'+joinOnclick+'" '+joinDisabled+'>'+joinBtnText+'</button>'+
-          '<button class="team-popup-cancel-btn" onclick="closeTeamPopupDirect()">CANCEL</button></div>';
-      } catch (e) {
-        console.error('Team popup error:',e);
-        content.innerHTML = '<div style="text-align:center;padding:40px;color:#ff4757;">Error loading team</div>';
-      }
-    };
-    window.handlePopupOverlayClick = function(e){ if(e.target===document.getElementById('teamPopupOverlay')) closeTeamPopupDirect(); };
-    window.closeTeamPopupDirect = function(){ document.getElementById('teamPopupOverlay').classList.remove('show'); };
-    window.sendJoinRequestFromPopup = async function(teamId){
-      try {
-        await updateDoc(doc(db,'teams',teamId),{joinRequests:arrayUnion(currentUser.uid)});
-        showToast('Join request sent!'); openTeamPopup(teamId);
-      }catch(e){ console.error(e); showToast('Error sending request',true); }
-    };
+/* ===== DELETE TEAM ===== */
+window.confirmDeleteTeam = function() {
+  showConfirm('🗑️', 'DELETE TEAM?', 'Kya aap sure hain?<br><strong>Team permanently delete ho jayegi. Ye action undo nahi hoga!</strong>', deleteTeam, 'danger');
+}
 
-    /* … the rest of your existing JS remains unchanged … */
+async function deleteTeam() {
+  const teamIdToDelete = currentTeam ? currentTeam.id : null;
+  const membersToDelete = [...currentMembers];
 
-  </script>
+  if (!teamIdToDelete) {
+    showToast('Team ID not found. Please refresh.', true);
+    closeConfirmPopup();
+    return;
+  }
+
+  isDeletingTeam = true;
+  closeConfirmPopup();
+  document.getElementById('navDeleteBtn').classList.add('hidden');
+  document.getElementById('navLeaveBtn').classList.add('hidden');
+
+  try {
+    if (membersToDelete.length > 0) {
+      await Promise.allSettled(
+        membersToDelete.map(m =>
+          updateDoc(doc(db, 'users', m.uid), { teamId: null })
+        )
+      );
+    }
+
+    if (membersToDelete.length > 0) {
+      await Promise.allSettled(
+        membersToDelete.map(m =>
+          deleteDoc(doc(db, 'teamMembers', m.uid))
+        )
+      );
+    }
+
+    await deleteDoc(doc(db, 'teams', teamIdToDelete));
+
+    if (teamUnsub) { teamUnsub(); teamUnsub = null; }
+    if (membersUnsub) { membersUnsub(); membersUnsub = null; }
+
+    currentTeam = null;
+    currentMembers = [];
+    myTeamId = null;
+
+    isDeletingTeam = false;
+
+    showToast('Team successfully deleted! ✅');
+    showNoTeamView();
+
+  } catch (e) {
+    console.error('Delete team error:', e);
+    isDeletingTeam = false;
+    showToast('Error: ' + (e.message || 'Team delete failed'), true);
+    document.getElementById('navDeleteBtn').classList.remove('hidden');
+  }
+}
+
+/* ===== TEAM IMAGE EDIT (Owner Only) ===== */
+window.uploadTeamImage = async function(input, type) {
+  if (!isOwner) { showToast('Sirf Owner image change kar sakta hai', true); return; }
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { showToast('Image 2MB se chhoti honi chahiye', true); input.value = ''; return; }
+
+  showToast('Uploading...');
+  try {
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.src = e.target.result;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxSize = type === 'cover' ? 800 : 400;
+          let w = img.width, h = img.height;
+          if (w > h) { if (w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize; } }
+          else { if (h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize; } }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', 0.75));
+        };
+        img.onerror = reject;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    const updateData = type === 'cover'
+      ? { teamCover: base64 }
+      : { teamLogo: base64 };
+
+    await updateDoc(doc(db, 'teams', currentTeam.id), updateData);
+    showToast(type === 'cover' ? 'Cover updated! ✅' : 'Logo updated! ✅');
+    input.value = '';
+  } catch (e) {
+    console.error('Image upload error:', e);
+    showToast('Image upload failed: ' + (e.message || e.code), true);
+    input.value = '';
+  }
+}
+
+/* ===== ROLE POPUP WITH UNIQUE ROLE VALIDATION ===== */
+window.openRolePopup = function(position) {
+  const m = currentMembers.find(x => x.position === position);
+  if (!m) return;
+  
+  if (!(isOwner || m.uid === currentUser.uid)) {
+    showToast('Sirf apna role change kar sakte ho', true); 
+    return;
+  }
+  
+  currentEditingPosition = position;
+  const optionsDiv = document.getElementById('roleOptions'); 
+  optionsDiv.innerHTML = '';
+  const currentRole = m.role || 'Default';
+  
+  // Get all roles currently assigned
+  const assignedRoles = {};
+  currentMembers.forEach(member => {
+    const role = member.role || 'Default';
+    if (role !== 'Default') {
+      assignedRoles[role] = (assignedRoles[role] || 0) + 1;
+    }
+  });
+  
+  ROLES.forEach(role => {
+    const opt = document.createElement('div');
+    opt.className = 'role-option';
+    
+    // Check if role is unique and already taken by someone else
+    const isUnique = UNIQUE_ROLES.includes(role);
+    const isTakenBySomeoneElse = isUnique && assignedRoles[role] && role !== currentRole;
+    
+    if (isTakenBySomeoneElse) {
+      opt.classList.add('locked');
+      opt.innerHTML = role + ' <span class="lock-icon">🔒</span>';
+      opt.onclick = () => showToast('Another member already has this role!', true);
+    } else {
+      if (role === currentRole) opt.classList.add('current');
+      opt.innerHTML = role;
+      opt.onclick = () => selectRole(role);
+    }
+    
+    optionsDiv.appendChild(opt);
+  });
+  
+  showPopup('rolePopup', 'roleOverlay');
+}
+window.closeRolePopup = function() { hidePopup('rolePopup', 'roleOverlay'); currentEditingPosition = null; }
+async function selectRole(newRole) {
+  const m = currentMembers.find(x => x.position === currentEditingPosition); 
+  if (!m) return;
+  
+  try { 
+    await updateDoc(doc(db, 'teamMembers', m.uid), { role: newRole }); 
+    closeRolePopup(); 
+    showToast('Role changed to ' + newRole); 
+  }
+  catch (e) { 
+    console.error(e); 
+    showToast('Error changing role', true); 
+  }
+}
+
+/* ===== OWNER MENU ===== */
+window.openOwnerMenu = function(position) {
+  if (!isOwner) return;
+  const m = currentMembers.find(x => x.position === position);
+  if (!m || m.uid === currentTeam.ownerUid) return;
+  currentMenuPosition = position;
+  document.getElementById('extraPlayerOption').textContent = position === 5 ? '🔄 Move to Main Team' : '🔄 Move to Extra Player';
+  showPopup('ownerMenuPopup', 'menuOverlay');
+}
+window.closeOwnerMenu = function() { hidePopup('ownerMenuPopup', 'menuOverlay'); currentMenuPosition = null; }
+window.handleExtraPlayerAction = function() {
+  const pos = currentMenuPosition; 
+  closeOwnerMenu();
+  if (pos === 5) {
+    showConfirm('🔄', 'MOVE TO MAIN TEAM?', 'Move this player from Extra to Main team?', () => moveExtra(pos, false));
+  } else {
+    showConfirm('🔄', 'MOVE TO EXTRA PLAYER?', 'Move this player to Extra Player slot?', () => moveExtra(pos, true));
+  }
+}
+async function moveExtra(pos, toExtra) {
+  const m = currentMembers.find(x => x.position === pos); 
+  if (!m) { closeConfirmPopup(); return; }
+  
+  const positionsTaken = currentMembers.map(x => x.position);
+  
+  try {
+    let target;
+    if (toExtra) { 
+      if (positionsTaken.includes(5)) throw new Error('Extra slot (5) is occupied'); 
+      target = 5; 
+    } else { 
+      target = 1; 
+      for (let p = 1; p <= 4; p++) { 
+        if (!positionsTaken.includes(p)) { target = p; break; } 
+      } 
+    }
+    
+    // ✅ FIX: All reads BEFORE all writes
+    const teamSnap = await getDoc(doc(db, 'teams', currentTeam.id));
+    if (!teamSnap.exists()) throw new Error('Team not found');
+    
+    const tData = teamSnap.data();
+    const taken = (tData.memberPositions || []).filter(p => p !== pos);
+    taken.push(target);
+    
+    // NOW do the writes
+    await updateDoc(doc(db, 'teamMembers', m.uid), { position: target });
+    await updateDoc(doc(db, 'teams', currentTeam.id), { memberPositions: taken });
+    
+    closeConfirmPopup(); 
+    showToast('Player moved!');
+  } catch (e) { 
+    console.error(e); 
+    showToast(e.message || 'Error', true); 
+  }
+}
+window.transferOwnership = function() {
+  const pos = currentMenuPosition; 
+  closeOwnerMenu();
+  showConfirm('👑', 'TRANSFER OWNERSHIP?', 'Confirm? <strong>Transfer ke baad aap owner nahi rahoge.</strong>', () => doTransfer(pos));
+}
+async function doTransfer(pos) {
+  const target = currentMembers.find(m => m.position === pos); 
+  if (!target) { showToast('Player not found', true); return; }
+  
+  try {
+    // ✅ FIX: All reads BEFORE all writes
+    const teamSnap = await getDoc(doc(db, 'teams', currentTeam.id));
+    if (!teamSnap.exists()) throw new Error('Team not found');
+    
+    // NOW do the writes
+    await updateDoc(doc(db, 'teams', currentTeam.id), { ownerUid: target.uid });
+    await updateDoc(doc(db, 'teamMembers', currentUser.uid), { role: 'Default' });
+    
+    closeConfirmPopup(); 
+    showToast('Ownership transferred!');
+  } catch (e) { 
+    console.error(e); 
+    showToast(e.message || 'Error', true); 
+  }
+}
+
+/* ===== KICK PLAYER ===== */
+// ✅ CRITICAL FIX: Transaction error - all reads before writes
+window.kickPlayer = function() {
+  const pos = currentMenuPosition; 
+  const m = currentMembers.find(x => x.position === pos); 
+  if (!m) return;
+  closeOwnerMenu();
+  showConfirm('🗑️', 'KICK PLAYER?', 'Are you sure?<br><strong>This cannot be undone.</strong>', () => doKick(m.uid, m.position), 'danger');
+}
+async function doKick(uid, kpos) {
+  try {
+    // ✅ FIX: All reads FIRST
+    const teamSnap = await getDoc(doc(db, 'teams', currentTeam.id));
+    if (!teamSnap.exists()) throw new Error('Team not found');
+    const team = teamSnap.data();
+    
+    // Prepare update data
+    const upd = { 
+      memberUids: arrayRemove(uid), 
+      memberCount: Math.max(0, Number(team.memberCount || 1) - 1) 
+    };
+    if (kpos) upd.memberPositions = arrayRemove(kpos);
+    
+    // ✅ NOW do all the writes
+    await deleteDoc(doc(db, 'teamMembers', uid));
+    await updateDoc(doc(db, 'users', uid), { teamId: null });
+    await updateDoc(doc(db, 'teams', currentTeam.id), upd);
+    
+    closeConfirmPopup(); 
+    showToast('Player kicked!');
+  } catch (e) { 
+    console.error('Kick player error:', e); 
+    showToast('Error: ' + (e.message || 'Failed to kick player'), true); 
+  }
+}
+
+/* ===== INVITE SIDEBAR ===== */
+window.openSearch = function() {
+  if (!isOwner) { showToast('Only Owner can add members', true); return; }
+  document.getElementById('searchSidebar').classList.add('show');
+  document.getElementById('sidebarOverlay').classList.add('show');
+  updateFriendCounter(); updateRequestTabBadge(); switchSidebarTab('friend');
+}
+window.closeSearch = function() { document.getElementById('searchSidebar').classList.remove('show'); document.getElementById('sidebarOverlay').classList.remove('show'); }
+function updateFriendCounter() { document.getElementById('friendCounter').textContent = 'Friends: ' + (myData?.friends || []).length; }
+function updateRequestTabBadge() { const c = (myData?.friendRequests || []).length; const b = document.getElementById('requestTabBadge'); b.textContent = c; b.classList.toggle('hidden', c === 0); }
+window.switchSidebarTab = function(tab) {
+  ['searchTab', 'friendTab', 'requestTab'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const input = document.getElementById('sidebarSearchInput'); document.getElementById('sidebarResults').innerHTML = '';
+  if (tab === 'search') { document.getElementById('searchTab').classList.add('active'); input.classList.remove('hidden'); input.value = ''; }
+  else if (tab === 'friend') { document.getElementById('friendTab').classList.add('active'); input.classList.add('hidden'); renderFriendList(); }
+  else { document.getElementById('requestTab').classList.add('active'); input.classList.add('hidden'); renderFriendRequests(); }
+}
+async function renderFriendList() {
+  const results = document.getElementById('sidebarResults'); const friends = myData?.friends || [];
+  if (!friends.length) { results.innerHTML = '<div class="empty-msg">No friends yet.</div>'; return; }
+  results.innerHTML = '<div class="empty-msg">Loading...</div>';
+  const docs = await Promise.allSettled(friends.map(uid => getDoc(doc(db, 'users', uid))));
+  let html = ''; friends.forEach((uid, i) => { let u = {}; if (docs[i].status === 'fulfilled' && docs[i].value.exists()) u = docs[i].value.data(); html += userRowHtml(uid, u, true); });
+  results.innerHTML = html || '<div class="empty-msg">No friends</div>';
+}
+async function renderFriendRequests() {
+  const results = document.getElementById('sidebarResults'); const reqs = myData?.friendRequests || [];
+  if (!reqs.length) { results.innerHTML = '<div class="empty-msg">No friend requests</div>'; return; }
+  results.innerHTML = '<div class="empty-msg">Loading...</div>';
+  const docs = await Promise.allSettled(reqs.map(uid => getDoc(doc(db, 'users', uid))));
+  let html = '';
+  reqs.forEach((uid, i) => {
+    let u = {}; if (docs[i].status === 'fulfilled' && docs[i].value.exists()) u = docs[i].value.data();
+    const photo = u.photoURL ? ('<img src="' + u.photoURL + '">') : '👤';
+    html += '<div class="user-result"><div class="user-avatar" onclick="openQuickCard(\'' + uid + '\')">' + photo + '</div>' +
+      '<div class="user-info"><div class="user-name" onclick="openQuickCard(\'' + uid + '\')">' + (u.name || 'Player') + '</div></div>' +
+      '<div class="user-actions"><button class="invite-btn-sm" onclick="acceptFriend(\'' + uid + '\')">✓</button>' +
+      '<button class="friend-request-btn" style="background:linear-gradient(135deg,#ff4757,#ff0064);border-color:#ff4757" onclick="rejectFriend(\'' + uid + '\')">✕</button></div></div>';
+  });
+  results.innerHTML = html;
+}
+function userRowHtml(uid, u, isFriend) {
+  const photo = u.photoURL ? ('<img src="' + u.photoURL + '">') : '👤';
+  const inTeam = (currentTeam?.memberUids || []).includes(uid);
+  let actionBtn = inTeam ? '<button class="joined-btn">JOINED</button>' : '<button class="invite-btn-sm" onclick="inviteToTeam(\'' + uid + '\', this)">INVITE</button>';
+  let friendBtn = '';
+  if (!isFriend) { const sent = (myData?.sentRequests || []).includes(uid); friendBtn = '<button class="friend-request-btn ' + (sent ? 'sent' : '') + '" ' + (sent ? 'disabled' : '') + ' onclick="sendFriendRequest(\'' + uid + '\', this)">' + (sent ? 'SENT' : '+ ADD') + '</button>'; }
+  return '<div class="user-result"><div class="user-avatar" onclick="openQuickCard(\'' + uid + '\')">' + photo + '</div>' +
+    '<div class="user-info"><div class="user-name" onclick="openQuickCard(\'' + uid + '\')">' + (u.name || 'Player') + '</div></div>' +
+    '<div class="user-actions">' + friendBtn + actionBtn + '</div></div>';
+}
+window.searchUsers = async function(val) {
+  const results = document.getElementById('sidebarResults'); const term = val.trim().toLowerCase();
+  results.innerHTML = ''; if (!term) return;
+  results.innerHTML = '<div class="empty-msg">Searching...</div>';
+  try {
+    const snap = await getDocs(collection(db, 'users')); let users = [];
+    snap.forEach(d => { if (d.id !== currentUser.uid) { const x = d.data(); if ((x.name || '').toLowerCase().startsWith(term)) users.push({ uid: d.id, ...x }); } });
+    results.innerHTML = '';
+    if (!users.length) { results.innerHTML = '<div class="empty-msg">No users found</div>'; return; }
+    const friends = myData?.friends || []; let html = '';
+    users.slice(0, 10).forEach(u => { html += userRowHtml(u.uid, u, friends.includes(u.uid)); });
+    results.innerHTML = html;
+  } catch (e) { console.error(e); results.innerHTML = '<div class="empty-msg">Error</div>'; }
+}
+window.sendFriendRequest = async function(uid, btn) {
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
+  try {
+    await updateDoc(doc(db, 'users', currentUser.uid), { sentRequests: arrayUnion(uid) });
+    await updateDoc(doc(db, 'users', uid), { friendRequests: arrayUnion(currentUser.uid) });
+    if (btn) { btn.textContent = 'SENT'; btn.classList.add('sent'); }
+    showToast('Friend request sent!');
+  } catch (e) { console.error(e); showToast('Error', true); if (btn) { btn.disabled = false; btn.textContent = '+ ADD'; } }
+}
+window.acceptFriend = async function(uid) {
+  try {
+    await updateDoc(doc(db, 'users', currentUser.uid), { friends: arrayUnion(uid), friendRequests: arrayRemove(uid) });
+    await updateDoc(doc(db, 'users', uid), { friends: arrayUnion(currentUser.uid), sentRequests: arrayRemove(currentUser.uid) });
+    showToast('Friend added!'); renderFriendRequests(); updateFriendCounter(); updateRequestTabBadge();
+  } catch (e) { console.error(e); showToast('Error', true); }
+}
+window.rejectFriend = async function(uid) {
+  try {
+    await updateDoc(doc(db, 'users', currentUser.uid), { friendRequests: arrayRemove(uid) });
+    await updateDoc(doc(db, 'users', uid), { sentRequests: arrayRemove(currentUser.uid) });
+    showToast('Request rejected'); renderFriendRequests(); updateRequestTabBadge();
+  } catch (e) { console.error(e); showToast('Error', true); }
+}
+window.inviteToTeam = async function(uid, btn) {
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
+  try {
+    await updateDoc(doc(db, 'users', uid), { teamInvites: arrayUnion(currentTeam.id) });
+    await updateDoc(doc(db, 'teams', currentTeam.id), { approvedUids: arrayUnion(uid) });
+    if (btn) { btn.textContent = 'SENT'; btn.classList.add('sent'); btn.onclick = null; }
+    showToast('Invite sent!');
+  } catch (e) { console.error(e); showToast('Error', true); if (btn) { btn.disabled = false; btn.textContent = 'INVITE'; } }
+}
+
+/* ===== QUICK CARD ===== */
+window.openQuickCard = async function(uid) {
+  const card = document.getElementById('quickCard'); const content = document.getElementById('quickContent');
+  card.classList.add('show'); document.getElementById('quickOverlay').classList.add('show');
+  content.innerHTML = '<div style="text-align:center;padding:20px;color:#00d4ff;">Loading...</div>';
+  try {
+    const snap = await getDoc(doc(db, 'users', uid)); if (!snap.exists()) { content.innerHTML = '<div style="text-align:center;padding:20px;color:#ff4757;">User not found</div>'; return; }
+    const u = snap.data(); const lvl = LEVEL_TYPES[u.level || 1] || LEVEL_TYPES[1]; const lbTitle = u.equippedLeaderboardTitle;
+    const likedBy = u.likedBy || []; const isLiked = likedBy.includes(currentUser.uid); const isOwn = currentUser.uid === uid;
+    content.innerHTML = '<div class="quick-avatar">' + (u.photoURL ? ('<img src="' + u.photoURL + '">') : '👤') + '</div>' +
+      '<div class="quick-name">' + (u.name || 'Player') + '</div>' +
+      (u.college ? ('<div class="quick-college">🎓 ' + u.college + '</div>') : '') +
+      '<div class="quick-badges"><div class="quick-badge level"><span>' + lvl.icon + '</span><span>' + lvl.name + '</span></div>' +
+      (lbTitle ? ('<div class="quick-badge title"><span>' + (lbTitle.icon || '') + '</span><span>' + lbTitle.name + '</span></div>') : '') + '</div>' +
+      '<div class="quick-stats"><div class="quick-stat"><div class="quick-stat-icon">💀</div><div class="quick-stat-value">' + (u.kills || 0).toLocaleString('en-IN') + '</div><div class="quick-stat-label">KILLS</div></div>' +
+      '<div class="quick-stat"><div class="quick-stat-icon">⚔️</div><div class="quick-stat-value">' + (u.matches || 0).toLocaleString('en-IN') + '</div><div class="quick-stat-label">MATCHES</div></div>' +
+      '<div class="quick-stat"><div class="quick-stat-icon">🏆</div><div class="quick-stat-value">' + (u.wins || 0).toLocaleString('en-IN') + '</div><div class="quick-stat-label">WINS</div></div>' +
+      '<div class="quick-stat"><div class="quick-stat-icon">💎</div><div class="quick-stat-value">' + (u.diamonds || 0).toLocaleString('en-IN') + '</div><div class="quick-stat-label">DIAMONDS</div></div></div>' +
+      '<div class="quick-btns"><button class="quick-btn like ' + (isLiked ? 'liked' : '') + '" onclick="toggleLikeQuick(\'' + uid + '\')" ' + (isOwn ? 'disabled' : '') + '>' +
+      (isOwn ? 'YOUR PROFILE' : (isLiked ? '✓ LIKED' : '❤️ LIKE')) + '</button>' +
+      '<button class="quick-btn visit" onclick="window.location.href=\'view-profile.html?uid=' + uid + '\'">👤 VISIT</button></div>';
+  } catch (e) { console.error(e); content.innerHTML = '<div style="text-align:center;padding:20px;color:#ff4757;">Error loading</div>'; }
+}
+window.closeQuickCard = function() { document.getElementById('quickCard').classList.remove('show'); document.getElementById('quickOverlay').classList.remove('show'); }
+window.toggleLikeQuick = async function(uid) {
+  if (currentUser.uid === uid) return;
+  try {
+    const ref = doc(db, 'users', uid); const snap = await getDoc(ref); const likedBy = snap.data().likedBy || [];
+    if (likedBy.includes(currentUser.uid)) await updateDoc(ref, { likedBy: arrayRemove(currentUser.uid) });
+    else await updateDoc(ref, { likedBy: arrayUnion(currentUser.uid) });
+    openQuickCard(uid);
+  } catch (e) { console.error(e); showToast('Error updating like', true); }
+}
+
+/* ===== CONFIRM POPUP ===== */
+function showConfirm(icon, title, message, action, variant = 'warn') {
+  document.getElementById('confirmIcon').textContent = icon;
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMessage').innerHTML = message;
+  const popup = document.getElementById('confirmPopup'); popup.className = 'popup ' + variant;
+  const btn = document.getElementById('confirmActionBtn');
+  btn.className = 'popup-btn confirm-btn ' + (variant === 'danger' ? 'danger' : variant === 'warn' ? 'warn' : '');
+  pendingConfirmAction = action; showPopup('confirmPopup', 'confirmOverlay');
+}
+window.closeConfirmPopup = function() { hidePopup('confirmPopup', 'confirmOverlay'); pendingConfirmAction = null; }
+window.executeConfirmedAction = function() { if (pendingConfirmAction) pendingConfirmAction(); }
+
+/* ===== UTILS ===== */
+function showPopup(p, o) { document.getElementById(p).classList.add('show'); document.getElementById(o).classList.add('show'); }
+function hidePopup(p, o) { document.getElementById(p).classList.remove('show'); document.getElementById(o).classList.remove('show'); }
+let toastTimer = null;
+window.showToast = function(message, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = message; t.className = 'toast' + (isError ? ' error' : '');
+  t.classList.add('show'); clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
 </body>
 </html>
