@@ -90,8 +90,8 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
 .team-popup-overlay.show .team-popup { transform:scale(1); }
 .team-popup-close { position:absolute; top:10px; right:10px; width:28px; height:28px; border-radius:50%; background:rgba(255,71,87,0.2); border:2px solid #ff4757; color:#ff4757; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:900; z-index:5; }
 .team-popup-cover { width:100%; height:120px; object-fit:cover; display:block; border-radius:17px 17px 0 0; background:linear-gradient(135deg,#00d4ff,#ff0080); }
-.team-popup-dp-wrap { display:flex; justify-content:center; margin-top:-52px; margin-bottom:8px; position:relative; z-index:2; }
-.team-popup-dp { width:105px; height:105px; border-radius:50%; border:4px solid #161b22; overflow:hidden; background:#0d1117; display:flex; align-items:center; justify-content:center; font-size:2rem; box-shadow:0 0 30px rgba(0,212,255,0.6); }
+.team-popup-dp-wrap { display:flex; justify-content:center; margin-top:-35px; margin-bottom:8px; position:relative; z-index:2; }
+.team-popup-dp { width:70px; height:70px; border-radius:50%; border:4px solid #161b22; overflow:hidden; background:#0d1117; display:flex; align-items:center; justify-content:center; font-size:2rem; box-shadow:0 0 30px rgba(0,212,255,0.6); }
 .team-popup-dp img { width:100%; height:100%; object-fit:cover; }
 .team-popup-info { text-align:center; padding:0 20px 12px; }
 .team-popup-name { font-family:'Orbitron',sans-serif; font-size:1.1rem; font-weight:900; color:#fff; margin-bottom:3px; }
@@ -139,17 +139,13 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
 .role-wrapper { flex:1; display:flex; justify-content:center; align-items:center; }
 .role-select-btn { font-size:0.6rem; color:#00ff88; font-weight:700; cursor:pointer; background:rgba(0,255,136,0.1); border:1px solid #00ff88; padding:2px 8px; border-radius:4px; white-space:nowrap; }
 .role-select-btn.disabled { color:#666; border-color:#666; background:rgba(136,136,136,0.1); cursor:not-allowed; }
-.role-select-btn.default { color:#888; border-color:#888; background:rgba(136,136,136,0.1); }
 .role-select-btn:active:not(.disabled) { background:rgba(0,255,136,0.2); }
+.role-select-btn.default { color:#888; border-color:#888; background:rgba(136,136,136,0.1); }
 .member-badge { font-size:0.5rem; background:#ff6b00; color:#000; padding:1px 4px; border-radius:3px; font-weight:900; }
 .menu-dots { width:24px; height:24px; border-radius:6px; background:rgba(0,212,255,0.1); border:1px solid rgba(0,212,255,0.3); color:#00d4ff; font-size:1rem; cursor:pointer; display:none; align-items:center; justify-content:center; flex-shrink:0; }
 .menu-dots.show { display:flex; }
 .menu-dots:active { background:rgba(0,212,255,0.2); }
 .add-member { width:100%; text-align:center; color:#00d4ff; font-size:1.3rem; }
-.cover-edit-btn { position:absolute; bottom:8px; right:8px; width:32px; height:32px; border-radius:50%; background:rgba(0,0,0,0.7); border:2px solid #00d4ff; color:#00d4ff; font-size:0.9rem; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:25; transition:0.2s; box-shadow:0 0 10px rgba(0,212,255,0.5); }
-.cover-edit-btn:active { transform:scale(0.9); background:rgba(0,212,255,0.3); }
-.dp-edit-btn { position:absolute; bottom:-8px; right:-8px; width:32px; height:32px; border-radius:50%; background:rgba(0,0,0,0.9); border:2px solid #00ff88; color:#00ff88; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:35; transition:0.2s; box-shadow:0 0 12px rgba(0,255,136,0.7); }
-.dp-edit-btn:active { transform:scale(0.9); }
 .request-card { background:rgba(22,27,34,0.9); border:2px solid #ff6b00; border-radius:16px; margin-bottom:20px; padding:15px 20px; box-shadow:0 0 30px rgba(255,107,0,0.3); }
 .request-title { font-family:'Orbitron',sans-serif; font-size:1rem; font-weight:900; color:#ff6b00; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
 .request-badge { background:#ff4757; color:#fff; font-size:0.65rem; padding:2px 6px; border-radius:10px; font-weight:900; }
@@ -320,14 +316,23 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
   </div>
 </div>
 
+<!-- Hidden file inputs for team image editing (owner only) -->
+<input type="file" id="teamLogoInput" accept="image/*" style="display:none" onchange="handleTeamLogoChange(this)">
+<input type="file" id="teamCoverInput" accept="image/*" style="display:none" onchange="handleTeamCoverChange(this)">
+
 <!-- TEAM VIEW -->
 <div class="container hidden" id="teamView">
   <div class="team-profile">
     <div class="team-cover" id="teamCover">
-      <div class="cover-edit-btn hidden" id="coverEditBtn" onclick="document.getElementById('coverInput').click()" title="Change Cover">✏️</div>
-      <input type="file" id="coverInput" accept="image/*" style="display:none" onchange="uploadTeamImage(this,'cover')">
+      <!-- Cover edit button: owner only, shown via JS -->
+      <div id="coverEditBtn" style="display:none;position:absolute;top:8px;right:8px;z-index:25;background:rgba(0,0,0,0.6);border:2px solid #00d4ff;border-radius:8px;padding:5px 10px;color:#00d4ff;font-size:0.75rem;font-weight:900;cursor:pointer;font-family:'Orbitron',sans-serif;" onclick="document.getElementById('teamCoverInput').click()">✏️ COVER</div>
     </div>
-    <div class="team-dp" id="teamDp">👥</div>
+    <!-- Logo + edit button wrapper -->
+    <div style="position:relative;display:inline-block;left:50%;transform:translateX(-50%);margin-top:0;">
+      <div class="team-dp" id="teamDp">👥</div>
+      <!-- Logo edit button: outside circle, bottom-right, owner only -->
+      <div id="logoEditBtn" style="display:none;position:absolute;bottom:-4px;right:-4px;z-index:30;width:26px;height:26px;background:linear-gradient(135deg,#00ff88,#00d4ff);border:2px solid #0d1117;border-radius:50%;align-items:center;justify-content:center;cursor:pointer;font-size:0.85rem;box-shadow:0 0 10px rgba(0,212,255,0.6);" onclick="document.getElementById('teamLogoInput').click()">📷</div>
+    </div>
     <div class="team-profile-info">
       <div class="team-profile-name" id="teamNameDisplay">Team</div>
       <div class="team-profile-username" id="teamUsernameDisplay">@team</div>
@@ -338,7 +343,7 @@ body { font-family:'Rajdhani',sans-serif; background:#0d1117; color:#fff; min-he
     </div>
   </div>
   <div class="request-card hidden" id="requestCard">
-    <div class="request-title">📥 PLAYER REQUESTS <span class="request-badge" id="requestCount">0</span></div>
+    <div class="request-title">📥 TEAM REQUESTS <span class="request-badge" id="requestCount">0</span></div>
     <div id="requestList"></div>
     <div class="no-requests hidden" id="noRequests">No pending requests</div>
   </div>
@@ -466,7 +471,6 @@ const db = getFirestore(app);
 const TEAM_COST = 20;
 const MAX_MEMBERS = 5;
 const ROLES = ['IGL','Rusher','Sniper','Assaulter','Supporter','Primary Rusher','Default'];
-const UNIQUE_ROLES = ['IGL', 'Sniper', 'Rusher'];
 const LEVEL_TYPES = {1:{name:'COLLEGE',icon:'🎓'},2:{name:'UNIVERSITY',icon:'🏛️'},3:{name:'ZONAL',icon:'⭐'},4:{name:'DISTRICT',icon:'🏅'},5:{name:'STATE',icon:'👑'}};
 
 let currentUser = null;
@@ -485,6 +489,7 @@ let currentMenuPosition = null;
 let refreshCooldown = false;
 let refreshTimer = null;
 let loadingHidden = false;
+// ✅ FIX: Delete operation ke dauran snapshots ko pause karne ke liye flag
 let isDeletingTeam = false;
 
 /* ===== SAFE HIDE LOADING ===== */
@@ -569,7 +574,9 @@ function listenToMyUser() {
   userUnsub = onSnapshot(
     doc(db, 'users', currentUser.uid),
     (snap) => {
+      // ✅ FIX: Delete operation ke dauran user snapshot ko ignore karo
       if (isDeletingTeam) return;
+
       if (!snap.exists()) {
         myData = { teamId: null }; myTeamId = null; showNoTeamView(); return;
       }
@@ -610,7 +617,9 @@ function listenToTeam(teamId) {
   teamUnsub = onSnapshot(
     doc(db, 'teams', teamId),
     (snap) => {
+      // ✅ FIX: Delete operation ke dauran team snapshot ignore karo
       if (isDeletingTeam) return;
+
       if (!snap.exists()) {
         myTeamId = null;
         updateDoc(doc(db, 'users', currentUser.uid), { teamId: null }).catch(() => {});
@@ -638,7 +647,9 @@ function listenToMembers(teamId) {
   membersUnsub = onSnapshot(
     qy,
     (snap) => {
+      // ✅ FIX: Delete operation ke dauran members snapshot ignore karo
       if (isDeletingTeam) return;
+
       currentMembers = [];
       snap.forEach(d => currentMembers.push({ id: d.id, ...d.data() }));
       renderTeamView();
@@ -668,7 +679,7 @@ function showNoTeamView() {
   loadInvites();
 }
 
-function roleOf(m) { return m.role || 'Default'; }
+function roleOf(m) { return (m.uid === currentTeam.ownerUid) ? 'IGL' : (m.role || 'Default'); }
 
 async function renderTeamView() {
   hideLoading();
@@ -681,41 +692,13 @@ async function renderTeamView() {
   document.getElementById('teamUsernameDisplay').textContent = '@' + (currentTeam.teamUsername || '').replace(/^@/, '');
   if (currentTeam.teamCover) document.getElementById('teamCover').style.backgroundImage = "url('" + currentTeam.teamCover + "')";
   const dp = document.getElementById('teamDp');
-  dp.innerHTML = currentTeam.teamLogo ? ('<img src="' + currentTeam.teamLogo + '" style="width:100%;height:100%;object-fit:cover;">') : '👥';
+  dp.innerHTML = currentTeam.teamLogo ? ('<img src="' + currentTeam.teamLogo + '">') : '👥';
 
-  // Add DP Edit Button for Owner
-  if (isOwner) {
-    const existingEditBtn = dp.querySelector('.dp-edit-btn');
-    if (!existingEditBtn) {
-      const editBtn = document.createElement('div');
-      editBtn.className = 'dp-edit-btn';
-      editBtn.title = 'Change Logo';
-      editBtn.textContent = '✏️';
-      editBtn.onclick = () => document.getElementById('logoInput').click();
-      dp.appendChild(editBtn);
-    }
-  } else {
-    const existingEditBtn = dp.querySelector('.dp-edit-btn');
-    if (existingEditBtn) existingEditBtn.remove();
-  }
-
-  // Add hidden file input for logo
-  if (!document.getElementById('logoInput')) {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.id = 'logoInput';
-    input.accept = 'image/*';
-    input.style.display = 'none';
-    input.onchange = function() { uploadTeamImage(this, 'logo'); };
-    document.body.appendChild(input);
-  }
-
+  // ✅ Logo & Cover edit buttons — only for owner
+  const logoBtn = document.getElementById('logoEditBtn');
   const coverBtn = document.getElementById('coverEditBtn');
-  if (isOwner) {
-    if (coverBtn) coverBtn.classList.remove('hidden');
-  } else {
-    if (coverBtn) coverBtn.classList.add('hidden');
-  }
+  if (logoBtn) logoBtn.style.display = isOwner ? 'flex' : 'none';
+  if (coverBtn) coverBtn.style.display = isOwner ? 'block' : 'none';
 
   const members = currentMembers.slice().sort((a, b) => a.position - b.position);
   document.getElementById('membersTitle').textContent = '👥 TEAM MEMBERS (' + members.length + '/5)';
@@ -748,14 +731,11 @@ async function renderTeamView() {
     const role = roleOf(m);
     const canEditRole = isOwner || m.uid === currentUser.uid;
     const ownerBadge = memberIsOwner ? ' <span class="member-badge">OWNER</span>' : '';
-    
-    const roleDisplay = role !== 'Default' ? role : role;
-    const roleButtonClass = role === 'Default' ? 'default' : '';
-    
-    let roleBtnHtml = canEditRole && !(memberIsOwner && !isOwner)
-      ? '<div class="role-select-btn ' + roleButtonClass + '" onclick="openRolePopup(' + pos + ')">' + roleDisplay + ownerBadge + '</div>'
-      : '<div class="role-select-btn disabled">' + roleDisplay + ownerBadge + '</div>';
-    
+    // ✅ FIX: Default role = grey style, any selected role = green style
+    const roleClass = (role === 'Default') ? 'default' : '';
+    let roleBtnHtml = canEditRole
+      ? '<div class="role-select-btn ' + roleClass + '" onclick="openRolePopup(' + pos + ')">' + role + ownerBadge + '</div>'
+      : '<div class="role-select-btn ' + roleClass + ' disabled">' + role + ownerBadge + '</div>';
     box.className = 'member-box filled' + (pos === 5 ? ' extra-player' : '');
     box.dataset.uid = m.uid;
     box.innerHTML =
@@ -820,12 +800,11 @@ window.openTeamPopup = async function(teamId) {
       let u = {};
       if (uDocs[i].status === 'fulfilled' && uDocs[i].value.exists()) u = uDocs[i].value.data();
       const photo = u.photoURL ? '<img src="' + u.photoURL + '">' : '👤';
-      const role = m.role || 'Default';
-      const displayRole = role + (m.uid === team.ownerUid ? ' 👑' : '');
+      const role = (m.uid === team.ownerUid) ? 'IGL' : (m.role || 'Default');
       membersHtml += '<div class="team-popup-member" onclick="openQuickCard(\'' + m.uid + '\')">' +
         '<div class="team-popup-member-av">' + photo + '</div>' +
         '<div><div class="team-popup-member-name">' + (u.name || 'Player') + '</div>' +
-        '<div class="team-popup-member-role">' + displayRole + '</div></div></div>';
+        '<div class="team-popup-member-role">' + role + (m.uid === team.ownerUid ? ' 👑' : '') + '</div></div></div>';
     });
     let joinBtnClass = 'team-popup-join-btn', joinBtnText = '✅ JOIN TEAM', joinOnclick = 'sendJoinRequestFromPopup(\'' + teamId + '\')', joinDisabled = '';
     if (alreadyInTeam) { joinBtnClass += ' disabled-state'; joinBtnText = 'ALREADY IN TEAM'; joinDisabled = 'disabled'; }
@@ -1061,37 +1040,16 @@ window.submitCreateTeam = async function() {
 /* ===== JOIN REQUESTS ===== */
 window.acceptJoinRequest = async function(uid) {
   try {
-    const teamRef = doc(db,'teams',currentTeam.id);
-    const userRef = doc(db,'users',uid);
-    const [tSnap,uSnap] = await Promise.all([getDoc(teamRef),getDoc(userRef)]);
-    if (!tSnap.exists()) throw new Error('Team not found');
-    if (!uSnap.exists()) throw new Error('User not found');
-    const team = tSnap.data();
-    if ((team.memberCount||0)>=MAX_MEMBERS) throw new Error('Team is full');
-    if ((team.memberUids||[]).includes(uid)) throw new Error('Already in team');
-    const user = uSnap.data();
-    if (user.teamId) throw new Error('Player in another team');
-    const occupied = team.memberPositions||[];
-    let pos=1; for(;pos<=MAX_MEMBERS;pos++){ if(!occupied.includes(pos)) break; }
-    await runTransaction(db, async tx => {
-      tx.set(doc(db,'teamMembers',uid), {
-        uid, teamId: currentTeam.id,
-        role:'Default', position:pos, joinedAt:serverTimestamp()
-      });
-      tx.update(userRef, { teamId: currentTeam.id });
-      tx.update(teamRef, {
-        memberUids: arrayUnion(uid),
-        memberCount: (team.memberCount||0)+1,
-        memberPositions: arrayUnion(pos),
-        joinRequests: arrayRemove(uid)
-      });
+    await runTransaction(db, async (tx) => {
+      const teamRef = doc(db, 'teams', currentTeam.id);
+      const tSnap = await tx.get(teamRef); const team = tSnap.data();
+      if (Number(team.memberCount || 0) >= MAX_MEMBERS) throw new Error('Team is full');
+      if ((team.memberUids || []).includes(uid)) throw new Error('Already in team');
+      tx.update(teamRef, { joinRequests: arrayRemove(uid), approvedUids: arrayUnion(uid) });
     });
-    showToast('Player added to team!');
-  } catch(e) {
-    console.error('Accept request error:', e);
-    showToast(e.message||'Error', true);
-  }
-};
+    showToast('Player approved!');
+  } catch (e) { console.error(e); showToast(e.message || 'Error', true); }
+}
 window.rejectJoinRequest = async function(uid) {
   try { await updateDoc(doc(db, 'teams', currentTeam.id), { joinRequests: arrayRemove(uid) }); showToast('Request rejected'); }
   catch (e) { console.error(e); showToast('Error', true); }
@@ -1102,43 +1060,47 @@ window.confirmLeaveTeam = function() {
   showConfirm('🚪', 'LEAVE TEAM?', 'Kya aap sure hain?<br><strong>Wapas join karne ke liye request bhejni padegi.</strong>', leaveTeam, 'warn');
 }
 async function leaveTeam() {
-  const teamId = currentTeam.id;
-  const myPos = (currentMembers.find(m => m.uid === currentUser.uid) || {}).position;
-  const memberRef = doc(db, 'teamMembers', currentUser.uid);
-  const userRef = doc(db, 'users', currentUser.uid);
-  const teamRef = doc(db, 'teams', teamId);
-
   try {
-    await deleteDoc(memberRef);
-    await updateDoc(userRef, { teamId: null });
-
-    const tSnap = await getDoc(teamRef);
-    if (tSnap.exists()) {
-      const team = tSnap.data();
-      const upd = {
-        memberUids: arrayRemove(currentUser.uid),
-        memberCount: Math.max(0, Number(team.memberCount || 1) - 1)
-      };
+    const teamRef = doc(db, 'teams', currentTeam.id);
+    const userRef = doc(db, 'users', currentUser.uid);
+    const memberRef = doc(db, 'teamMembers', currentUser.uid);
+    const myPos = (currentMembers.find(m => m.uid === currentUser.uid) || {}).position;
+    await runTransaction(db, async (tx) => {
+      const tSnap = await tx.get(teamRef); const team = tSnap.data();
+      tx.delete(memberRef);
+      tx.update(userRef, { teamId: null });
+      const upd = { memberUids: arrayRemove(currentUser.uid), memberCount: Math.max(0, Number(team.memberCount || 1) - 1) };
       if (myPos) upd.memberPositions = arrayRemove(myPos);
-      await updateDoc(teamRef, upd);
-    }
-
-    closeConfirmPopup();
-    showToast('Team left! 👋');
-  } catch (e) {
-    console.error('Leave team error:', e.code, e.message);
-    showToast('Error leaving team: ' + (e.message || e.code), true);
-  }
+      tx.update(teamRef, upd);
+    });
+    closeConfirmPopup(); showToast('Team left!');
+  } catch (e) { console.error(e); showToast('Error leaving team', true); }
 }
 
-/* ===== DELETE TEAM ===== */
+/* ===================================================================
+   ✅ FIXED: DELETE TEAM — RACE CONDITION FIX
+   
+   Problem था:
+   1. currentMembers loop mein members delete hote the
+   2. Firestore snapshot reactive tha — delete hote hi snapshot fire hoti thi
+   3. Snapshot mein currentTeam = null ho jaata tha (listenToMyUser -> showNoTeamView)
+   4. Phir deleteDoc(teams/currentTeam.id) — currentTeam.id = undefined → ERROR
+   
+   Fix:
+   1. isDeletingTeam = true karo — sabhi snapshots ignore ho jaayein
+   2. teamId aur members ko LOCAL COPY mein save karo — currentTeam par depend mat karo
+   3. Saari cleanup parallel mein karo (Promise.allSettled)
+   4. teams document SABSE BAAD delete karo
+   5. Phir isDeletingTeam = false karo aur manually cleanup karo
+=================================================================== */
 window.confirmDeleteTeam = function() {
   showConfirm('🗑️', 'DELETE TEAM?', 'Kya aap sure hain?<br><strong>Team permanently delete ho jayegi. Ye action undo nahi hoga!</strong>', deleteTeam, 'danger');
 }
 
 async function deleteTeam() {
+  // ✅ Step 1: Local copies save karo — snapshot reactions se safe rahein
   const teamIdToDelete = currentTeam ? currentTeam.id : null;
-  const membersToDelete = [...currentMembers];
+  const membersToDelete = [...currentMembers]; // Deep copy
 
   if (!teamIdToDelete) {
     showToast('Team ID not found. Please refresh.', true);
@@ -1146,12 +1108,17 @@ async function deleteTeam() {
     return;
   }
 
+  // ✅ Step 2: Snapshot reactions PAUSE karo
   isDeletingTeam = true;
+
+  // UI se buttons hatao turant
   closeConfirmPopup();
   document.getElementById('navDeleteBtn').classList.add('hidden');
   document.getElementById('navLeaveBtn').classList.add('hidden');
 
   try {
+    // ✅ Step 3: Saare members ke user documents update karo (teamId: null)
+    // Promise.allSettled use karo — ek failure se baaki na ruke
     if (membersToDelete.length > 0) {
       await Promise.allSettled(
         membersToDelete.map(m =>
@@ -1160,6 +1127,7 @@ async function deleteTeam() {
       );
     }
 
+    // ✅ Step 4: Saare teamMembers documents delete karo
     if (membersToDelete.length > 0) {
       await Promise.allSettled(
         membersToDelete.map(m =>
@@ -1168,15 +1136,20 @@ async function deleteTeam() {
       );
     }
 
+    // ✅ Step 5: SABSE BAAD teams document delete karo
+    // Yeh CRITICAL hai — pehle members delete, phir team
     await deleteDoc(doc(db, 'teams', teamIdToDelete));
 
+    // ✅ Step 6: Snapshots unsubscribe karo
     if (teamUnsub) { teamUnsub(); teamUnsub = null; }
     if (membersUnsub) { membersUnsub(); membersUnsub = null; }
 
+    // ✅ Step 7: Local state reset karo
     currentTeam = null;
     currentMembers = [];
     myTeamId = null;
 
+    // ✅ Step 8: isDeletingTeam false karo PEHLE showNoTeamView se
     isDeletingTeam = false;
 
     showToast('Team successfully deleted! ✅');
@@ -1186,113 +1159,108 @@ async function deleteTeam() {
     console.error('Delete team error:', e);
     isDeletingTeam = false;
     showToast('Error: ' + (e.message || 'Team delete failed'), true);
+    // Error hone par buttons wapas dikhao
     document.getElementById('navDeleteBtn').classList.remove('hidden');
   }
 }
 
-/* ===== TEAM IMAGE EDIT (Owner Only) ===== */
-window.uploadTeamImage = async function(input, type) {
-  if (!isOwner) { showToast('Sirf Owner image change kar sakta hai', true); return; }
-  const file = input.files[0];
-  if (!file) return;
-  if (file.size > 2 * 1024 * 1024) { showToast('Image 2MB se chhoti honi chahiye', true); input.value = ''; return; }
+/* ===== ROLE ===== */
+// Unique roles: only 1 member can hold these at a time
+const UNIQUE_ROLES = ['IGL', 'Sniper', 'Rusher'];
 
-  showToast('Uploading...');
-  try {
-    const base64 = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = e => {
-        const img = new Image();
-        img.src = e.target.result;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const maxSize = type === 'cover' ? 800 : 400;
-          let w = img.width, h = img.height;
-          if (w > h) { if (w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize; } }
-          else { if (h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize; } }
-          canvas.width = w; canvas.height = h;
-          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          resolve(canvas.toDataURL('image/jpeg', 0.75));
-        };
-        img.onerror = reject;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-
-    const updateData = type === 'cover'
-      ? { teamCover: base64 }
-      : { teamLogo: base64 };
-
-    await updateDoc(doc(db, 'teams', currentTeam.id), updateData);
-    showToast(type === 'cover' ? 'Cover updated! ✅' : 'Logo updated! ✅');
-    input.value = '';
-  } catch (e) {
-    console.error('Image upload error:', e);
-    showToast('Image upload failed: ' + (e.message || e.code), true);
-    input.value = '';
-  }
-}
-
-/* ===== ROLE POPUP WITH UNIQUE ROLE VALIDATION ===== */
 window.openRolePopup = function(position) {
   const m = currentMembers.find(x => x.position === position);
   if (!m) return;
-  
-  if (!(isOwner || m.uid === currentUser.uid)) {
-    showToast('Sirf apna role change kar sakte ho', true); 
-    return;
-  }
-  
+  const memberIsOwner = m.uid === currentTeam.ownerUid;
+  // ✅ FIX: Owner can change their own role too (owner badge is separate from role)
+  if (!(isOwner || m.uid === currentUser.uid)) { showToast('Sirf apna role change kar sakte ho', true); return; }
   currentEditingPosition = position;
-  const optionsDiv = document.getElementById('roleOptions'); 
-  optionsDiv.innerHTML = '';
-  const currentRole = m.role || 'Default';
-  
-  const assignedRoles = {};
-  currentMembers.forEach(member => {
-    const role = member.role || 'Default';
-    if (role !== 'Default') {
-      assignedRoles[role] = (assignedRoles[role] || 0) + 1;
-    }
+  const optionsDiv = document.getElementById('roleOptions'); optionsDiv.innerHTML = '';
+  const currentRole = roleOf(m);
+
+  // Build set of currently taken unique roles (excluding current member's role)
+  const takenUniqueRoles = new Set();
+  currentMembers.forEach(other => {
+    if (other.uid === m.uid) return; // skip self
+    const r = roleOf(other);
+    if (UNIQUE_ROLES.includes(r)) takenUniqueRoles.add(r);
   });
-  
+
   ROLES.forEach(role => {
     const opt = document.createElement('div');
-    opt.className = 'role-option';
-    
-    const isUnique = UNIQUE_ROLES.includes(role);
-    const isTakenBySomeoneElse = isUnique && assignedRoles[role] && role !== currentRole;
-    
-    if (isTakenBySomeoneElse) {
-      opt.classList.add('locked');
-      opt.innerHTML = role + ' <span class="lock-icon">🔒</span>';
-      opt.onclick = () => showToast('Another member already has this role!', true);
+    const isCurrent = role === currentRole;
+    const isTakenUnique = UNIQUE_ROLES.includes(role) && takenUniqueRoles.has(role);
+    opt.className = 'role-option' + (isCurrent ? ' current' : '') + (isTakenUnique ? ' locked' : '');
+
+    if (isTakenUnique) {
+      // Already taken by another member
+      opt.innerHTML = role + ' <span class="lock-icon">🔒 Already taken</span>';
+      opt.onclick = () => showToast(role + ' pehle se kisi aur ka hai', true);
     } else {
-      if (role === currentRole) opt.classList.add('current');
       opt.innerHTML = role;
       opt.onclick = () => selectRole(role);
     }
-    
     optionsDiv.appendChild(opt);
   });
-  
   showPopup('rolePopup', 'roleOverlay');
 }
 window.closeRolePopup = function() { hidePopup('rolePopup', 'roleOverlay'); currentEditingPosition = null; }
 async function selectRole(newRole) {
-  const m = currentMembers.find(x => x.position === currentEditingPosition); 
-  if (!m) return;
-  
-  try { 
-    await updateDoc(doc(db, 'teamMembers', m.uid), { role: newRole }); 
-    closeRolePopup(); 
-    showToast('Role changed to ' + newRole); 
+  const m = currentMembers.find(x => x.position === currentEditingPosition); if (!m) return;
+  // Double-check uniqueness before saving
+  if (UNIQUE_ROLES.includes(newRole)) {
+    const alreadyTaken = currentMembers.some(other => other.uid !== m.uid && roleOf(other) === newRole);
+    if (alreadyTaken) { showToast(newRole + ' pehle se kisi aur ka hai', true); return; }
   }
-  catch (e) { 
-    console.error(e); 
-    showToast('Error changing role', true); 
-  }
+  try {
+    await updateDoc(doc(db, 'teamMembers', m.uid), { role: newRole });
+    closeRolePopup(); showToast('Role changed to ' + newRole);
+  } catch (e) { console.error(e); showToast('Error changing role', true); }
+}
+
+/* ===== TEAM IMAGE EDIT (Owner Only) ===== */
+function compressTeamImage(file, maxSize, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (e) => {
+      const img = new Image();
+      img.src = e.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        if (w > h) { if (w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize; } }
+        else { if (h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize; } }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+    };
+    reader.onerror = reject;
+  });
+}
+window.handleTeamLogoChange = async function(input) {
+  const file = input.files[0]; if (!file || !currentTeam || !isOwner) return;
+  if (file.size > 2 * 1024 * 1024) { showToast('Image 2MB se chhota hona chahiye', true); return; }
+  try {
+    const base64 = await compressTeamImage(file, 400, 0.7);
+    await updateDoc(doc(db, 'teams', currentTeam.id), { teamLogo: base64 });
+    document.getElementById('teamDp').innerHTML = '<img src="' + base64 + '">';
+    showToast('Team logo updated! ✅');
+  } catch (e) { console.error(e); showToast('Logo update failed', true); }
+  input.value = '';
+}
+window.handleTeamCoverChange = async function(input) {
+  const file = input.files[0]; if (!file || !currentTeam || !isOwner) return;
+  if (file.size > 2 * 1024 * 1024) { showToast('Image 2MB se chhota hona chahiye', true); return; }
+  try {
+    const base64 = await compressTeamImage(file, 800, 0.7);
+    await updateDoc(doc(db, 'teams', currentTeam.id), { teamCover: base64 });
+    document.getElementById('teamCover').style.backgroundImage = "url('" + base64 + "')";
+    showToast('Team cover updated! ✅');
+  } catch (e) { console.error(e); showToast('Cover update failed', true); }
+  input.value = '';
 }
 
 /* ===== OWNER MENU ===== */
@@ -1306,102 +1274,80 @@ window.openOwnerMenu = function(position) {
 }
 window.closeOwnerMenu = function() { hidePopup('ownerMenuPopup', 'menuOverlay'); currentMenuPosition = null; }
 window.handleExtraPlayerAction = function() {
-  const pos = currentMenuPosition; 
-  closeOwnerMenu();
-  if (pos === 5) {
-    showConfirm('🔄', 'MOVE TO MAIN TEAM?', 'Move this player from Extra to Main team?', () => moveExtra(pos, false));
-  } else {
-    showConfirm('🔄', 'MOVE TO EXTRA PLAYER?', 'Move this player to Extra Player slot?', () => moveExtra(pos, true));
-  }
+  const pos = currentMenuPosition; closeOwnerMenu();
+  if (pos === 5) showConfirm('🔄', 'MOVE TO MAIN TEAM?', 'Move this player from Extra to Main team?', () => moveExtra(pos, false));
+  else showConfirm('🔄', 'MOVE TO EXTRA PLAYER?', 'Move this player to Extra Player slot?', () => moveExtra(pos, true));
 }
 async function moveExtra(pos, toExtra) {
-  const m = currentMembers.find(x => x.position === pos); 
-  if (!m) { closeConfirmPopup(); return; }
-  
+  const m = currentMembers.find(x => x.position === pos); if (!m) { closeConfirmPopup(); return; }
   const positionsTaken = currentMembers.map(x => x.position);
-  
   try {
     let target;
-    if (toExtra) { 
-      if (positionsTaken.includes(5)) throw new Error('Extra slot (5) is occupied'); 
-      target = 5; 
-    } else { 
-      target = 1; 
-      for (let p = 1; p <= 4; p++) { 
-        if (!positionsTaken.includes(p)) { target = p; break; } 
-      } 
-    }
-    
-    const teamSnap = await getDoc(doc(db, 'teams', currentTeam.id));
-    if (!teamSnap.exists()) throw new Error('Team not found');
-    
-    const tData = teamSnap.data();
-    const taken = (tData.memberPositions || []).filter(p => p !== pos);
-    taken.push(target);
-    
-    await updateDoc(doc(db, 'teamMembers', m.uid), { position: target });
-    await updateDoc(doc(db, 'teams', currentTeam.id), { memberPositions: taken });
-    
-    closeConfirmPopup(); 
-    showToast('Player moved!');
-  } catch (e) { 
-    console.error(e); 
-    showToast(e.message || 'Error', true); 
-  }
+    if (toExtra) { if (positionsTaken.includes(5)) throw new Error('Extra slot (5) is occupied'); target = 5; }
+    else { target = 1; for (let p = 1; p <= 4; p++) { if (!positionsTaken.includes(p)) { target = p; break; } } }
+    // ✅ FIX: ALL reads BEFORE all writes in transaction
+    await runTransaction(db, async (tx) => {
+      const teamRef = doc(db, 'teams', currentTeam.id);
+      const memberRef = doc(db, 'teamMembers', m.uid);
+      // --- READS FIRST ---
+      const tSnap = await tx.get(teamRef);
+      // --- WRITES AFTER ALL READS ---
+      const taken = (tSnap.data().memberPositions || []).filter(p => p !== pos);
+      taken.push(target);
+      tx.update(memberRef, { position: target });
+      tx.update(teamRef, { memberPositions: taken });
+    });
+    closeConfirmPopup(); showToast('Player moved!');
+  } catch (e) { console.error(e); showToast(e.message || 'Error', true); }
 }
 window.transferOwnership = function() {
-  const pos = currentMenuPosition; 
-  closeOwnerMenu();
+  const pos = currentMenuPosition; closeOwnerMenu();
   showConfirm('👑', 'TRANSFER OWNERSHIP?', 'Confirm? <strong>Transfer ke baad aap owner nahi rahoge.</strong>', () => doTransfer(pos));
 }
 async function doTransfer(pos) {
-  const target = currentMembers.find(m => m.position === pos); 
-  if (!target) { showToast('Player not found', true); return; }
-  
+  const target = currentMembers.find(m => m.position === pos); if (!target) { showToast('Player not found', true); return; }
   try {
-    const teamSnap = await getDoc(doc(db, 'teams', currentTeam.id));
-    if (!teamSnap.exists()) throw new Error('Team not found');
-    
-    await updateDoc(doc(db, 'teams', currentTeam.id), { ownerUid: target.uid });
-    await updateDoc(doc(db, 'teamMembers', currentUser.uid), { role: 'Default' });
-    
-    closeConfirmPopup(); 
-    showToast('Ownership transferred!');
-  } catch (e) { 
-    console.error(e); 
-    showToast(e.message || 'Error', true); 
-  }
+    await runTransaction(db, async (tx) => {
+      tx.update(doc(db, 'teams', currentTeam.id), { ownerUid: target.uid });
+      tx.update(doc(db, 'teamMembers', currentUser.uid), { role: 'Default' });
+    });
+    closeConfirmPopup(); showToast('Ownership transferred!');
+  } catch (e) { console.error(e); showToast(e.message || 'Error', true); }
 }
-
-/* ===== KICK PLAYER ===== */
 window.kickPlayer = function() {
-  const pos = currentMenuPosition; 
-  const m = currentMembers.find(x => x.position === pos); 
-  if (!m) return;
+  const pos = currentMenuPosition; const m = currentMembers.find(x => x.position === pos); if (!m) return;
   closeOwnerMenu();
   showConfirm('🗑️', 'KICK PLAYER?', 'Are you sure?<br><strong>This cannot be undone.</strong>', () => doKick(m.uid, m.position), 'danger');
 }
 async function doKick(uid, kpos) {
   try {
-    const teamSnap = await getDoc(doc(db, 'teams', currentTeam.id));
-    if (!teamSnap.exists()) throw new Error('Team not found');
-    const team = teamSnap.data();
-    
-    const upd = { 
-      memberUids: arrayRemove(uid), 
-      memberCount: Math.max(0, Number(team.memberCount || 1) - 1) 
-    };
-    if (kpos) upd.memberPositions = arrayRemove(kpos);
-    
-    await deleteDoc(doc(db, 'teamMembers', uid));
-    await updateDoc(doc(db, 'users', uid), { teamId: null });
-    await updateDoc(doc(db, 'teams', currentTeam.id), upd);
-    
-    closeConfirmPopup(); 
+    // ✅ FIX: Transaction mein reads pehle, writes baad mein
+    // ✅ FIX: users/{uid} update transaction mein nahi — permission issue tha
+    //         Kicked user ka teamId separately update karo transaction ke baad
+    const teamId = currentTeam.id;
+    await runTransaction(db, async (tx) => {
+      const teamRef = doc(db, 'teams', teamId);
+      const memberRef = doc(db, 'teamMembers', uid);
+      // --- READ FIRST ---
+      const tSnap = await tx.get(teamRef);
+      const team = tSnap.data();
+      // --- WRITES AFTER ALL READS ---
+      tx.delete(memberRef);
+      const upd = {
+        memberUids: arrayRemove(uid),
+        memberCount: Math.max(0, Number(team.memberCount || 1) - 1)
+      };
+      if (kpos) upd.memberPositions = arrayRemove(kpos);
+      tx.update(teamRef, upd);
+    });
+    // ✅ Kicked user ka teamId alag se update karo (transaction ke baad)
+    // Yeh permission issue se bachata hai
+    await updateDoc(doc(db, 'users', uid), { teamId: null }).catch(() => {});
+    closeConfirmPopup();
     showToast('Player kicked!');
-  } catch (e) { 
-    console.error('Kick player error:', e); 
-    showToast('Error: ' + (e.message || 'Failed to kick player'), true); 
+  } catch (e) {
+    console.error('Kick error:', e);
+    showToast('Error kicking player: ' + (e.message || ''), true);
   }
 }
 
