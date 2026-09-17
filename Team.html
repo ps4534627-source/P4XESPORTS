@@ -681,6 +681,15 @@ function showNoTeamView() {
 
 function roleOf(m) { return (m.uid === currentTeam.ownerUid) ? 'IGL' : (m.role || 'Default'); }
 
+// ADDED: reusable verification badge (Connect-to-Team feature — requirement #8)
+function verifiedBadgeHtml(status) {
+  if (status === true) {
+    return ' <span style="display:inline-flex;align-items:center;gap:3px;background:rgba(0,255,136,0.15);border:1px solid #00ff88;color:#00ff88;font-size:0.55rem;font-weight:900;padding:2px 7px;border-radius:8px;vertical-align:middle;font-family:\'Orbitron\',sans-serif;">🛡️ VERIFIED TEAM</span>';
+  }
+  return ' <span style="display:inline-flex;align-items:center;gap:3px;background:rgba(136,136,136,0.15);border:1px solid #666;color:#999;font-size:0.55rem;font-weight:900;padding:2px 7px;border-radius:8px;vertical-align:middle;font-family:\'Orbitron\',sans-serif;">NON-VERIFIED TEAM</span>';
+}
+window.verifiedBadgeHtml = verifiedBadgeHtml;
+
 async function renderTeamView() {
   hideLoading();
   document.getElementById('noTeamView').classList.add('hidden');
@@ -688,7 +697,7 @@ async function renderTeamView() {
   document.getElementById('navCreateBtn').classList.add('hidden');
   document.getElementById('navLeaveBtn').classList.toggle('hidden', isOwner);
   document.getElementById('navDeleteBtn').classList.toggle('hidden', !isOwner);
-  document.getElementById('teamNameDisplay').textContent = currentTeam.teamName || 'Team';
+  document.getElementById('teamNameDisplay').innerHTML = (currentTeam.teamName || 'Team') + verifiedBadgeHtml(currentTeam.verificationStatus); // CHANGED: badge added
   document.getElementById('teamUsernameDisplay').textContent = '@' + (currentTeam.teamUsername || '').replace(/^@/, '');
   if (currentTeam.teamCover) document.getElementById('teamCover').style.backgroundImage = "url('" + currentTeam.teamCover + "')";
   const dp = document.getElementById('teamDp');
@@ -812,7 +821,7 @@ window.openTeamPopup = async function(teamId) {
     else if (isFull) { joinBtnClass += ' full-state'; joinBtnText = '❌ TEAM FULL'; joinDisabled = 'disabled'; }
     content.innerHTML = coverHtml +
       '<div class="team-popup-dp-wrap"><div class="team-popup-dp">' + logoHtml + '</div></div>' +
-      '<div class="team-popup-info"><div class="team-popup-name">' + (team.teamName || 'Team') + '</div>' +
+      '<div class="team-popup-info"><div class="team-popup-name">' + (team.teamName || 'Team') + verifiedBadgeHtml(team.verificationStatus) + '</div>' +
       '<div class="team-popup-username">@' + (team.teamUsername || '').replace(/^@/, '') + '</div>' +
       '<div class="team-popup-slots">👥 ' + memberCount + '/5 | ' + remaining + ' slots left</div></div>' +
       '<div class="team-popup-members-title">👥 MEMBERS</div>' +
@@ -1029,7 +1038,7 @@ window.submitCreateTeam = async function() {
       const bal = Number(uData.balance || 0);
       if (bal < TEAM_COST) throw new Error('Insufficient balance');
       if (uData.teamId) throw new Error('You are already in a team');
-      tx.set(teamRef, { teamName: name, teamUsername: username, whatsapp: '+91' + phone, teamLogo: createDpData || '', teamCover: createBgData || '', ownerUid: currentUser.uid, memberCount: 1, memberUids: [currentUser.uid], memberPositions: [1], joinRequests: [], approvedUids: [], createdAt: serverTimestamp() });
+      tx.set(teamRef, { teamName: name, teamUsername: username, whatsapp: '+91' + phone, teamLogo: createDpData || '', teamCover: createBgData || '', ownerUid: currentUser.uid, memberCount: 1, memberUids: [currentUser.uid], memberPositions: [1], joinRequests: [], approvedUids: [], createdAt: serverTimestamp(), verificationStatus: false, teamColor: '#00d4ff' }); // ADDED: verificationStatus + teamColor (Connect-to-Team feature)
       tx.set(memberRef, { uid: currentUser.uid, teamId: teamRef.id, role: 'IGL', position: 1, joinedAt: serverTimestamp() });
       tx.update(userRef, { balance: bal - TEAM_COST, teamId: teamRef.id });
     });
