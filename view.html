@@ -1064,10 +1064,20 @@
     <div class="modal-box">
       <h3 id="modalTitle">SQUAD BERMUDA - ₹100</h3>
       <div class="match-type" id="matchTypeText" style="text-align:center;color:#7B61FF;font-size:13px;margin-bottom:15px;font-weight:bold;">Match Type: SQUAD</div>
-      
+
+      <!-- ADDED: TEAM CONNECTION SECTION (Connect-to-Team feature) -->
+      <div id="teamConnectSection" style="background:#0D1117;border:1px solid #00D4FF40;border-radius:10px;padding:12px;margin-bottom:14px;">
+        <div style="color:#00D4FF;font-weight:bold;font-size:13px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">🔗 TEAM CONNECTION</div>
+        <div id="teamConnectStatus" style="font-size:12.5px;color:#7B7B7B;line-height:1.5;">Checking your team...</div>
+        <div id="teamConnectDetails" style="display:none;margin-top:10px;"></div>
+        <button id="connectTeamBtn" style="display:none;width:100%;padding:11px;margin-top:10px;background:linear-gradient(90deg,#00D4FF,#7B61FF);color:#fff;border:none;border-radius:8px;font-weight:bold;font-size:13px;cursor:pointer;" onclick="connectTeamToBattle()">CONNECT TO TEAM</button>
+      </div>
+
+      <div id="manualJoinFields">
       <input type="text" id="teamName" placeholder="Team Name">
       <input type="tel" id="whatsapp" placeholder="Captain WhatsApp Number">
-      
+      </div>
+
       <label>Payment Method</label>
       <div class="payment-tab">
           <button id="inrBtn" class="active" onclick="selectPayment('inr')">₹ INR</button>
@@ -1079,10 +1089,14 @@
           <input type="text" id="referralCode" placeholder="Enter Referral Code">
           <div class="note" style="color:#FF6B6B;font-size:11px;text-align:center;margin-top:8px;">Note: Referral only works with INR payment</div>
       </div>
-      
+
+      <div id="manualPlayerFieldsWrap">
       <label>Player Details</label>
       <div id="playerFields"></div>
-      
+      </div>
+      <!-- ADDED: shows the connected team's players read-only when Connect-to-Team is used -->
+      <div id="connectedPlayersPreview" style="display:none;margin-top:6px;"></div>
+
       <button class="submit-btn" id="submitBtn" onclick="openConfirmPopup()" style="width:100%;padding:14px;background:linear-gradient(90deg,#00D4FF,#7B61FF);color:white;font-weight:bold;border:none;border-radius:8px;margin-top:12px;font-size:15px;">PAY & JOIN</button>
       <button class="cancel-btn" onclick="closeModal()" style="width:100%;padding:12px;background:transparent;color:#7B7B7B;border:1px solid #30363D;border-radius:8px;margin-top:8px;font-size:14px;">Cancel</button>
     </div>
@@ -1135,6 +1149,9 @@
     let currentMatchData = null;
     let currentPayment = 'inr';
     let formData = {};
+    // ADDED: Connect-to-Team feature state
+    let connectedTeamData = null;   // holds {id, teamName, teamLogo, teamColor, verificationStatus, whatsapp, ownerUid, players:[{name,uid,role,isExtra,userUid}]}
+    let isTeamConnectedFlag = false;
 
     // Particles animation
     const canvas = document.getElementById('particles');
@@ -1636,10 +1653,12 @@ if (joined) {
 }
         document.getElementById('modalTitle').innerText = currentMatchData.matchTitle || `${currentMatchData.matchType} - ₹${currentMatchData.entryFeeINR}`;
         document.getElementById('matchTypeText').innerText = `Match Type: ${currentMatchData.matchType}`;
+        resetTeamConnectState(); // ADDED
         updatePlayerFields();
         setupPaymentTabs();
         selectPayment('inr');
         document.getElementById('joinModal').style.display = 'block';
+        checkTeamConnectionStatus(matchId); // ADDED: Connect-to-Team feature
       }
 
       const matchesGrid = document.getElementById('matchesGrid');
@@ -1756,6 +1775,157 @@ if (joined) {
       });
     }
 
+    // ====================================================
+    // ADDED: CONNECT-TO-TEAM FEATURE (view.html Join Battle popup)
+    // ====================================================
+
+    function resetTeamConnectState() {
+      connectedTeamData = null;
+      isTeamConnectedFlag = false;
+      document.getElementById('manualJoinFields').style.display = 'block';
+      document.getElementById('manualPlayerFieldsWrap').style.display = 'block';
+      document.getElementById('connectedPlayersPreview').style.display = 'none';
+      document.getElementById('connectedPlayersPreview').innerHTML = '';
+      document.getElementById('teamConnectDetails').style.display = 'none';
+      document.getElementById('connectTeamBtn').style.display = 'none';
+      document.getElementById('teamConnectStatus').textContent = 'Checking your team...';
+    }
+
+    // Case A / B / C logic (requirement #1)
+    async function checkTeamConnectionStatus(matchId) {
+      const statusEl = document.getElementById('teamConnectStatus');
+      const detailsEl = document.getElementById('teamConnectDetails');
+      const connectBtn = document.getElementById('connectTeamBtn');
+
+      if (!currentUser) return;
+
+      try {
+        const myUserSnap = await getDoc(doc(db, 'users', currentUser.uid));
+        const myTeamId = myUserSnap.exists() ? (myUserSnap.data().teamId || null) : null;
+
+        // CASE A: not in any team
+        if (!myTeamId) {
+          statusEl.innerHTML = '⚠️ You are not joined to any team.<br><span style="color:#555;font-size:11px;">Join or create a team from the Team page to connect it here.</span>';
+          detailsEl.style.display = 'none';
+          connectBtn.style.display = 'none';
+          return;
+        }
+
+        const teamSnap = await getDoc(doc(db, 'teams', myTeamId));
+        if (!teamSnap.exists()) {
+          statusEl.innerHTML = '⚠️ You are not joined to any team.';
+          connectBtn.style.display = 'none';
+          return;
+        }
+        const team = { id: teamSnap.id, ...teamSnap.data() };
+
+        // CASE B: member but not owner
+        if (team.ownerUid !== currentUser.uid) {
+          statusEl.innerHTML = `Team: <b style="color:#00d4ff;">${team.teamName}</b><br>⚠️ You are not the team owner.<br><span style="color:#555;font-size:11px;">Only the team owner/captain can connect this team to a battle.</span>`;
+          detailsEl.style.display = 'none';
+          connectBtn.style.display = 'none';
+          return;
+        }
+
+        // CASE C: owner — check if already connected to THIS match
+        const slotId = matchId + '_' + team.id;
+        const slotSnap = await getDoc(doc(db, 'battle_team_slots', slotId));
+        const membersSnap = await getDocs(query(collection(db, 'teamMembers'), where('teamId', '==', team.id)));
+        let members = [];
+        membersSnap.forEach(d => members.push(d.data()));
+        members.sort((a, b) => a.position - b.position);
+
+        const userDocs = await Promise.allSettled(members.map(m => getDoc(doc(db, 'users', m.uid))));
+        const playersData = members.map((m, i) => {
+          const u = (userDocs[i].status === 'fulfilled' && userDocs[i].value.exists()) ? userDocs[i].value.data() : {};
+          return {
+            userUid: m.uid,
+            name: u.name || 'Player',
+            photoURL: u.photoURL || '',
+            uid: u.ffuid || '',
+            role: (m.uid === team.ownerUid) ? 'IGL' : (m.role || 'Default'),
+            isExtra: m.position === 5
+          };
+        });
+
+        const badge = team.verificationStatus
+          ? '<span style="background:rgba(0,255,136,0.15);border:1px solid #00ff88;color:#00ff88;font-size:10px;font-weight:900;padding:2px 6px;border-radius:6px;">🛡️ VERIFIED</span>'
+          : '<span style="background:rgba(136,136,136,0.15);border:1px solid #666;color:#999;font-size:10px;font-weight:900;padding:2px 6px;border-radius:6px;">NON-VERIFIED</span>';
+
+        let playersHtml = playersData.map(p => `
+          <div style="display:flex;align-items:center;gap:8px;background:#161b22;border:1px solid ${p.isExtra ? '#ff4757' : 'rgba(0,212,255,0.25)'};border-radius:8px;padding:6px 8px;margin-bottom:6px;">
+            <div style="width:30px;height:30px;border-radius:6px;overflow:hidden;background:#0d1117;flex-shrink:0;display:flex;align-items:center;justify-content:center;">${p.photoURL ? `<img src="${p.photoURL}" style="width:100%;height:100%;object-fit:cover;">` : '👤'}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12px;font-weight:700;color:#fff;">${p.name} ${p.isExtra ? '<span style="color:#ff4757;font-size:9px;font-weight:900;">EXTRA PLAYER</span>' : ''}</div>
+              <input type="text" value="${p.uid}" placeholder="Enter/Verify FF UID" data-uid="${p.userUid}" class="tc-uid-input" style="width:100%;margin-top:3px;padding:5px;font-size:11px;background:#0D1117;border:1px solid #30363D;border-radius:5px;color:#fff;">
+            </div>
+          </div>`).join('');
+
+        statusEl.innerHTML = `<b style="color:#fff;">${team.teamName}</b> ${badge}<br><span style="color:#00ff88;font-size:11px;">${playersData.length} players • Please enter or verify the UID of every participating player.</span>`;
+        detailsEl.innerHTML = playersHtml;
+        detailsEl.style.display = 'block';
+
+        connectedTeamData = { ...team, players: playersData };
+
+        if (slotSnap.exists()) {
+          // Already connected to this exact battle
+          isTeamConnectedFlag = true;
+          connectBtn.style.display = 'block';
+          connectBtn.disabled = true;
+          connectBtn.textContent = '✅ TEAM CONNECTED';
+          connectBtn.style.opacity = '0.7';
+          finalizeTeamConnect(false); // sync manual fields without re-writing lock
+        } else {
+          connectBtn.style.display = 'block';
+          connectBtn.disabled = false;
+          connectBtn.textContent = 'CONNECT TO TEAM';
+          connectBtn.style.opacity = '1';
+        }
+      } catch (e) {
+        console.error('Team connect check error:', e);
+        statusEl.textContent = 'Could not check team status. Please try again.';
+      }
+    }
+
+    // Owner clicks "Connect to Team" — validated again against Firestore rules on submit
+    window.connectTeamToBattle = async function() {
+      if (!connectedTeamData) return;
+      const connectBtn = document.getElementById('connectTeamBtn');
+      connectBtn.disabled = true;
+      connectBtn.textContent = 'Connecting...';
+      try {
+        // Re-check duplicate right before locking it in
+        const slotId = currentMatchData.id + '_' + connectedTeamData.id;
+        const slotSnap = await getDoc(doc(db, 'battle_team_slots', slotId));
+        if (slotSnap.exists()) {
+          alert('⚠️ This team is already connected to this battle.');
+          connectBtn.textContent = '✅ TEAM CONNECTED';
+          isTeamConnectedFlag = true;
+          finalizeTeamConnect(false);
+          return;
+        }
+        isTeamConnectedFlag = true;
+        finalizeTeamConnect(true);
+        connectBtn.textContent = '✅ TEAM CONNECTED';
+        connectBtn.style.opacity = '0.7';
+      } catch (e) {
+        console.error(e);
+        alert('❌ Error connecting team: ' + e.message);
+        connectBtn.disabled = false;
+        connectBtn.textContent = 'CONNECT TO TEAM';
+      }
+    }
+
+    // Locks the UI into "connected" mode: hides manual fields, fills team data, shows read-only preview
+    function finalizeTeamConnect(showToastMsg) {
+      document.getElementById('manualJoinFields').style.display = 'none';
+      document.getElementById('manualPlayerFieldsWrap').style.display = 'none';
+      const preview = document.getElementById('connectedPlayersPreview');
+      preview.style.display = 'block';
+      preview.innerHTML = `<div style="font-size:12px;color:#00ff88;font-weight:700;margin-bottom:4px;">🔗 Connected Team: ${connectedTeamData.teamName}</div>`;
+      if (showToastMsg) alert('✅ Team connected! Player details auto-filled from your team.');
+    }
+
     function updatePlayerFields() {
 
   let type = (currentMatchData.matchType || '').toUpperCase();
@@ -1828,11 +1998,25 @@ if (joined) {
     }
 
     window.openConfirmPopup = function() {
-      const team = document.getElementById('teamName').value.trim();
-      const phone = document.getElementById('whatsapp').value.trim();
-      if(!team || !phone) {
-        alert('Team Name aur WhatsApp bhar de');
-        return;
+      let team, phone;
+      if (isTeamConnectedFlag && connectedTeamData) {
+        // ADDED: team-connected flow — auto-fill from team data instead of manual inputs
+        team = connectedTeamData.teamName;
+        phone = connectedTeamData.whatsapp || '';
+        const uidInputs = document.querySelectorAll('.tc-uid-input');
+        let missing = false;
+        uidInputs.forEach(inp => { if (!inp.value.trim()) missing = true; });
+        if (missing) {
+          alert('⚠️ Please enter or verify the UID of every participating player.');
+          return;
+        }
+      } else {
+        team = document.getElementById('teamName').value.trim();
+        phone = document.getElementById('whatsapp').value.trim();
+        if(!team || !phone) {
+          alert('Team Name aur WhatsApp bhar de');
+          return;
+        }
       }
       formData = { team, phone };
       const amountText = currentPayment === 'inr' 
@@ -1861,6 +2045,9 @@ if (joined) {
 
   // Reset current match
   currentMatchData = null;
+
+  // ADDED: reset team-connect state
+  resetTeamConnectState();
 }
     
     async function alreadyJoined(matchId) {
@@ -1881,52 +2068,105 @@ if (joined) {
       submitBtn.disabled = true;
       submitBtn.innerText = "Processing...";
 
+      // ADDED: build player list + team-meta once, before the transaction (used for both flows)
+      const usingTeamConnect = isTeamConnectedFlag && !!connectedTeamData;
+      let teamSlotRef = null;
+      if (usingTeamConnect) {
+        teamSlotRef = doc(db, "battle_team_slots", currentMatchData.id + '_' + connectedTeamData.id);
+      }
+
+      // Referral code is read from the DOM (not Firestore) so it's safe to grab up-front
+      const referral = (currentPayment === 'inr') ? document.getElementById('referralCode').value.trim() : '';
+      const referrerRef = referral ? doc(db, "users", referral) : null;
+      const matchRef = doc(db, "matches", currentMatchData.id);
+
       try {
         const userRef = doc(db, "users", currentUser.uid);
         await runTransaction(db, async (transaction) => {
+          // ===== CHANGED: ALL Firestore reads happen first (Firestore requires reads before writes in a transaction) =====
           const userDoc = await transaction.get(userRef);
           if (!userDoc.exists()) throw new Error("User data not found!");
           const userData = userDoc.data();
 
-if (currentPayment === 'p4x') {
+          let slotSnap = null;
+          if (usingTeamConnect) {
+            slotSnap = await transaction.get(teamSlotRef); // ADDED: duplicate-team check read
+          }
+
+          let referrerDoc = null;
+          if (referrerRef) {
+            referrerDoc = await transaction.get(referrerRef);
+          }
+
+          const freshMatchDoc = await transaction.get(matchRef); // MOVED UP (was read after writes before — latent bug)
+
+          // ===== VALIDATION (no Firestore reads below this point) =====
+          if (usingTeamConnect && slotSnap && slotSnap.exists()) {
+            throw new Error("This team is already connected to this battle.");
+          }
+
+          if (currentPayment === 'p4x') {
             const currentCoins = userData.p4x_coins || 0;
             if (currentCoins < currentMatchData.entryFeeP4X) {
               throw new Error(`Not enough P4X Coins! Required: ${currentMatchData.entryFeeP4X}`);
             }
-            transaction.update(userRef, { p4x_coins: currentCoins - currentMatchData.entryFeeP4X });
           } else {
             const currentWallet = userData.wallet || 0;
             if (currentWallet < currentMatchData.entryFeeINR) {
               throw new Error(`Not enough wallet balance! Required: ₹${currentMatchData.entryFeeINR}`);
             }
-            transaction.update(userRef, { wallet: currentWallet - currentMatchData.entryFeeINR });
+          }
 
-            // Referral bonus 10% for INR payment
-            const referral = document.getElementById('referralCode').value.trim();
-            if (referral) {
+          // ===== WRITES (all reads are done) =====
+          if (currentPayment === 'p4x') {
+            transaction.update(userRef, { p4x_coins: (userData.p4x_coins || 0) - currentMatchData.entryFeeP4X });
+          } else {
+            transaction.update(userRef, { wallet: (userData.wallet || 0) - currentMatchData.entryFeeINR });
+            if (referrerDoc && referrerDoc.exists()) {
               const referrerBonus = currentMatchData.entryFeeINR * 0.10;
-              const referrerRef = doc(db, "users", referral);
-              const referrerDoc = await transaction.get(referrerRef);
-              if (referrerDoc.exists()) {
-                transaction.update(referrerRef, {
-                  wallet: (referrerDoc.data().wallet || 0) + referrerBonus
-                });
-              }
+              transaction.update(referrerRef, {
+                wallet: (referrerDoc.data().wallet || 0) + referrerBonus
+              });
             }
           }
 
           // Collect player data
-          let count = currentMatchData.matchType === 'SQUAD'? 4 : currentMatchData.matchType === 'DUO'? 2 : 1;
+          // CHANGED: branch between Connect-to-Team (auto) and manual entry (fallback)
           let players = [];
-          for(let i = 1; i <= count; i++) {
-            let name = document.getElementById(`player${i}`).value.trim();
-            let uid = document.getElementById(`uid${i}`).value.trim();
-            if(!name ||!uid) throw new Error(`Player ${i} details missing`);
-            players.push({name, uid});
+          let teamMeta = {};
+          if (usingTeamConnect) {
+            const uidInputs = document.querySelectorAll('.tc-uid-input');
+            const uidMap = {};
+            uidInputs.forEach(inp => { uidMap[inp.dataset.uid] = inp.value.trim(); });
+            players = connectedTeamData.players.map(p => ({
+              name: p.name,
+              uid: uidMap[p.userUid] || p.uid || '',
+              role: p.role || 'Default',
+              isExtra: !!p.isExtra
+            }));
+            if (players.some(p => !p.uid)) throw new Error('Please enter or verify the UID of every participating player.');
+            teamMeta = {
+              teamId: connectedTeamData.id,
+              teamLogo: connectedTeamData.teamLogo || '',
+              teamColor: connectedTeamData.teamColor || '#00d4ff',
+              verificationStatus: !!connectedTeamData.verificationStatus,
+              isTeamConnected: true
+            };
+          } else {
+            let count = currentMatchData.matchType === 'SQUAD'? 4 : currentMatchData.matchType === 'DUO'? 2 : 1;
+            for(let i = 1; i <= count; i++) {
+              let name = document.getElementById(`player${i}`).value.trim();
+              let uid = document.getElementById(`uid${i}`).value.trim();
+              if(!name ||!uid) throw new Error(`Player ${i} details missing`);
+              players.push({name, uid, isExtra: false});
+            }
+            // Fallback team = always Non-Verified until admin verifies (requirement #7)
+            teamMeta = { verificationStatus: false, isTeamConnected: false };
           }
 
           // Save entry to Firestore
-          await addDoc(collection(db, "battle_entries"), {
+          const entryRef = doc(db, "battle_entries", currentUser.uid + "_" + currentMatchData.id);
+          transaction.set(entryRef, {
             userId: currentUser.uid,
             userName: currentUser.displayName || userData.name || "Unknown",
             userEmail: currentUser.email,
@@ -1939,14 +2179,22 @@ if (currentPayment === 'p4x') {
             players: players,
             referralCode: currentPayment === 'inr'? document.getElementById('referralCode').value.trim() : null,
             status: "confirmed",
-            timestamp: serverTimestamp()
+            timestamp: serverTimestamp(),
+            ...teamMeta
           });
 
-          // Update match slots
-          const matchRef = doc(db, "matches", currentMatchData.id);
-          const freshMatchDoc = await transaction.get(matchRef);
+          // ADDED: lock this team to this battle so it can't be connected twice (requirement #18)
+          if (usingTeamConnect) {
+            transaction.set(teamSlotRef, {
+              matchId: currentMatchData.id,
+              teamId: connectedTeamData.id,
+              ownerUid: currentUser.uid,
+              createdAt: serverTimestamp()
+            });
+          }
 
-const freshSlots = freshMatchDoc.data().currentSlots || 0;
+          // Update match slots (CHANGED: reuse freshMatchDoc read earlier, no read-after-write)
+          const freshSlots = freshMatchDoc.data().currentSlots || 0;
 
 transaction.update(matchRef, {
   currentSlots: freshSlots + 1
@@ -1954,8 +2202,12 @@ transaction.update(matchRef, {
         });
 
         // Success - Update UI to show View Slot button
-        updateCardToViewSlot(currentMatchData.id);
-        alert("✅ Slot Booked Successfully!");
+        const joinedMatchId = currentMatchData.id; // ADDED: capture before it gets reset
+        updateCardToViewSlot(joinedMatchId);
+        showJoinSuccessToast(); // ADDED: green bottom notification (requirement #16)
+        setTimeout(() => {
+          window.location.href = 'battle-room.html?battleId=' + joinedMatchId; // ADDED: redirect to tournament room
+        }, 1400);
 
       } catch (error) {
         console.error("Error:", error);
@@ -1966,6 +2218,18 @@ transaction.update(matchRef, {
          ? `PAY ₹${currentMatchData.entryFeeINR} & JOIN`
           : `PAY ${currentMatchData.entryFeeP4X} P4X Coins & JOIN`;
       }
+    }
+
+    // ADDED: green bottom success toast (requirement #16)
+    function showJoinSuccessToast() {
+      const existing = document.getElementById('joinSuccessToast');
+      if (existing) existing.remove();
+      const el = document.createElement('div');
+      el.id = 'joinSuccessToast';
+      el.style.cssText = 'position:fixed;bottom:75px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00ff88,#00cc66);color:#000;padding:14px 22px;border-radius:12px;font-weight:900;font-size:14px;z-index:99999;box-shadow:0 8px 30px rgba(0,255,136,0.5);text-align:center;';
+      el.innerHTML = '🎉 Congratulations!<br><span style="font-weight:700;font-size:12px;">You have successfully joined the slot.</span>';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
     }
 
     function updateCardToViewSlot(matchId) {
